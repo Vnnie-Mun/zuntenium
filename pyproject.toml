@@ -1,0 +1,135 @@
+[build-system]
+requires = ["setuptools>=68", "wheel", "pybind11>=2.11"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zuntenium"
+dynamic = ["version"]
+description = "AI-Native Hybrid Quantum Simulation Framework"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+    { name = "ZUNTENIUM Project", email = "dev@zuntenium.io" },
+]
+keywords = [
+    "quantum computing",
+    "quantum simulation",
+    "hybrid quantum classical",
+    "variational quantum eigensolver",
+    "QAOA",
+    "transpiler",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "typing-extensions>=4.8",
+    "dataclasses-json>=0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-benchmark>=4.0",
+    "ruff>=0.1",
+    "mypy>=1.7",
+    "pybind11>=2.11",
+    "cmake>=3.27",
+    "pre-commit>=3.5",
+    "hypothesis>=6.90",
+    "pytest-asyncio>=0.23",
+]
+ai = [
+    "scikit-learn>=1.3",
+    "torch>=2.1",
+]
+viz = [
+    "matplotlib>=3.7",
+    "ipython>=8.17",
+]
+hardware = [
+    "qiskit-ibm-runtime>=0.15",
+    "ionq-cirq>=0.4",
+    "amazon-braket-sdk>=1.80",
+    "boto3>=1.34",
+    "aiohttp>=3.9",
+    "qcs-sdk-python>=0.27",
+]
+gpu = [
+    "cupy-cuda12x>=12.0",
+]
+cloud = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "pydantic>=2.0",
+    "sqlalchemy>=2.0",
+    "redis>=5.0",
+    "rq>=1.15",
+]
+all = [
+    "zuntenium[dev,ai,viz,hardware,gpu,cloud]",
+]
+
+[project.urls]
+Homepage = "https://zuntenium.io"
+Documentation = "https://docs.zuntenium.io"
+Repository = "https://github.com/zuntenium/zuntenium"
+"Bug Tracker" = "https://github.com/zuntenium/zuntenium/issues"
+Changelog = "https://github.com/zuntenium/zuntenium/blob/main/CHANGELOG.md"
+
+[project.scripts]
+zuntenium = "zuntenium.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "zuntenium.version.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["zuntenium*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["bindings_core/", ".venv/", "build/"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "C4", "SIM"]
+ignore = ["ANN401"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+exclude = ["bindings_core/", ".venv/", "build/"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=zuntenium --cov-report=term-missing -v"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "hardware: marks tests requiring real hardware",
+    "benchmark: marks benchmark tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["zuntenium"]
+omit = ["zuntenium/bindings/*", "*/tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80

@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS variables matching Tailwind tokens for direct usage ── */
+:root {
+  --bg-base:    #040C1A;
+  --bg-surface: #07101F;
+  --bg-card:    #0C1829;
+  --bg-hover:   #101F35;
+  --bg-active:  #14253F;
+
+  --border:     #162440;
+  --border-hi:  #1D3058;
+
+  --primary:    #0084FF;
+  --primary-dim: rgba(0,132,255,0.15);
+  --cyan:       #00D4B8;
+  --cyan-dim:   rgba(0,212,184,0.15);
+
+  --success:    #2ECC71;
+  --warning:    #F5A623;
+  --danger:     #FF4757;
+
+  --t1: #E8F0FF;
+  --t2: #8DA4C8;
+  --t3: #4A6080;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-base);
+  color: var(--t1);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+#__next, main { height: 100%; }
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-hi);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: #2A4070; }
+
+/* ── Selection ── */
+::selection { background: rgba(0,132,255,0.3); color: #fff; }
+
+/* ── Focus ── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Utilities ── */
+@layer utilities {
+  .font-mono { font-family: 'IBM Plex Mono', monospace; }
+  .bg-grid {
+    background-image: var(--tw-gradient-stops,
+      linear-gradient(rgba(22,36,64,0.4) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(22,36,64,0.4) 1px, transparent 1px));
+    background-size: 40px 40px;
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .glow-primary { box-shadow: 0 0 20px rgba(0,132,255,0.35); }
+  .glow-cyan    { box-shadow: 0 0 20px rgba(0,212,184,0.35); }
+  .glow-sm      { box-shadow: 0 0 8px rgba(0,132,255,0.4); }
+  .no-select    { user-select: none; }
+  .cursor-grab  { cursor: grab; }
+  .cursor-grab:active { cursor: grabbing; }
+}
+
+/* ── Component base styles ── */
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-2 px-3 h-8 rounded text-xs font-medium
+           border border-[var(--border)] bg-[var(--bg-card)] text-[var(--t1)]
+           transition-all duration-150 cursor-pointer select-none;
+  }
+  .btn:hover { @apply bg-[var(--bg-hover)] border-[var(--border-hi)]; }
+  .btn:active { @apply bg-[var(--bg-active)] scale-95; }
+  .btn-primary {
+    @apply bg-primary-DEFAULT border-primary-DEFAULT text-white;
+  }
+  .btn-primary:hover { @apply bg-[#006ACC] border-[#006ACC]; }
+  .btn-danger {
+    @apply border-[rgba(255,71,87,0.4)] text-danger;
+  }
+  .btn-danger:hover { @apply bg-[rgba(255,71,87,0.1)]; }
+
+  .input-base {
+    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded
+           px-2 h-8 text-xs font-mono text-[var(--t1)]
+           outline-none transition-colors duration-150;
+  }
+  .input-base:focus { @apply border-primary-DEFAULT; }
+  .input-base::placeholder { @apply text-[var(--t3)]; }
+
+  .card {
+    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-lg;
+  }
+  .panel {
+    @apply bg-[var(--bg-surface)] border-[var(--border)];
+  }
+
+  .section-label {
+    @apply text-[10px] font-semibold tracking-widest uppercase text-[var(--t3)];
+  }
+
+  .tag {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded text-[9px]
+           font-mono font-semibold tracking-wide;
+  }
+  .tag-ai     { @apply bg-[rgba(168,85,247,0.15)] text-purple; }
+  .tag-mhos   { @apply bg-cyan-dim text-cyan-DEFAULT; }
+  .tag-ok     { @apply bg-[rgba(46,204,113,0.15)] text-success; }
+  .tag-warn   { @apply bg-[rgba(245,166,35,0.15)] text-warning; }
+  .tag-err    { @apply bg-[rgba(255,71,87,0.15)] text-danger; }
+}

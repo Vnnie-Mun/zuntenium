@@ -1,0 +1,35 @@
+FROM python:3.11-slim AS builder
+
+RUN apt-get update && apt-get install -y \
+    build-essential cmake libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+COPY pyproject.toml setup.cfg ./
+COPY zuntenium/ zuntenium/
+COPY bindings_core/ bindings_core/
+COPY scripts/ scripts/
+
+RUN pip install --upgrade pip build pybind11
+RUN bash scripts/build_bindings.sh
+RUN python -m build --wheel
+
+# ── Production image ────────────────────────────────────────────────────────
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y \
+    libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /build/dist/*.whl /tmp/
+RUN pip install --upgrade pip && pip install /tmp/*.whl && rm /tmp/*.whl
+
+ENV ZUNTENIUM_BACKEND=auto
+ENV PYTHONUNBUFFERED=1
+
+RUN useradd -m -u 1000 zuntenium
+USER zuntenium
+
+ENTRYPOINT ["python", "-m", "zuntenium"]

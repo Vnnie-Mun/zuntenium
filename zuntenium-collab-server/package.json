@@ -1,0 +1,11 @@
+{
+  "name": "zuntenium-collab-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node collab-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

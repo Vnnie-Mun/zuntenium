@@ -1,0 +1,30 @@
+# Dockerfile.worker — Zuntenium Cloud execution worker
+FROM python:3.11-slim
+
+LABEL description="RQ execution worker — runs Zuntenium quantum pipelines"
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY zuntenium_cloud/requirements.txt requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+COPY zuntenium_cloud/ ./zuntenium_cloud/
+COPY zuntenium/       ./zuntenium/
+
+RUN addgroup --system zuntenium && adduser --system --group zuntenium
+USER zuntenium
+
+# Graceful shutdown: SIGTERM → finish current job → exit
+STOPSIGNAL SIGTERM
+
+# Default command (overridden in docker-compose per queue)
+CMD ["python", "-m", "rq", "worker", "default", \
+     "--with-scheduler", "--sentry-dsn", ""]

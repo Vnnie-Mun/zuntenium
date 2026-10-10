@@ -1,0 +1,53 @@
+{
+  "name": "zuntenium-ui",
+  "version": "5.0.0",
+  "description": "Zuntenium Visual Tools Platform — Quantum IDE Frontend",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "test": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "next": "15.5.9",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "zustand": "^4.5.2",
+    "@tanstack/react-query": "^5.51.1",
+    "recharts": "^2.12.7",
+    "lucide-react": "^0.400.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.4.0",
+    "framer-motion": "^11.3.8",
+    "@radix-ui/react-tooltip": "^1.1.2",
+    "@radix-ui/react-slider": "^1.2.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-switch": "^1.1.0",
+    "@radix-ui/react-popover": "^1.1.1",
+    "class-variance-authority": "^0.7.0",
+    "d3": "^7.9.0",
+    "immer": "^10.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/d3": "^7.4.3",
+    "@types/node": "^20.14.11",
+    "tailwindcss": "^3.4.6",
+    "postcss": "^8.4.39",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "15.0.0",
+    "prettier": "^3.3.3",
+    "vitest": "^2.0.3",
+    "@playwright/test": "^1.51.1"
+  }
+}

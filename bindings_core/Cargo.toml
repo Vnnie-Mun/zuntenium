@@ -1,0 +1,32 @@
+# Cargo.toml — ZUNTENIUM Rust core (v0.2 stub)
+#
+# Will implement a high-performance statevector simulator via PyO3.
+# Currently a placeholder to reserve the Rust workspace structure.
+
+[package]
+name = "zuntenium-core"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance quantum simulation core for ZUNTENIUM"
+license = "Apache-2.0"
+authors = ["ZUNTENIUM Project <dev@zuntenium.io>"]
+
+[lib]
+name = "zuntenium_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+# PyO3 for Python bindings (v0.2+)
+# pyo3 = { version = "0.20", features = ["extension-module"] }
+# rayon = "1.8"   # parallel simulation
+# ndarray = "0.15"
+# num-complex = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+
+[profile.dev]
+opt-level = 0
+debug = true

@@ -1,0 +1,188 @@
+# docker-compose.yml — Zuntenium Cloud local development stack
+#
+# Services:
+#   api         — FastAPI server (port 8000)
+#   worker-high — RQ worker for high-priority jobs
+#   worker-std  — RQ worker for default-priority jobs
+#   worker-low  — RQ worker for low-priority / batch jobs
+#   worker-hw   — RQ worker for hardware (IBM) jobs
+#   postgres    — PostgreSQL 15
+#   redis       — Redis 7 (queue + cache)
+#   prometheus  — Metrics collection
+#   grafana     — Metrics dashboard (port 3000)
+#   rq-dashboard — RQ job monitor (port 9181)
+
+version: "3.9"
+
+x-worker-common: &worker-common
+  build:
+    context: ..
+    dockerfile: zuntenium_cloud/Dockerfile.worker
+  environment: &worker-env
+    ZUNTENIUM_DATABASE_URL: postgresql+asyncpg://zuntenium:zuntenium@postgres:5432/zuntenium
+    ZUNTENIUM_REDIS_URL:    redis://redis:6379/0
+    ZUNTENIUM_JWT_SECRET:   ${ZUNTENIUM_JWT_SECRET:-dev-secret-change-in-prod}
+    ZUNTENIUM_IBM_TOKEN:    ${ZUNTENIUM_IBM_TOKEN:-}
+    ZUNTENIUM_IBM_INSTANCE: ${ZUNTENIUM_IBM_INSTANCE:-}
+    ZUNTENIUM_IONQ_API_KEY: ${ZUNTENIUM_IONQ_API_KEY:-}
+    ZUNTENIUM_AWS_ACCESS_KEY_ID: ${ZUNTENIUM_AWS_ACCESS_KEY_ID:-}
+    ZUNTENIUM_AWS_SECRET:   ${ZUNTENIUM_AWS_SECRET:-}
+    ZUNTENIUM_AWS_S3_BUCKET: ${ZUNTENIUM_AWS_S3_BUCKET:-}
+    ZUNTENIUM_RIGETTI_USER_ID: ${ZUNTENIUM_RIGETTI_USER_ID:-}
+    PYTHONUNBUFFERED:       "1"
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+  networks:
+    - zuntenium-net
+
+services:
+  # ── API ──────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ..
+      dockerfile: zuntenium_cloud/Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *worker-env
+      ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuntenium-net
+    labels:
+      - "prometheus.scrape=true"
+      - "prometheus.port=8000"
+      - "prometheus.path=/metrics"
+
+  # ── Workers ───────────────────────────────────────────────────────────────
+  worker-high:
+    <<: *worker-common
+    command: ["python", "-m", "rq", "worker", "high", "--with-scheduler"]
+    environment:
+      <<: *worker-env
+      ZUNTENIUM_WORKER_ID: worker-high-1
+    deploy:
+      replicas: 2   # 2 workers for high-priority queue
+
+  worker-std:
+    <<: *worker-common
+    command: ["python", "-m", "rq", "worker", "default", "--with-scheduler"]
+    environment:
+      <<: *worker-env
+      ZUNTENIUM_WORKER_ID: worker-std-1
+    deploy:
+      replicas: 4   # 4 workers for default queue
+
+  worker-low:
+    <<: *worker-common
+    command: ["python", "-m", "rq", "worker", "low", "--burst-mode"]
+    environment:
+      <<: *worker-env
+      ZUNTENIUM_WORKER_ID: worker-low-1
+
+  worker-hw:
+    <<: *worker-common
+    command: ["python", "-m", "rq", "worker", "hardware", "--with-scheduler"]
+    environment:
+      <<: *worker-env
+      ZUNTENIUM_WORKER_ID: worker-hw-1
+
+  # ── Database ───────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB:       zuntenium
+      POSTGRES_USER:     zuntenium
+      POSTGRES_PASSWORD: zuntenium
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zuntenium"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zuntenium-net
+    ports:
+      - "5432:5432"
+
+  # ── Redis ──────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - zuntenium-net
+    ports:
+      - "6379:6379"
+
+  # ── Observability ─────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    networks:
+      - zuntenium-net
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./infra/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - zuntenium-net
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  rq-dashboard:
+    image: eoranged/rq-dashboard:latest
+    environment:
+      RQ_DASHBOARD_REDIS_URL: redis://redis:6379/0
+    networks:
+      - zuntenium-net
+    ports:
+      - "9181:9181"
+    depends_on:
+      - redis
+
+volumes:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  zuntenium-net:
+    driver: bridge

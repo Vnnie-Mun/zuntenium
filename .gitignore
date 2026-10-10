@@ -1,0 +1,25 @@
+# Dependencies & environments
+node_modules/
+.venv/
+env/
+venv/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Frontend builds & caches
+.next/
+*.tsbuildinfo
+
+# Secrets & environment
+.env
+!.env.example

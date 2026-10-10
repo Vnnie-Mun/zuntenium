@@ -1,0 +1,384 @@
+# k8s/zuntenium-cloud.yaml
+# Complete Kubernetes deployment for Zuntenium Cloud Platform
+# Apply: kubectl apply -f k8s/zuntenium-cloud.yaml
+#
+# Includes:
+#   Namespace, ConfigMap, Secrets (placeholders)
+#   Deployments: api, worker-high, worker-std, worker-low, worker-hw
+#   Services: api (ClusterIP + external), postgres, redis
+#   HorizontalPodAutoscaler for api and worker-std
+#   Ingress with TLS
+#   PersistentVolumeClaims for postgres and redis
+#   PodDisruptionBudgets for zero-downtime deployments
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zuntenium
+  labels:
+    app.kubernetes.io/name: zuntenium-cloud
+    app.kubernetes.io/version: "4.0.0"
+
+---
+# ── ConfigMap ────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zuntenium-config
+  namespace: zuntenium
+data:
+  ZUNTENIUM_DATABASE_URL: "postgresql+asyncpg://zuntenium:$(POSTGRES_PASSWORD)@postgres-svc:5432/zuntenium"
+  ZUNTENIUM_REDIS_URL:    "redis://redis-svc:6379/0"
+  ALLOWED_ORIGINS:        "https://app.zuntenium.io,https://api.zuntenium.io"
+  PYTHONUNBUFFERED:       "1"
+  LOG_LEVEL:              "INFO"
+
+---
+# ── Secrets (use ExternalSecrets / Vault in real prod) ───────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zuntenium-secrets
+  namespace: zuntenium
+type: Opaque
+stringData:
+  ZUNTENIUM_JWT_SECRET: "REPLACE_WITH_STRONG_SECRET_IN_PROD"
+  POSTGRES_PASSWORD:    "REPLACE_WITH_DB_PASSWORD"
+  ZUNTENIUM_IBM_TOKEN:  ""   # optional
+  ZUNTENIUM_IBM_INSTANCE: ""
+  ZUNTENIUM_IONQ_API_KEY: ""
+  ZUNTENIUM_AWS_ACCESS_KEY_ID: ""
+  ZUNTENIUM_AWS_SECRET: ""
+  ZUNTENIUM_AWS_S3_BUCKET: ""
+  ZUNTENIUM_RIGETTI_USER_ID: ""
+
+---
+# ── PostgreSQL StatefulSet ────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: zuntenium
+spec:
+  serviceName: postgres-svc
+  replicas: 1
+  selector:
+    matchLabels: {app: postgres}
+  template:
+    metadata:
+      labels: {app: postgres}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - {name: POSTGRES_DB,       value: zuntenium}
+            - {name: POSTGRES_USER,     value: zuntenium}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: zuntenium-secrets, key: POSTGRES_PASSWORD}
+          ports:
+            - {containerPort: 5432}
+          volumeMounts:
+            - {name: postgres-pvc, mountPath: /var/lib/postgresql/data}
+          resources:
+            requests: {cpu: "500m", memory: "1Gi"}
+            limits:   {cpu: "2",    memory: "4Gi"}
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "zuntenium"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata: {name: postgres-pvc}
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests: {storage: 50Gi}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-svc
+  namespace: zuntenium
+spec:
+  selector: {app: postgres}
+  ports:
+    - {port: 5432, targetPort: 5432}
+  clusterIP: None   # headless for StatefulSet
+
+---
+# ── Redis StatefulSet ─────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: zuntenium
+spec:
+  serviceName: redis-svc
+  replicas: 1
+  selector:
+    matchLabels: {app: redis}
+  template:
+    metadata:
+      labels: {app: redis}
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command: ["redis-server", "--appendonly", "yes",
+                    "--maxmemory", "2gb", "--maxmemory-policy", "allkeys-lru"]
+          ports:
+            - {containerPort: 6379}
+          volumeMounts:
+            - {name: redis-pvc, mountPath: /data}
+          resources:
+            requests: {cpu: "250m", memory: "512Mi"}
+            limits:   {cpu: "1",    memory: "2Gi"}
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata: {name: redis-pvc}
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests: {storage: 10Gi}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: zuntenium
+spec:
+  selector: {app: redis}
+  ports:
+    - {port: 6379, targetPort: 6379}
+  clusterIP: None
+
+---
+# ── API Deployment ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: zuntenium
+  labels:
+    app: api
+    version: "4.0.0"
+spec:
+  replicas: 3
+  selector:
+    matchLabels: {app: api}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  template:
+    metadata:
+      labels: {app: api, version: "4.0.0"}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port:   "8000"
+        prometheus.io/path:   "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: api
+          image: zuntenium/cloud-api:4.0.0
+          imagePullPolicy: Always
+          ports:
+            - {containerPort: 8000, name: http}
+          envFrom:
+            - configMapRef:  {name: zuntenium-config}
+            - secretRef:     {name: zuntenium-secrets}
+          env:
+            - name: ZUNTENIUM_WORKER_ID
+              valueFrom:
+                fieldRef: {fieldPath: metadata.name}
+          resources:
+            requests: {cpu: "500m", memory: "512Mi"}
+            limits:   {cpu: "2",    memory: "2Gi"}
+          readinessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 5
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]   # allow LB to drain connections
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-svc
+  namespace: zuntenium
+spec:
+  selector: {app: api}
+  ports:
+    - {name: http, port: 80, targetPort: 8000}
+  type: ClusterIP
+
+---
+# ── HPA for API ───────────────────────────────────────────────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-hpa
+  namespace: zuntenium
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# ── Worker Deployments ────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-high
+  namespace: zuntenium
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: worker-high}
+  template:
+    metadata:
+      labels: {app: worker-high}
+    spec:
+      terminationGracePeriodSeconds: 600   # finish current job
+      containers:
+        - name: worker
+          image: zuntenium/cloud-worker:4.0.0
+          command: ["python", "-m", "rq", "worker", "high", "--with-scheduler"]
+          envFrom:
+            - configMapRef: {name: zuntenium-config}
+            - secretRef:    {name: zuntenium-secrets}
+          env:
+            - name: ZUNTENIUM_WORKER_ID
+              valueFrom:
+                fieldRef: {fieldPath: metadata.name}
+          resources:
+            requests: {cpu: "1",    memory: "2Gi"}
+            limits:   {cpu: "4",    memory: "8Gi"}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-std
+  namespace: zuntenium
+spec:
+  replicas: 4
+  selector:
+    matchLabels: {app: worker-std}
+  template:
+    metadata:
+      labels: {app: worker-std}
+    spec:
+      terminationGracePeriodSeconds: 600
+      containers:
+        - name: worker
+          image: zuntenium/cloud-worker:4.0.0
+          command: ["python", "-m", "rq", "worker", "default", "--with-scheduler"]
+          envFrom:
+            - configMapRef: {name: zuntenium-config}
+            - secretRef:    {name: zuntenium-secrets}
+          env:
+            - name: ZUNTENIUM_WORKER_ID
+              valueFrom:
+                fieldRef: {fieldPath: metadata.name}
+          resources:
+            requests: {cpu: "1",    memory: "2Gi"}
+            limits:   {cpu: "4",    memory: "8Gi"}
+
+---
+# ── HPA for standard workers (scale on queue depth via KEDA or CPU) ───────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: worker-std-hpa
+  namespace: zuntenium
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: worker-std
+  minReplicas: 2
+  maxReplicas: 50
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+
+---
+# ── PodDisruptionBudget — zero downtime rolling updates ───────────────────────
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-pdb
+  namespace: zuntenium
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels: {app: api}
+
+---
+# ── Ingress with TLS ──────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: zuntenium-ingress
+  namespace: zuntenium
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  tls:
+    - hosts: ["api.zuntenium.io"]
+      secretName: zuntenium-tls
+  rules:
+    - host: api.zuntenium.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-svc
+                port: {number: 80}

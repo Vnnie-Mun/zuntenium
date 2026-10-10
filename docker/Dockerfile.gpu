@@ -1,0 +1,44 @@
+# ZUNTENIUM GPU Extension — Future CUDA Support
+# Requires NVIDIA Container Toolkit
+# Usage: docker build -f docker/Dockerfile.gpu -t zuntenium:gpu .
+
+FROM nvidia/cuda:12.2.0-devel-ubuntu22.04 AS builder
+
+RUN apt-get update && apt-get install -y \
+    python3.11 python3.11-dev python3-pip \
+    build-essential cmake libopenblas-dev git \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+
+WORKDIR /build
+COPY pyproject.toml setup.cfg ./
+COPY zuntenium/ zuntenium/
+COPY bindings_core/ bindings_core/
+COPY scripts/ scripts/
+
+RUN pip install --upgrade pip pybind11 cupy-cuda122 || pip install --upgrade pip pybind11
+
+ENV ZUNTENIUM_CUDA_ENABLED=1
+RUN bash scripts/build_bindings.sh --cuda || bash scripts/build_bindings.sh
+
+RUN python3 -m pip install build && python3 -m build --wheel
+
+# ── GPU runtime ─────────────────────────────────────────────────────────────
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04
+
+RUN apt-get update && apt-get install -y \
+    python3.11 python3-pip libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=builder /build/dist/*.whl /tmp/
+RUN pip install /tmp/*.whl && rm /tmp/*.whl
+
+ENV ZUNTENIUM_BACKEND=cuda
+ENV PYTHONUNBUFFERED=1
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+ENTRYPOINT ["python3", "-m", "zuntenium"]

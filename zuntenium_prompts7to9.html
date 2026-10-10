@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Zuntenium — Prompts 7-9: Bloch Sphere · Entanglement · Pipeline · AI Insights</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --base:#040C1A;--surface:#07101F;--card:#0B1728;--hover:#0F1E35;
+  --b:#162440;--bhi:#1D3058;--b-glow:#1A3A6A;
+  --blue:#0084FF;--blue-d:rgba(0,132,255,.15);--blue-g:rgba(0,132,255,.3);
+  --cyan:#00D4B8;--cyan-d:rgba(0,212,184,.15);
+  --ok:#2ECC71;--warn:#F5A623;--err:#FF4757;--purple:#A855F7;
+  --t1:#EDF2FF;--t2:#8DA4C8;--t3:#4A6080;--t4:#2A3F60;
+  --r1:3px;--r2:6px;--r3:10px;
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--base);color:var(--t1)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bhi);border-radius:99px}
+
+/* Layout */
+.app{display:flex;flex-direction:column;height:100vh}
+.topbar{height:50px;flex-shrink:0;display:flex;align-items:center;gap:10px;
+  padding:0 14px;background:var(--surface);border-bottom:1px solid var(--b);
+  position:relative;z-index:100}
+.logo-m{width:28px;height:28px;border-radius:5px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;letter-spacing:-.5px;
+  box-shadow:0 0 14px rgba(0,132,255,.4)}
+.logo-txt{font-size:13px;font-weight:700;letter-spacing:.5px}
+.logo-sub{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:1px}
+.div{width:1px;height:22px;background:var(--b);flex-shrink:0}
+.tab{height:30px;padding:0 12px;border-radius:var(--r1);border:1px solid transparent;
+  background:transparent;color:var(--t2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .13s;font-family:'IBM Plex Sans',sans-serif}
+.tab:hover{background:var(--hover);color:var(--t1)}
+.tab.active{background:rgba(0,132,255,.12);border-color:rgba(0,132,255,.35);color:var(--blue)}
+.sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 12px;
+  border-radius:var(--r1);border:1px solid var(--b);background:var(--card);
+  color:var(--t1);font-size:11px;font-weight:500;cursor:pointer;
+  transition:all .13s;font-family:'IBM Plex Sans',sans-serif}
+.btn:hover{border-color:var(--bhi);background:var(--hover)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:#006ACC;border-color:#006ACC}
+.main{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+.sidebar{width:232px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--b);
+  display:flex;flex-direction:column;overflow:hidden}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:1.1px;color:var(--t3);
+  text-transform:uppercase;padding:10px 12px 6px}
+.gi{display:flex;align-items:center;gap:9px;padding:6px 12px;cursor:grab;
+  transition:background .1s;user-select:none}
+.gi:hover{background:var(--hover)}
+.gi:active{cursor:grabbing}
+.gchip{width:28px;height:25px;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.gname{font-size:11px;font-weight:500;line-height:1.2}
+.gdesc{font-size:9px;color:var(--t3);margin-top:1px}
+.search-wrap{padding:4px 10px 8px}
+.search{width:100%;height:28px;padding:0 10px;background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;outline:none;
+  transition:border-color .15s;font-family:'IBM Plex Sans',sans-serif}
+.search::placeholder{color:var(--t3)}.search:focus{border-color:var(--blue)}
+.gate-section{border-top:1px solid var(--b)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:10px;
+  margin-top:auto;border-top:1px solid var(--b)}
+.stat-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);
+  padding:7px 8px;text-align:center}
+.stat-val{font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1}
+.stat-lbl{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-top:2px}
+
+/* Canvas */
+.canvas-area{flex:1;position:relative;overflow:hidden;background:var(--base)}
+.grid-bg{position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(22,36,64,.35) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(22,36,64,.35) 1px,transparent 1px);
+  background-size:40px 40px}
+.radial-glow{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 40% at 50% -10%,rgba(0,132,255,.07) 0%,transparent 60%)}
+.canvas-scroll{position:absolute;inset:0;overflow:auto;padding:28px 20px 20px}
+.circ-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.circ-name{background:transparent;border:1px solid transparent;color:var(--t1);
+  font-size:17px;font-weight:600;padding:3px 7px;border-radius:var(--r1);
+  font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .15s}
+.circ-name:hover{border-color:var(--b)}.circ-name:focus{border-color:var(--blue);background:var(--card)}
+.circ-meta{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.val-bar{height:26px;padding:0 12px;display:flex;align-items:center;gap:8px;
+  border:1px solid var(--b);border-radius:var(--r1);font-size:10px;font-family:'IBM Plex Mono',monospace;
+  transition:all .2s}
+.val-bar.valid{border-color:rgba(46,204,113,.3);background:rgba(46,204,113,.06);color:var(--ok)}
+.val-bar.invalid{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.06);color:var(--err)}
+.val-bar.warn{border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06);color:var(--warn)}
+.val-bar.empty{border-color:var(--b);color:var(--t3)}
+.header-actions{margin-left:auto;display:flex;gap:6px;align-items:center}
+.btn-sm{height:26px;padding:0 9px;font-size:10px}
+.btn-danger{border-color:rgba(255,71,87,.35);color:var(--err)}
+.btn-danger:hover{background:rgba(255,71,87,.08)}
+.qrow{display:flex;align-items:center;height:60px;position:relative}
+.qlabel{width:40px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:11px;
+  color:var(--t2);text-align:right;padding-right:10px;user-select:none}
+.qlabel span{color:var(--blue);font-weight:600}
+.wtrack{flex:1;height:60px;position:relative;display:flex;align-items:center}
+.wire-line{position:absolute;left:0;right:0;top:50%;height:1.5px;background:var(--bhi);
+  transform:translateY(-50%);transition:background .15s;pointer-events:none}
+.wslots{display:flex;align-items:center;position:relative;z-index:1;min-height:60px}
+.wslot{width:52px;height:60px;display:flex;align-items:center;justify-content:center;
+  position:relative;flex-shrink:0;transition:background .1s}
+.wslot.dt{background:rgba(0,132,255,.07)}
+.gnode{width:38px;height:38px;border-radius:5px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;position:relative;z-index:2;
+  transition:transform .1s,box-shadow .1s;user-select:none}
+.gnode:hover{transform:scale(1.07)}
+.gnode .gl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:#fff;
+  letter-spacing:-.3px;line-height:1}
+.gnode .gp{font-size:7px;color:rgba(255,255,255,.7);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+.gerr{position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;
+  background:var(--err);color:#fff;font-size:7px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;z-index:20;cursor:help}
+.add-qb{width:36px;height:36px;border-radius:50%;border:1px dashed var(--b);background:transparent;
+  color:var(--t3);font-size:16px;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all .15s}
+.add-qb:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-d)}
+
+/* Right panel */
+.right-panel{width:360px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--b);
+  display:flex;flex-direction:column;overflow:hidden}
+.ptabs{display:flex;border-bottom:1px solid var(--b);flex-shrink:0}
+.ptab{flex:1;height:38px;border:none;background:transparent;font-size:10px;font-weight:700;
+  letter-spacing:.5px;color:var(--t3);cursor:pointer;text-transform:uppercase;
+  font-family:'IBM Plex Sans',sans-serif;transition:color .13s;position:relative}
+.ptab:hover{color:var(--t2)}.ptab.active{color:var(--blue)}
+.ptab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--blue)}
+.pcontent{flex:1;overflow-y:auto;padding:14px}
+
+/* Properties panel */
+.sel-hdr{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.sel-big{width:42px;height:42px;border-radius:7px;display:flex;align-items:center;
+  justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700}
+.sel-nm{font-size:14px;font-weight:600}.sel-ds{font-size:10px;color:var(--t3);margin-top:2px}
+.prop-lbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.9px;text-transform:uppercase;margin-bottom:7px}
+.prop-sec{margin-bottom:16px}
+.prop-row{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.prop-row label{font-size:11px;color:var(--t2);width:54px;flex-shrink:0}
+.pinput{flex:1;height:28px;padding:0 7px;background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;outline:none;
+  font-family:'IBM Plex Mono',monospace;transition:border-color .15s}
+.pinput:focus{border-color:var(--blue)}
+.pselect{flex:1;height:28px;padding:0 7px;background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;outline:none;
+  font-family:'IBM Plex Sans',sans-serif;cursor:pointer}
+
+/* Param block (Prompt 5) */
+.param-blk{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:11px;margin-top:10px}
+.param-blk .lbl{font-size:9px;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:9px}
+.slider-wrap{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.slider-wrap label{font-size:11px;color:var(--t2);width:16px;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+.slider{flex:1;accent-color:var(--blue);cursor:pointer;height:4px}
+.slider-val{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--cyan);width:44px;text-align:right}
+.preset-row{display:flex;gap:4px;flex-wrap:wrap}
+.preset{height:22px;padding:0 7px;border-radius:3px;border:1px solid var(--b);background:transparent;
+  color:var(--t2);font-size:9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .12s}
+.preset:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-d)}
+.preset.ap{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-d)}
+.live-prev{margin-top:9px;display:flex;align-items:center;justify-content:space-between;
+  padding:6px 9px;border-radius:var(--r1);background:var(--surface);border:1px solid var(--b)}
+.live-prev span:first-child{font-size:9px;color:var(--t3)}
+.live-val{font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:700}
+
+/* Prompt 6: Results & viz */
+.viz-tabs{display:flex;gap:2px;margin-bottom:12px}
+.vtab{flex:1;height:28px;border-radius:var(--r1);border:1px solid var(--b);background:transparent;
+  color:var(--t2);font-size:10px;font-weight:600;cursor:pointer;transition:all .13s;
+  font-family:'IBM Plex Sans',sans-serif}
+.vtab:hover{background:var(--hover);color:var(--t1)}
+.vtab.av{background:rgba(0,132,255,.12);border-color:rgba(0,132,255,.35);color:var(--blue)}
+.vtab:disabled{opacity:.3;cursor:not-allowed}
+.viz-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:12px;margin-bottom:10px}
+.viz-title{font-size:9px;font-weight:700;letter-spacing:.9px;color:var(--t3);text-transform:uppercase;
+  margin-bottom:11px;display:flex;align-items:center;justify-content:space-between}
+.met-card{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:10px 12px;margin-bottom:8px}
+.met-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.met-lbl{font-size:10px;color:var(--t3)}.met-val{font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.met-val.ok{color:var(--ok)}.met-val.cyan{color:var(--cyan)}.met-val.blue{color:var(--blue)}
+.met-val.purple{color:var(--purple)}
+.fid-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden;margin-top:4px}
+.fid-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:2px;transition:width .6s}
+.bar-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.bar-bs{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t2);width:34px;text-align:right}
+.bar-bg{flex:1;height:16px;background:var(--b);border-radius:2px;overflow:hidden;position:relative}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:2px;transition:width .5s}
+.bar-pct{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:32px;text-align:right}
+.sv-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.sv-bs{font-size:8px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:30px;text-align:right}
+
+/* Prompt 7: Bloch sphere */
+.bloch-wrap{display:flex;flex-direction:column;align-items:center;background:var(--card);
+  border:1px solid var(--b);border-radius:var(--r2);padding:12px 12px 8px;margin-bottom:10px}
+.bloch-title{font-size:9px;letter-spacing:.8px;color:var(--t3);text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:8px}
+.bloch-reset{font-size:8px;color:var(--t3);cursor:pointer;border:1px solid var(--b);
+  padding:2px 6px;border-radius:3px;transition:color .13s}
+.bloch-reset:hover{color:var(--blue);border-color:var(--blue)}
+.bloch-hint{font-size:8px;color:var(--t4);margin-top:4px}
+
+/* Prompt 7: Entanglement */
+.engl-tabs{display:flex;gap:2px;margin-bottom:8px}
+.engl-tab{flex:1;height:24px;border-radius:3px;border:1px solid var(--b);background:transparent;
+  color:var(--t2);font-size:9px;font-weight:600;cursor:pointer;transition:all .13s;
+  text-transform:capitalize}
+.engl-tab.av{background:var(--blue-d);border-color:rgba(0,132,255,.35);color:var(--blue)}
+
+/* Prompt 8: Pipeline */
+.pipe-wrap{margin-bottom:16px}
+.prog-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden;margin-bottom:12px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:2px;transition:width .4s}
+.pstep{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:var(--r1);
+  border:1px solid var(--b);background:var(--card);transition:all .2s;cursor:pointer;overflow:hidden}
+.pstep.active{border-color:var(--blue);background:rgba(0,132,255,.05)}
+.pstep.complete{border-color:rgba(46,204,113,.3)}
+.pstep.error{border-color:rgba(255,71,87,.3)}
+.pind{width:8px;height:8px;border-radius:50%;background:var(--b);flex-shrink:0;transition:all .3s}
+.pind.spin{border:2px solid var(--blue);border-top-color:transparent;background:transparent;
+  animation:spin .8s linear infinite;border-radius:50%;width:9px;height:9px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pind.ok{background:var(--ok)}.pind.err{background:var(--err)}
+.pinfo{flex:1;min-width:0}
+.pname{font-size:11px;font-weight:500}
+.pdet{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbadge{font-size:8px;font-family:'IBM Plex Mono',monospace;padding:2px 5px;border-radius:2px;flex-shrink:0;font-weight:600}
+.pbadge.ai{background:rgba(168,85,247,.18);color:var(--purple)}
+.pbadge.mhos{background:var(--cyan-d);color:var(--cyan)}
+.pbadge.ok{background:rgba(46,204,113,.15);color:var(--ok)}
+.pcaret{font-size:10px;color:var(--t3);transition:transform .2s;flex-shrink:0}
+.pconn{width:1px;height:7px;background:var(--b);margin-left:13px;transition:background .3s}
+.pconn.done{background:var(--ok)}
+.pexpand{padding:8px 10px 10px;font-size:9px;color:var(--t2);line-height:1.55;
+  border-top:1px solid rgba(255,255,255,.05)}
+
+/* Prompt 9: AI Insights */
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(168,85,247,.13);
+  border:1px solid rgba(168,85,247,.3);border-radius:var(--r1);padding:3px 9px;
+  font-size:10px;color:var(--purple);font-weight:600;margin-bottom:10px}
+.conf-ring{width:44px;height:44px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.conf-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.conf-val{font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--cyan);position:relative;z-index:1}
+.feat-row{display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.feat-nm{font-size:9px;color:var(--t2);width:82px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;
+  transition:color .13s;cursor:default}
+.feat-nm:hover{color:var(--t1)}
+.feat-bg{flex:1;height:4px;background:var(--b);border-radius:2px;overflow:hidden}
+.feat-fill{height:100%;border-radius:2px;transition:width .5s}
+.feat-v{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:32px;text-align:right}
+.reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.rcard{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:11px}
+.rcard .rlbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+.bc-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r2);
+  border:1px solid var(--b);background:var(--surface);margin-bottom:5px;transition:all .13s}
+.bc-row.chosen{border-color:rgba(0,132,255,.4);background:rgba(0,132,255,.05)}
+.bc-icon{width:28px;height:28px;border-radius:var(--r1);display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+.bc-info{flex:1;min-width:0}
+.bc-name{font-size:10px;font-weight:600;display:flex;align-items:center;gap:5px}
+.bc-meta{font-size:8px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+.bc-score{font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;text-align:right}
+.score-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden;width:52px;margin-top:3px}
+.score-fill{height:100%;border-radius:2px}
+.tag{display:inline-flex;align-items:center;padding:2px 5px;border-radius:2px;
+  font-size:8px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.tag-mhos{background:var(--cyan-d);color:var(--cyan)}
+.tag-ai{background:rgba(168,85,247,.18);color:var(--purple)}
+.tag-ok{background:rgba(46,204,113,.15);color:var(--ok)}
+
+/* Exec config */
+.cfg-row{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.cfg-row label{font-size:11px;color:var(--t2);width:72px;flex-shrink:0}
+.cfg-sel{flex:1;height:28px;padding:0 7px;background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;outline:none;font-family:'IBM Plex Sans',sans-serif;cursor:pointer}
+.cfg-sel:focus{border-color:var(--blue)}
+.tog-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.tog-row label{font-size:11px;color:var(--t2)}
+.tog{width:34px;height:19px;border-radius:10px;background:var(--b);border:none;cursor:pointer;
+  position:relative;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--blue)}
+.tog::after{content:'';position:absolute;width:13px;height:13px;background:#fff;border-radius:50%;
+  top:3px;left:3px;transition:left .2s}
+.tog.on::after{left:18px}
+
+/* Overlays */
+.overlay{display:none;position:fixed;inset:0;background:rgba(4,12,26,.94);
+  z-index:200;backdrop-filter:blur(6px);overflow-y:auto;padding:22px}
+.overlay.show{display:block}
+.ov-inner{max-width:700px;margin:0 auto}
+.ov-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.ov-title{font-size:18px;font-weight:700;margin-bottom:3px}
+.ov-sub{font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.ost-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.ost{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:12px;text-align:center}
+.ost-val{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1}
+.ost-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.jrow{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:var(--r1);
+  border:1px solid var(--b);background:var(--card);margin-bottom:5px;cursor:pointer;transition:all .1s}
+.jrow:hover{border-color:var(--bhi);background:var(--hover)}
+.jdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.jid{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:60px}
+.jname{font-size:11px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jbadge{font-size:8px;padding:2px 5px;border-radius:2px;font-weight:600;flex-shrink:0}
+.jbadge.completed{background:rgba(46,204,113,.14);color:var(--ok)}
+.jbadge.running{background:rgba(245,166,35,.14);color:var(--warn)}
+.jbadge.queued{background:var(--blue-d);color:var(--blue)}
+.jbadge.failed{background:rgba(255,71,87,.14);color:var(--err)}
+.jtime{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+.bcard{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:9px 11px;
+  margin-bottom:6px;display:flex;align-items:center;gap:9px;transition:all .13s;cursor:pointer}
+.bcard:hover{border-color:var(--bhi);background:var(--hover)}
+.bcard.sel{border-color:var(--blue);background:rgba(0,132,255,.05)}
+
+/* Toasts */
+.toast-con{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:7px}
+.toast{min-width:270px;padding:10px 14px;background:var(--card);border-radius:var(--r2);
+  border-left:3px solid var(--blue);box-shadow:0 4px 24px rgba(0,0,0,.7);
+  display:flex;align-items:flex-start;gap:8px;animation:slideIn .3s ease;font-size:11px}
+.toast.success{border-color:var(--ok)}.toast.error{border-color:var(--err)}.toast.warn{border-color:var(--warn)}
+@keyframes slideIn{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.toast-title{font-weight:600;margin-bottom:2px}.toast-body{color:var(--t2)}
+.footer{height:23px;flex-shrink:0;padding:0 12px;background:var(--surface);border-top:1px solid var(--b);
+  display:flex;align-items:center;gap:14px;font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3)}
+.footer .hl{color:var(--cyan)}.footer .sep{color:var(--b-glow)}
+.empty-st{display:flex;flex-direction:column;align-items:center;padding:28px 14px;text-align:center;color:var(--t3)}
+.empty-icon{font-size:26px;margin-bottom:8px;opacity:.45}
+.empty-txt{font-size:12px;margin-bottom:3px;color:var(--t2)}.empty-sub{font-size:10px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:9px;margin-right:6px">
+    <div class="logo-m">Zt</div>
+    <div><div class="logo-txt">ZUNTENIUM</div><div class="logo-sub">Visual Tools Platform v5 · Prompts 7–9</div></div>
+  </div>
+  <div class="div"></div>
+  <button class="tab active" onclick="showTab('composer',this)">Circuit Composer</button>
+  <button class="tab" onclick="showTab('jobs',this)">Job Dashboard</button>
+  <button class="tab" onclick="showTab('backends',this)">Hardware</button>
+  <button class="tab" onclick="showTab('ai',this)">AI Insights</button>
+  <div class="sp"></div>
+  <div style="display:flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:99px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--t2)">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 5px var(--ok);animation:pulse 2.5s infinite" class="dot"></span>
+    API Connected
+  </div>
+  <div id="run-pill" style="display:none;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:99px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--warn)">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--warn);animation:spin .8s linear infinite;border:2px solid var(--warn);border-top-color:transparent;background:transparent"></span>
+    Running…
+  </div>
+  <button class="btn" onclick="exportCircuit()">⬇ Export JSON</button>
+  <button class="btn primary" id="run-btn" onclick="runCircuit()">▶ Run Circuit</button>
+  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1D4ED8,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer">QE</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div><div class="sec-lbl">Gate Library</div></div>
+    <div class="search-wrap">
+      <input class="search" placeholder="Search gates…" id="g-search" oninput="filterGates(this.value)"/>
+    </div>
+    <div id="gate-palette" style="overflow-y:auto;flex:1">
+      <div class="gate-section">
+        <div class="sec-lbl" style="padding:7px 12px 4px">Single Qubit</div>
+        <div class="gi" draggable="true" data-g="H" ondragstart="dstart(event,'H')"><div class="gchip" style="background:rgba(0,132,255,.2);color:#60A5FA;border:1px solid rgba(0,132,255,.3)">H</div><div><div class="gname">Hadamard</div><div class="gdesc">Creates superposition |+⟩</div></div></div>
+        <div class="gi" draggable="true" data-g="X" ondragstart="dstart(event,'X')"><div class="gchip" style="background:rgba(255,71,87,.2);color:#FC8181;border:1px solid rgba(255,71,87,.3)">X</div><div><div class="gname">Pauli-X</div><div class="gdesc">Bit flip gate (NOT)</div></div></div>
+        <div class="gi" draggable="true" data-g="Y" ondragstart="dstart(event,'Y')"><div class="gchip" style="background:rgba(255,107,53,.2);color:#FBB06B;border:1px solid rgba(255,107,53,.3)">Y</div><div><div class="gname">Pauli-Y</div><div class="gdesc">Bit + phase flip</div></div></div>
+        <div class="gi" draggable="true" data-g="Z" ondragstart="dstart(event,'Z')"><div class="gchip" style="background:rgba(168,85,247,.2);color:#C084FC;border:1px solid rgba(168,85,247,.3)">Z</div><div><div class="gname">Pauli-Z</div><div class="gdesc">Phase flip</div></div></div>
+        <div class="gi" draggable="true" data-g="S" ondragstart="dstart(event,'S')"><div class="gchip" style="background:rgba(0,212,184,.2);color:#5EEAD4;border:1px solid rgba(0,212,184,.3)">S</div><div><div class="gname">S Gate</div><div class="gdesc">Phase π/2</div></div></div>
+        <div class="gi" draggable="true" data-g="T" ondragstart="dstart(event,'T')"><div class="gchip" style="background:rgba(245,166,35,.2);color:#FCD34D;border:1px solid rgba(245,166,35,.3)">T</div><div><div class="gname">T Gate</div><div class="gdesc">Phase π/4 (non-Clifford)</div></div></div>
+      </div>
+      <div class="gate-section">
+        <div class="sec-lbl" style="padding:7px 12px 4px">Parametric</div>
+        <div class="gi" draggable="true" data-g="RX" ondragstart="dstart(event,'RX')"><div class="gchip" style="background:rgba(233,30,140,.2);color:#F472B6;border:1px solid rgba(233,30,140,.3)">Rx</div><div><div class="gname">Rotation X</div><div class="gdesc">X-axis rotation by θ</div></div></div>
+        <div class="gi" draggable="true" data-g="RY" ondragstart="dstart(event,'RY')"><div class="gchip" style="background:rgba(255,107,53,.2);color:#FB923C;border:1px solid rgba(255,107,53,.3)">Ry</div><div><div class="gname">Rotation Y</div><div class="gdesc">Y-axis rotation by θ</div></div></div>
+        <div class="gi" draggable="true" data-g="RZ" ondragstart="dstart(event,'RZ')"><div class="gchip" style="background:rgba(124,58,237,.2);color:#A78BFA;border:1px solid rgba(124,58,237,.3)">Rz</div><div><div class="gname">Rotation Z</div><div class="gdesc">Z-axis rotation by θ</div></div></div>
+      </div>
+      <div class="gate-section">
+        <div class="sec-lbl" style="padding:7px 12px 4px">Two Qubit</div>
+        <div class="gi" draggable="true" data-g="CX" ondragstart="dstart(event,'CX')"><div class="gchip" style="background:rgba(0,132,255,.2);color:#60A5FA;border:1px solid rgba(0,132,255,.3)">CX</div><div><div class="gname">CNOT</div><div class="gdesc">Controlled-NOT entangler</div></div></div>
+        <div class="gi" draggable="true" data-g="CZ" ondragstart="dstart(event,'CZ')"><div class="gchip" style="background:rgba(0,212,184,.2);color:#5EEAD4;border:1px solid rgba(0,212,184,.3)">CZ</div><div><div class="gname">Ctrl-Z</div><div class="gdesc">Controlled phase flip</div></div></div>
+        <div class="gi" draggable="true" data-g="SWAP" ondragstart="dstart(event,'SWAP')"><div class="gchip" style="background:rgba(245,158,11,.2);color:#FCD34D;border:1px solid rgba(245,158,11,.3)">SW</div><div><div class="gname">SWAP</div><div class="gdesc">Exchanges two qubits</div></div></div>
+      </div>
+      <div class="gate-section">
+        <div class="sec-lbl" style="padding:7px 12px 4px">Multi-Qubit</div>
+        <div class="gi" draggable="true" data-g="CCX" ondragstart="dstart(event,'CCX')"><div class="gchip" style="background:rgba(16,185,129,.2);color:#6EE7B7;border:1px solid rgba(16,185,129,.3)">CCX</div><div><div class="gname">Toffoli</div><div class="gdesc">Universal 3-qubit CCNOT</div></div></div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" style="color:var(--blue)" id="s-qb">2</div><div class="stat-lbl">Qubits</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--cyan)" id="s-g">0</div><div class="stat-lbl">Gates</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--warn)" id="s-d">0</div><div class="stat-lbl">Depth</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--purple)" id="s-2q">0</div><div class="stat-lbl">2Q Gates</div></div>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div class="canvas-area" id="canvas-area">
+    <div class="grid-bg"></div>
+    <div class="radial-glow"></div>
+    <div class="canvas-scroll" id="canvas-scroll" ondragover="event.preventDefault()" ondrop="canvasDrop(event)">
+      <div class="circ-header">
+        <input class="circ-name" value="Bell State" id="circ-name"/>
+        <span class="circ-meta" id="circ-meta">n=2 · d=0 · g=0</span>
+        <div class="val-bar empty" id="val-bar"><span id="val-text">◎ Empty circuit</span></div>
+        <div class="header-actions">
+          <button class="btn btn-sm" onclick="addQubit()">+ Qubit</button>
+          <button class="btn btn-sm" id="undo-btn" onclick="undo()" disabled>↺ Undo</button>
+          <button class="btn btn-sm btn-danger" onclick="clearCircuit()">✕ Clear</button>
+        </div>
+      </div>
+      <div id="qubits-wrap"></div>
+    </div>
+    <svg id="conn-svg" style="position:absolute;inset:0;pointer-events:none;z-index:10;overflow:visible;width:100%;height:100%"></svg>
+  </div>
+
+  <!-- RIGHT PANEL (wider — 360px) -->
+  <div class="right-panel">
+    <div class="ptabs">
+      <button class="ptab active" id="pt-prop" onclick="showPanel('properties',this)">Properties</button>
+      <button class="ptab" id="pt-exec" onclick="showPanel('execution',this)">Execute</button>
+      <button class="ptab" id="pt-res" onclick="showPanel('results',this)">Results</button>
+    </div>
+
+    <!-- PROPERTIES -->
+    <div class="pcontent" id="p-properties">
+      <div class="empty-st" id="no-sel">
+        <div class="empty-icon">⊡</div>
+        <div class="empty-txt">No gate selected</div>
+        <div class="empty-sub">Click a gate on the canvas<br/>to inspect and edit its properties</div>
+      </div>
+      <div id="gate-props" style="display:none">
+        <div class="sel-hdr">
+          <div class="sel-big" id="sg-big"></div>
+          <div><div class="sel-nm" id="sg-name">—</div><div class="sel-ds" id="sg-desc">—</div></div>
+        </div>
+        <div class="prop-sec">
+          <div class="prop-lbl">Placement</div>
+          <div class="prop-row"><label>Qubit</label><select class="pselect" id="sg-qubit" onchange="updateGateQ(this.value)"></select></div>
+          <div class="prop-row" id="sg-t-row" style="display:none"><label>Target</label><select class="pselect" id="sg-target" onchange="updateGateT(this.value)"></select></div>
+        </div>
+        <div id="param-blk" class="param-blk" style="display:none">
+          <div class="lbl">Parameters</div>
+          <div class="slider-wrap">
+            <label id="param-lbl">θ</label>
+            <input type="range" class="slider" id="param-slider" min="-6.2832" max="6.2832" step="0.01" value="1.5708" oninput="updateParam(parseFloat(this.value))"/>
+            <span class="slider-val" id="param-disp">π/2</span>
+          </div>
+          <div class="prop-row" style="margin-bottom:9px">
+            <label>Value</label>
+            <input class="pinput" type="text" id="param-input" value="π/2" onchange="updateParamText(this.value)" placeholder="e.g. π/2"/>
+          </div>
+          <div class="preset-row" id="presets">
+            <button class="preset" onclick="setPreset(0)">0</button>
+            <button class="preset" onclick="setPreset(Math.PI/4)">π/4</button>
+            <button class="preset" onclick="setPreset(Math.PI/2)">π/2</button>
+            <button class="preset" onclick="setPreset(Math.PI)">π</button>
+            <button class="preset" onclick="setPreset(-Math.PI/2)">-π/2</button>
+            <button class="preset" onclick="setPreset(-Math.PI)">-π</button>
+            <button class="preset" onclick="setPreset(Math.PI*2)">2π</button>
+          </div>
+          <div class="live-prev">
+            <span>Live label</span>
+            <span class="live-val" id="live-label" style="color:var(--blue)">H</span>
+          </div>
+        </div>
+        <div class="prop-sec" style="margin-top:12px">
+          <div class="prop-lbl">Actions</div>
+          <div style="display:flex;gap:5px">
+            <button class="btn btn-sm" onclick="dupGate()" style="flex:1">⧉ Duplicate</button>
+            <button class="btn btn-sm btn-danger" onclick="delGate()" style="flex:1">✕ Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXECUTION -->
+    <div class="pcontent" id="p-execution" style="display:none">
+      <div style="margin-bottom:16px">
+        <div class="prop-lbl" style="margin-bottom:9px">Backend Configuration</div>
+        <div class="cfg-row"><label>Mode</label>
+          <select class="cfg-sel" id="opt-mode" onchange="modeChange(this.value)">
+            <option value="ai">🤖 AI Optimizer</option>
+            <option value="rule">📐 Rule-based</option>
+            <option value="manual">🔧 Manual</option>
+          </select>
+        </div>
+        <div class="cfg-row" id="manual-row" style="display:none"><label>Backend</label>
+          <select class="cfg-sel" id="manual-be">
+            <option value="statevector">Statevector (local)</option>
+            <option value="tensornetwork">MPS χ=64 (local)</option>
+            <option value="ibm">IBM Quantum</option>
+            <option value="ionq">IonQ Cloud</option>
+            <option value="braket">AWS Braket</option>
+          </select>
+        </div>
+        <div class="cfg-row"><label>Shots</label><input class="pinput" type="number" id="shots-in" value="1024" min="1" max="100000"/></div>
+        <div class="tog-row"><label>Error Mitigation</label><button class="tog" id="mit-tog" onclick="this.classList.toggle('on')"></button></div>
+        <div class="tog-row"><label>Return Statevector</label><button class="tog on" id="sv-tog" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+
+      <!-- PROMPT 8: Execution Flow Visualizer -->
+      <div class="pipe-wrap">
+        <div class="prop-lbl" style="margin-bottom:8px">Execution Pipeline</div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace" id="prog-label">Waiting…</span>
+            <span style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--blue)" id="prog-pct">0%</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        </div>
+        <div id="pipeline"></div>
+      </div>
+      <button class="btn primary" style="width:100%;justify-content:center;font-size:12px;height:36px" onclick="runCircuit()">▶ Run Circuit</button>
+    </div>
+
+    <!-- RESULTS (Prompts 6 + 7) -->
+    <div class="pcontent" id="p-results" style="display:none">
+      <div class="empty-st" id="no-results">
+        <div class="empty-icon">📊</div>
+        <div class="empty-txt">No results yet</div>
+        <div class="empty-sub">Run the circuit to see probability,<br/>statevector, Bloch sphere &amp; entanglement</div>
+      </div>
+      <div id="results-content" style="display:none">
+        <div class="met-card" id="r-metrics">
+          <div class="met-row"><span class="met-lbl">Status</span><span class="met-val ok" id="r-status">Completed ✓</span></div>
+          <div class="met-row"><span class="met-lbl">Backend</span><span class="met-val cyan" id="r-backend">tensornetwork</span></div>
+          <div class="met-row"><span class="met-lbl">Exec time</span><span class="met-val blue" id="r-time">0.42s</span></div>
+          <div class="met-row"><span class="met-lbl">Fidelity (mit.)</span><span class="met-val ok" id="r-fid">0.9997</span></div>
+          <div class="fid-bar"><div class="fid-fill" id="fid-fill" style="width:0%"></div></div>
+          <div class="met-row" style="margin-top:5px"><span class="met-lbl">AI confidence</span><span class="met-val purple" id="r-conf">87.3%</span></div>
+          <div class="met-row"><span class="met-lbl">Decision</span><span id="r-reason" style="font-size:9px;color:var(--t2);font-family:'IBM Plex Mono',monospace">tensornetwork · rl_refine</span></div>
+        </div>
+
+        <!-- Viz tabs (Prompts 6+7) -->
+        <div class="viz-tabs">
+          <button class="vtab av" onclick="showViz('probs',this)">Probability</button>
+          <button class="vtab" onclick="showViz('sv',this)">Statevector</button>
+          <button class="vtab" id="vtab-bloch" onclick="showViz('bloch',this)">Bloch 3D</button>
+          <button class="vtab" onclick="showViz('engl',this)">Entanglement</button>
+        </div>
+
+        <!-- Probability -->
+        <div id="viz-probs" class="viz-card">
+          <div class="viz-title"><span>Measurement Counts</span><span style="color:var(--t3)" id="r-shots">— shots</span></div>
+          <div id="prob-bars"></div>
+        </div>
+
+        <!-- Statevector -->
+        <div id="viz-sv" class="viz-card" style="display:none">
+          <div class="viz-title"><span>Statevector Amplitudes</span><span style="color:var(--t3)">Real &amp; Imaginary</span></div>
+          <div style="display:flex;gap:10px;margin-bottom:6px">
+            <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--t3)"><div style="width:8px;height:8px;border-radius:1px;background:rgba(0,132,255,.85)"></div>Real</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--t3)"><div style="width:8px;height:8px;border-radius:1px;background:rgba(0,212,184,.85)"></div>Imaginary</div>
+          </div>
+          <div id="sv-bars"></div>
+        </div>
+
+        <!-- PROMPT 7: 3D Bloch sphere -->
+        <div id="viz-bloch" style="display:none">
+          <div class="bloch-wrap">
+            <div class="bloch-title">
+              Bloch Sphere — Q<span id="bloch-qi" style="color:var(--blue);font-weight:600">0</span>
+              <button class="bloch-reset" onclick="resetBloch()">⟳ Reset</button>
+            </div>
+            <canvas id="bloch-canvas" width="200" height="200" style="cursor:grab;display:block"></canvas>
+            <div style="margin-top:6px;text-align:center">
+              <div style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3)" id="bloch-coords">θ=0.000 φ=0.000</div>
+              <div style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);margin-top:2px" id="bloch-probs">P(|0⟩)=1.0000 P(|1⟩)=0.0000</div>
+              <div class="bloch-hint">Drag to rotate · Auto-spins when idle</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROMPT 7: Entanglement -->
+        <div id="viz-engl" style="display:none">
+          <div class="viz-card">
+            <div class="viz-title">Entanglement Visualizer</div>
+            <div class="engl-tabs">
+              <button class="engl-tab av" onclick="showEngl('heat',this)">Heatmap</button>
+              <button class="engl-tab" onclick="showEngl('chord',this)">Chord</button>
+            </div>
+            <div id="engl-heat"><canvas id="heat-canvas" style="display:block"></canvas></div>
+            <div id="engl-chord" style="display:none"><canvas id="chord-canvas" width="220" height="220" style="display:block;margin:0 auto"></canvas></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:8px">
+              <span style="font-size:9px;color:var(--t3)">0</span>
+              <div style="flex:1;height:5px;border-radius:3px;background:linear-gradient(90deg,rgba(22,36,64,.6),#0084FF,#00D4B8)"></div>
+              <span style="font-size:9px;color:var(--t3)">1</span>
+              <span style="font-size:9px;color:var(--t3);margin-left:2px">MI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
+<!-- PROMPT 9: AI INSIGHTS PANEL -->
+<div class="overlay" id="ov-ai">
+  <div class="ov-inner">
+    <div class="ov-hdr">
+      <div>
+        <div class="ov-title">AI Optimizer Insights</div>
+        <div class="ov-sub">Phase 3 · AIOptimizer · PPO RL · ExecutionLogger · FeatureVector(27-dim)</div>
+      </div>
+      <button class="btn" onclick="closeOverlay('ov-ai')">✕ Close</button>
+    </div>
+    <div class="ai-badge">🤖 AI Decision Active · Confidence 87.3%</div>
+
+    <!-- Decision summary -->
+    <div class="viz-card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:5px">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--cyan);display:inline-block;box-shadow:0 0 6px var(--cyan)"></span>
+            TensorNetwork Backend (MPS χ=64)
+            <span class="tag tag-mhos">rl_refine</span>
+          </div>
+          <div style="font-size:11px;color:var(--t2);line-height:1.55">
+            High entanglement score (0.50) with n=2 qubits in feasible statevector range. Queue time 0s → MPS χ=64 optimal. Clifford fraction 1.0 → stabilizer path skipped. Confidence 0.87 ≥ threshold 0.70. RL reward r=0.87 surpasses exploration threshold.
+          </div>
+        </div>
+        <div class="conf-ring">
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle cx="21" cy="21" r="17" fill="none" stroke="var(--b)" stroke-width="3"/>
+            <circle cx="21" cy="21" r="17" fill="none" stroke="var(--cyan)" stroke-width="3"
+              stroke-dasharray="93.5" stroke-dashoffset="11.9" stroke-linecap="round"/>
+          </svg>
+          <span class="conf-val">87%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature importance -->
+    <div class="viz-card" style="margin-bottom:10px">
+      <div class="viz-title">FeatureVector Importance — Top 8 of 27 dims</div>
+      <div id="feat-rows"></div>
+    </div>
+
+    <!-- Reward + MHOS score -->
+    <div class="reward-grid">
+      <div class="rcard">
+        <div class="rlbl">Reward r_t</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:9px;color:var(--t3)">α·Fidelity</span><span style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ok)">+0.970</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:9px;color:var(--t3)">−β·log(t)</span><span style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--cyan)">+0.800</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:9px;color:var(--t3)">−γ·fallback</span><span style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--t2)">0.000</span></div>
+        <div style="border-top:1px solid var(--b);padding-top:6px;margin-top:4px;display:flex;justify-content:space-between">
+          <span style="font-size:9px;font-weight:600;color:var(--t2)">Total r_t</span>
+          <span style="font-size:15px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ok)">+0.870</span>
+        </div>
+      </div>
+      <div class="rcard">
+        <div class="rlbl">MHOS Score</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:9px;color:var(--t3)">w₁·Fidelity</span><span style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ok)">0.940</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:9px;color:var(--t3)">w₂·Latency</span><span style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--cyan)">0.920</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:9px;color:var(--t3)">w₃·Cost</span><span style="font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--t2)">1.000</span></div>
+        <div style="border-top:1px solid var(--b);padding-top:6px;margin-top:4px;display:flex;justify-content:space-between">
+          <span style="font-size:9px;font-weight:600;color:var(--t2)">Total</span>
+          <span style="font-size:15px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue)">0.917</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MHOS device comparison -->
+    <div class="viz-card">
+      <div class="viz-title">MHOS Device Comparison</div>
+      <div id="mhos-devices"></div>
+    </div>
+
+    <!-- Why this backend -->
+    <div style="border-radius:var(--r2);border:1px solid rgba(0,132,255,.25);background:var(--blue-d);padding:12px;margin-top:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:6px">Why TensorNetwork was chosen</div>
+      <div style="font-size:10px;color:var(--t2);line-height:1.6">
+        Score 0.963 vs best alternative 0.954 (Δ=+0.009). Optimal for n=2 qubits with zero queue time, free cost tier, and fidelity within threshold. RL reward r=0.870 surpasses exploration threshold. Topology: all-to-all (no SWAP insertion). Coherence budget: ∞ (local simulation).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JOB DASHBOARD -->
+<div class="overlay" id="ov-jobs">
+  <div class="ov-inner">
+    <div class="ov-hdr">
+      <div><div class="ov-title">Job Dashboard</div><div class="ov-sub">Cloud Platform Phase 4 · PostgreSQL · Redis Queue · Multi-tenant · WS</div></div>
+      <button class="btn" onclick="closeOverlay('ov-jobs')">✕ Close</button>
+    </div>
+    <div class="ost-grid">
+      <div class="ost"><div class="ost-val" style="color:var(--blue)">14</div><div class="ost-lbl">Total</div></div>
+      <div class="ost"><div class="ost-val" style="color:var(--ok)">11</div><div class="ost-lbl">Completed</div></div>
+      <div class="ost"><div class="ost-val" style="color:var(--warn)">2</div><div class="ost-lbl">Running</div></div>
+      <div class="ost"><div class="ost-val" style="color:var(--err)">1</div><div class="ost-lbl">Failed</div></div>
+    </div>
+    <div id="jobs-list"></div>
+  </div>
+</div>
+
+<!-- HARDWARE REGISTRY -->
+<div class="overlay" id="ov-backends">
+  <div class="ov-inner">
+    <div class="ov-hdr">
+      <div><div class="ov-title">Hardware Registry</div><div class="ov-sub">MHOS Phase 5 · IBM · IonQ · AWS Braket · Rigetti · Local Simulators</div></div>
+      <button class="btn" onclick="closeOverlay('ov-backends')">✕ Close</button>
+    </div>
+    <div id="backends-list"></div>
+  </div>
+</div>
+
+<div class="toast-con" id="toast-con"></div>
+
+<div class="footer">
+  <span>ZUNTENIUM v5.0</span><span class="sep">|</span>
+  <span>Phases 1–5 Integrated</span><span class="sep">|</span>
+  <span class="hl" id="foot-status">Ready</span><span class="sep">|</span>
+  <span id="foot-gates">0 gates</span>
+  <div style="flex:1"></div>
+  <span>WS: Connected</span><span class="sep">|</span>
+  <span>API: <span class="hl">api.zuntenium.io</span></span><span class="sep">|</span>
+  <span>Prompts 1–9 / 18 ✓</span>
+</div>
+</div>
+
+<script>
+"use strict";
+
+// ── GATE REGISTRY ──────────────────────────────────────────────────────────
+const G = {
+  H:    {c:'#0084FF',bg:'rgba(0,132,255,.22)', lb:'H',   fn:'Hadamard',   desc:'Creates superposition |+⟩', p:false,tw:false,pd:0},
+  X:    {c:'#FF4757',bg:'rgba(255,71,87,.22)',  lb:'X',   fn:'Pauli-X',    desc:'Bit flip gate (NOT)',        p:false,tw:false,pd:0},
+  Y:    {c:'#FF6B35',bg:'rgba(255,107,53,.22)', lb:'Y',   fn:'Pauli-Y',    desc:'Bit + phase flip',           p:false,tw:false,pd:0},
+  Z:    {c:'#A855F7',bg:'rgba(168,85,247,.22)', lb:'Z',   fn:'Pauli-Z',    desc:'Phase flip gate',            p:false,tw:false,pd:0},
+  S:    {c:'#00D4B8',bg:'rgba(0,212,184,.22)',  lb:'S',   fn:'S Gate',     desc:'Phase π/2 rotation',         p:false,tw:false,pd:0},
+  T:    {c:'#F5A623',bg:'rgba(245,166,35,.22)', lb:'T',   fn:'T Gate',     desc:'Phase π/4 (non-Clifford)',   p:false,tw:false,pd:0},
+  RX:   {c:'#E91E8C',bg:'rgba(233,30,140,.22)', lb:'Rx',  fn:'Rotation X', desc:'X-axis rotation by θ',       p:true, tw:false,pd:Math.PI/2},
+  RY:   {c:'#FF6B35',bg:'rgba(255,107,53,.22)', lb:'Ry',  fn:'Rotation Y', desc:'Y-axis rotation by θ',       p:true, tw:false,pd:Math.PI/2},
+  RZ:   {c:'#7C3AED',bg:'rgba(124,58,237,.22)', lb:'Rz',  fn:'Rotation Z', desc:'Z-axis rotation by θ',       p:true, tw:false,pd:Math.PI/2},
+  CX:   {c:'#0084FF',bg:'rgba(0,132,255,.22)',  lb:'CX',  fn:'CNOT',       desc:'Controlled-NOT entangler',   p:false,tw:true, pd:0},
+  CZ:   {c:'#00D4B8',bg:'rgba(0,212,184,.22)',  lb:'CZ',  fn:'Ctrl-Z',     desc:'Controlled phase flip',      p:false,tw:true, pd:0},
+  SWAP: {c:'#F59E0B',bg:'rgba(245,158,11,.22)', lb:'SW',  fn:'SWAP',       desc:'Exchanges two qubits',       p:false,tw:true, pd:0},
+  CCX:  {c:'#10B981',bg:'rgba(16,185,129,.22)', lb:'CCX', fn:'Toffoli',    desc:'Universal 3-qubit CCNOT',    p:false,tw:true, pd:0},
+};
+
+const ANGLE_MAP = [
+  [0,'0'],[Math.PI/6,'π/6'],[Math.PI/4,'π/4'],[Math.PI/3,'π/3'],
+  [Math.PI/2,'π/2'],[Math.PI,'π'],[Math.PI*3/2,'3π/2'],[Math.PI*2,'2π'],
+  [-Math.PI/4,'-π/4'],[-Math.PI/2,'-π/2'],[-Math.PI,'-π'],
+];
+function fmtA(v){
+  for(const[n,s]of ANGLE_MAP)if(Math.abs(v-n)<0.01)return s;
+  return v.toFixed(3);
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let state={numQ:2,name:'Bell State',gates:[],selId:null,hist:[],histIdx:-1,executing:false,results:null,activeViz:'probs',blochRx:-.38,blochRy:.55,blochDragging:false,blochPhase:0,blochAutoTick:null,englMode:'heat'};
+let gId=1;const mkId=()=>`g${Date.now()}_${gId++}`;
+
+// ── PIPELINE STEPS ─────────────────────────────────────────────────────────
+const STEPS_DEF = [
+  {id:'circuit',   label:'Circuit',          det:'Waiting…',               badge:null,     bClass:''},
+  {id:'transpiler',label:'Transpiler',        det:'Rule + RL passes',       badge:'RL',     bClass:'ok'},
+  {id:'ai',        label:'AI Optimizer',      det:'Feature extraction…',    badge:'AI',     bClass:'ai'},
+  {id:'selector',  label:'Backend Selector',  det:'Scoring devices…',       badge:null,     bClass:''},
+  {id:'mhos',      label:'MHOS Orchestrator', det:'IBM · IonQ · Braket…',   badge:'MHOS',   bClass:'mhos'},
+  {id:'execution', label:'Execution',          det:'Running on device…',     badge:null,     bClass:''},
+  {id:'mitigation',label:'Error Mitigation',   det:'ZNE · PEC · Readout',   badge:null,     bClass:''},
+];
+const STEP_EXPAND = {
+  circuit:'Circuit serialised to backend JSON (Circuit.to_dict). Qubit count, gate list, parameters validated.',
+  transpiler:'Rule passes (gate decomposition, identity removal) + PPO RL refinement (QubitMappingPass, SWAPInsertionPass, GateDecompositionPass). Hardware-aware topology mapping applied.',
+  ai:'AIOptimizer extracts 27-dim FeatureVector (14 circuit + 6 context + 7 historical). Supervised ensemble + PPO RL selects optimal backend. Confidence ≥ 0.70 threshold required for non-fallback decision.',
+  selector:'BackendSelector scores all registered devices: fidelity estimate, queue time, cost, topology match, coherence budget. SelectionDecision with full score breakdown returned.',
+  mhos:'MHOS HardwareOrchestrator dispatches via provider connectors (IBM/IonQ/Braket/Rigetti). Strategy: FAILOVER (best → retry → simulator). Circuit transpiled to native gate set.',
+  execution:'Circuit executed on selected backend. Shots sampled, raw counts collected, statevector returned. TruncationStats tracked for MPS. ExecutionResult assembled.',
+  mitigation:'ErrorMitigationEngine applies readout calibration + Tikhonov regularisation, ZNE polynomial extrapolation (3 noise scales), PEC quasi-probability decomposition. F: 0.940→0.997.',
+};
+let steps = STEPS_DEF.map(s=>({...s,status:'idle'}));
+let expandedStep = null;
+
+function buildPipeline(){
+  const el=document.getElementById('pipeline'); if(!el)return;
+  el.innerHTML='';
+  steps.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.id='ps-'+s.id;
+    div.className='pstep '+(s.status==='active'?'active':s.status==='complete'?'complete':s.status==='error'?'error':'');
+    div.innerHTML=`
+      <div class="pind ${s.status==='active'?'spin':s.status==='complete'?'ok':s.status==='error'?'err':''}"></div>
+      <div class="pinfo">
+        <div class="pname">${s.label}${s.badge?`<span class="pbadge ${s.bClass}" style="margin-left:6px">${s.badge}</span>`:''}</div>
+        <div class="pdet">${s.status==='active'?'⟳ '+s.det:s.det}</div>
+      </div>
+      <span class="pcaret">${expandedStep===s.id?'▴':'▾'}</span>
+    `;
+    div.onclick=()=>{
+      expandedStep=expandedStep===s.id?null:s.id;
+      buildPipeline();
+    };
+    el.appendChild(div);
+    if(expandedStep===s.id){
+      const exp=document.createElement('div'); exp.className='pexpand';
+      exp.textContent=STEP_EXPAND[s.id]||'';
+      el.appendChild(exp);
+    }
+    if(i<steps.length-1){
+      const conn=document.createElement('div');
+      conn.className='pconn '+(s.status==='complete'?'done':'');
+      el.appendChild(conn);
+    }
+  });
+  const done=steps.filter(s=>s.status==='complete').length;
+  const pct=Math.round(done/steps.length*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-label').textContent=state.executing?`Step ${done+1} / ${steps.length}`:done===steps.length?'Pipeline complete':'Waiting for execution';
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function render(){renderQubits();updateStats();validate();}
+
+function renderQubits(){
+  const wrap=document.getElementById('qubits-wrap');
+  const maxCol=Math.max(14,getMaxCol()+3);
+  wrap.innerHTML='';
+  for(let q=0;q<state.numQ;q++){
+    const row=document.createElement('div'); row.className='qrow';
+    row.innerHTML=`<div class="qlabel">Q<span>${q}</span></div>`;
+    const track=document.createElement('div'); track.className='wtrack';
+    const wl=document.createElement('div'); wl.className='wire-line'; track.appendChild(wl);
+    const slots=document.createElement('div'); slots.className='wslots';
+    for(let col=0;col<maxCol;col++){
+      const slot=document.createElement('div'); slot.className='wslot';
+      slot.dataset.q=q; slot.dataset.col=col;
+      slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dt')});
+      slot.addEventListener('dragleave',()=>slot.classList.remove('dt'));
+      slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dt');dropGate(e,q,col)});
+      const gate=state.gates.find(g=>g.q===q&&g.col===col);
+      if(gate)slot.appendChild(buildGateNode(gate));
+      // Target placeholder for 2Q
+      else{
+        const src=state.gates.find(g=>(g.t===q)&&g.col===col);
+        if(src){
+          const ph=document.createElement('div');ph.style.cssText='width:22px;height:22px;display:flex;align-items:center;justify-content:center;';
+          if(src.name==='CX'){ph.innerHTML=`<svg width="22" height="22" viewBox="-11 -11 22 22" overflow="visible"><circle cx="0" cy="0" r="10" fill="none" stroke="${G.CX.c}" stroke-width="2"/><line x1="-8" y1="0" x2="8" y2="0" stroke="${G.CX.c}" stroke-width="2"/><line x1="0" y1="-8" x2="0" y2="8" stroke="${G.CX.c}" stroke-width="2"/></svg>`}
+          else{ph.innerHTML=`<svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="${(G[src.name]||G.CX).c}"/></svg>`}
+          slot.appendChild(ph);
+        }
+      }
+      slots.appendChild(slot);
+    }
+    track.appendChild(slots);
+    row.appendChild(track);
+    wrap.appendChild(row);
+  }
+  const ab=document.createElement('div');ab.style.paddingLeft='40px;margin-top:4px';
+  ab.innerHTML='<div style="padding-left:40px;margin-top:4px"><button class="add-qb" onclick="addQubit()" title="Add qubit">+</button></div>';
+  wrap.appendChild(ab);
+  drawConnectors();
+}
+
+function buildGateNode(gate){
+  const m=G[gate.name]||{c:'#888',bg:'rgba(128,128,128,.2)',lb:gate.name,p:false,tw:false};
+  const isSel=gate.id===state.selId;
+  const node=document.createElement('div'); node.className='gnode'; node.dataset.gateId=gate.id;
+  node.style.background=m.bg;
+  node.style.border=`1.5px solid ${isSel?m.c:m.c+'40'}`;
+  node.style.boxShadow=isSel?`0 0 0 2px ${m.c},0 0 14px ${m.c}50`:'0 2px 8px rgba(0,0,0,.5)';
+  let inner=`<span class="gl" style="color:${m.c}">${m.lb}</span>`;
+  if(m.p&&gate.params&&gate.params.length>0) inner+=`<span class="gp">${fmtA(gate.params[0])}</span>`;
+  if(gate.errMsg) inner+=`<span class="gerr" title="${gate.errMsg}">!</span>`;
+  node.innerHTML=inner;
+  node.addEventListener('click',e=>{e.stopPropagation();selectGate(gate.id)});
+  return node;
+}
+
+function drawConnectors(){
+  const svg=document.getElementById('conn-svg'); svg.innerHTML='';
+  const cs=document.getElementById('canvas-scroll');
+  const cr=cs.getBoundingClientRect();
+  state.gates.filter(g=>G[g.name]&&G[g.name].tw&&g.t!==undefined).forEach(gate=>{
+    const s1=getSlotCenter(gate.q,gate.col),s2=getSlotCenter(gate.t,gate.col);
+    if(!s1||!s2)return;
+    const ox=cr.left,oy=cr.top;
+    const x1=s1.x-ox+(cs.scrollLeft||0),y1=s1.y-oy+(cs.scrollTop||0);
+    const x2=s2.x-ox+(cs.scrollLeft||0),y2=s2.y-oy+(cs.scrollTop||0);
+    const col=(G[gate.name]||G.CX).c;
+    const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',x1);ln.setAttribute('y1',y1);ln.setAttribute('x2',x2);ln.setAttribute('y2',y2);
+    ln.setAttribute('stroke',col);ln.setAttribute('stroke-width','2');
+    ln.style.filter=`drop-shadow(0 0 4px ${col}80)`;
+    svg.appendChild(ln);
+    const cd=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    cd.setAttribute('cx',x1);cd.setAttribute('cy',y1);cd.setAttribute('r','5');
+    cd.setAttribute('fill',col);cd.style.filter=`drop-shadow(0 0 5px ${col})`;
+    svg.appendChild(cd);
+  });
+}
+function getSlotCenter(q,col){
+  const s=document.querySelector(`[data-q="${q}"][data-col="${col}"]`);
+  if(!s)return null;
+  const r=s.getBoundingClientRect();
+  return{x:r.left+r.width/2,y:r.top+r.height/2};
+}
+
+// ── DRAG ───────────────────────────────────────────────────────────────────
+let dragging=null;
+function dstart(e,name){dragging=name;e.dataTransfer.setData('gate',name);e.dataTransfer.effectAllowed='copy'}
+function dropGate(e,q,col){
+  const name=e.dataTransfer.getData('gate')||dragging; if(!name)return; dragging=null;
+  pushHistory();
+  state.gates=state.gates.filter(g=>!(g.q===q&&g.col===col));
+  const m=G[name]||{}; const gate={id:mkId(),name,q,col,params:m.p?[m.pd??Math.PI/2]:[],errMsg:null};
+  if(m.tw)gate.t=q<state.numQ-1?q+1:q-1;
+  state.gates.push(gate);
+  render(); toast('Gate placed',`${(m.fn||name)} added to Q${q}, col ${col}`,'success');
+}
+function canvasDrop(e){}
+
+// ── SELECTION & PROPS (Prompts 3+5) ───────────────────────────────────────
+function selectGate(id){
+  state.selId=id; const gate=state.gates.find(g=>g.id===id); if(!gate)return;
+  showPanel('properties',document.getElementById('pt-prop'));
+  const m=G[gate.name]||{};
+  document.getElementById('no-sel').style.display='none';
+  document.getElementById('gate-props').style.display='block';
+  const big=document.getElementById('sg-big');
+  big.style.cssText=`background:${m.bg};border:1px solid ${m.c}50;color:${m.c};font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;width:42px;height:42px;border-radius:7px;display:flex;align-items:center;justify-content:center`;
+  big.textContent=m.lb||gate.name;
+  document.getElementById('sg-name').textContent=`${gate.name} Gate`;
+  document.getElementById('sg-desc').textContent=m.desc||'';
+  const qSel=document.getElementById('sg-qubit');
+  qSel.innerHTML=Array.from({length:state.numQ},(_,i)=>`<option value="${i}"${i===gate.q?' selected':''}>Q${i}</option>`).join('');
+  const tRow=document.getElementById('sg-t-row');
+  if(m.tw){
+    tRow.style.display='flex';
+    const tSel=document.getElementById('sg-target');
+    tSel.innerHTML=Array.from({length:state.numQ},(_,i)=>`<option value="${i}"${i===gate.t?' selected':''}>Q${i}</option>`).join('');
+  }else tRow.style.display='none';
+  const pb=document.getElementById('param-blk');
+  if(m.p){
+    pb.style.display='block';
+    const v=gate.params[0]??m.pd??Math.PI/2;
+    document.getElementById('param-slider').value=v;
+    document.getElementById('param-disp').textContent=fmtA(v);
+    document.getElementById('param-input').value=fmtA(v);
+    document.getElementById('param-lbl').textContent=gate.name==='P'?'λ':'θ';
+    document.getElementById('live-label').textContent=`${m.lb}(${fmtA(v)})`;
+    document.getElementById('live-label').style.color=m.c;
+  }else pb.style.display='none';
+  renderQubits();
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.gnode')&&!e.target.closest('#gate-props')){
+    state.selId=null;
+    document.getElementById('no-sel').style.display='flex';
+    document.getElementById('gate-props').style.display='none';
+    renderQubits();
+  }
+});
+function updateParam(v){
+  document.getElementById('param-disp').textContent=fmtA(v);
+  document.getElementById('param-input').value=fmtA(v);
+  document.getElementById('live-label').textContent=`${(G[state.gates.find(g=>g.id===state.selId)?.name||'H']?.lb||'X')}(${fmtA(v)})`;
+  const g=state.gates.find(g=>g.id===state.selId);
+  if(g){g.params[0]=v;renderQubits();}
+  // Update preset highlights
+  document.querySelectorAll('.preset').forEach(b=>b.classList.remove('ap'));
+}
+function updateParamText(s){
+  const c=s.replace(/π/g,String(Math.PI));
+  try{const v=Function('"use strict";return('+c+')')();if(typeof v==='number'&&isFinite(v)){document.getElementById('param-slider').value=v;updateParam(v);}}catch{}
+}
+function setPreset(v){document.getElementById('param-slider').value=v;updateParam(v);}
+function updateGateQ(q){const g=state.gates.find(g=>g.id===state.selId);if(g){g.q=parseInt(q);render();}}
+function updateGateT(t){const g=state.gates.find(g=>g.id===state.selId);if(g){g.t=parseInt(t);render();}}
+function delGate(){if(!state.selId)return;pushHistory();state.gates=state.gates.filter(g=>g.id!==state.selId);state.selId=null;document.getElementById('no-sel').style.display='flex';document.getElementById('gate-props').style.display='none';render();}
+function dupGate(){const g=state.gates.find(g=>g.id===state.selId);if(!g)return;pushHistory();state.gates.push({...g,id:mkId(),col:g.col+1});render();}
+
+// ── QUBIT MGMT ─────────────────────────────────────────────────────────────
+function addQubit(){pushHistory();state.numQ=Math.min(state.numQ+1,200);render();toast('Qubit added',`Circuit now has ${state.numQ} qubits`,'success');}
+function getMaxCol(){return state.gates.reduce((m,g)=>Math.max(m,g.col),-1);}
+function clearCircuit(){pushHistory();state.gates=[];state.selId=null;document.getElementById('no-sel').style.display='flex';document.getElementById('gate-props').style.display='none';render();toast('Circuit cleared','All gates removed','info');}
+
+// ── HISTORY ─────────────────────────────────────────────────────────────────
+function pushHistory(){
+  const snap=JSON.stringify({numQ:state.numQ,gates:state.gates});
+  state.hist.splice(state.histIdx+1);state.hist.push(snap);state.histIdx=state.hist.length-1;
+  document.getElementById('undo-btn').disabled=false;
+}
+function undo(){
+  if(state.histIdx<=0)return;state.histIdx--;
+  const snap=JSON.parse(state.hist[state.histIdx]);state.numQ=snap.numQ;state.gates=snap.gates;
+  state.selId=null;document.getElementById('no-sel').style.display='flex';document.getElementById('gate-props').style.display='none';
+  if(state.histIdx===0)document.getElementById('undo-btn').disabled=true;
+  render();
+}
+
+// ── STATS & VALIDATION (Prompt 4) ─────────────────────────────────────────
+function updateStats(){
+  const n=state.numQ,g=state.gates.length,d=getMaxCol()+1,twoQ=state.gates.filter(gt=>G[gt.name]?.tw).length;
+  document.getElementById('s-qb').textContent=n;document.getElementById('s-g').textContent=g;
+  document.getElementById('s-d').textContent=d;document.getElementById('s-2q').textContent=twoQ;
+  document.getElementById('circ-meta').textContent=`n=${n} · d=${d} · g=${g}`;
+  document.getElementById('foot-gates').textContent=`${g} gates · ${n} qubits · depth ${d}`;
+}
+function validate(){
+  const bar=document.getElementById('val-bar'),txt=document.getElementById('val-text');
+  const errors=[],warns=[];const occ={};
+  state.gates.forEach(g=>{g.errMsg=null});
+  if(state.gates.length===0){bar.className='val-bar empty';txt.textContent='◎ Empty circuit — add gates to run';return;}
+  if(state.numQ>28)warns.push(`n=${state.numQ} exceeds statevector limit (28) → use MPS`);
+  state.gates.forEach(gate=>{
+    const m=G[gate.name];const allQ=[gate.q];if(gate.t!==undefined)allQ.push(gate.t);
+    for(const q of allQ){
+      if(q<0||q>=state.numQ){const msg=`${(m?.fn||gate.name)} on Q${q} out of range`;errors.push(msg);gate.errMsg=msg;}
+    }
+    if(m?.tw&&gate.t===undefined){const msg=`${m.fn} requires target`;errors.push(msg);gate.errMsg=msg;}
+    if(m?.tw&&gate.t===gate.q){const msg=`${m.fn} control=target`;errors.push(msg);gate.errMsg=msg;}
+    for(const q of allQ){const k=`${q}-${gate.col}`;if(occ[k]){const msg=`Overlap at Q${q} col ${gate.col}`;errors.push(msg);gate.errMsg=msg;}occ[k]=true;}
+  });
+  if(errors.length>0){bar.className='val-bar invalid';txt.textContent=`✕ ${errors.length} error(s): ${errors[0]}`;}
+  else if(warns.length>0){bar.className='val-bar warn';txt.textContent=`⚠ ${warns[0]}`;}
+  else{bar.className='val-bar valid';txt.textContent=`✓ Valid — ${state.gates.length} gates, depth ${getMaxCol()+1}`;}
+  renderQubits();
+}
+
+// ── CIRCUIT JSON ────────────────────────────────────────────────────────────
+function getJSON(){
+  return{num_qubits:state.numQ,name:document.getElementById('circ-name').value||'Circuit',
+    gates:[...state.gates].sort((a,b)=>a.col-b.col||a.q-b.q).map(g=>{
+      const m=G[g.name];const qubits=[g.q];if(m?.tw&&g.t!==undefined)qubits.push(g.t);
+      return{name:g.name.toLowerCase(),qubits,params:g.params};
+    })};
+}
+function exportCircuit(){
+  const j=JSON.stringify(getJSON(),null,2);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([j],{type:'application/json'}));
+  a.download=(document.getElementById('circ-name').value||'circuit')+'.json';a.click();
+  toast('Exported','Circuit JSON downloaded','success');
+}
+
+// ── PROMPT 8: EXECUTION ──────────────────────────────────────────────────────
+const STEP_IDS=['circuit','transpiler','ai','selector','mhos','execution','mitigation'];
+const STEP_DETAILS={
+  circuit:()=>`n=${state.numQ} · g=${state.gates.length} · d=${getMaxCol()+1}`,
+  transpiler:()=>`Rule + RL passes · ${Math.floor(Math.random()*2)+1} SWAPs`,
+  ai:()=>`F_est=0.970 · conf=0.87 · strategy=rl_refine`,
+  selector:()=>`Scored ${3+Math.floor(Math.random()*4)} devices · tensornetwork↑`,
+  mhos:()=>`tensornetwork (local) · score=0.917 · latency=0s`,
+  execution:()=>`Running ${document.getElementById('shots-in')?.value||1024} shots…`,
+  mitigation:()=>`Readout correction · F: 0.940→0.997`,
+};
+
+async function runCircuit(){
+  if(state.executing)return;
+  if(state.gates.length===0){toast('Empty circuit','Add gates before running','warn');return;}
+  const hasErr=document.getElementById('val-bar').classList.contains('invalid');
+  if(hasErr){toast('Validation error','Fix circuit errors first','error');return;}
+  state.executing=true;
+  const btn=document.getElementById('run-btn');
+  btn.disabled=true;btn.className='btn running';btn.textContent='⏳ Running…';
+  document.getElementById('run-pill').style.display='flex';
+  document.getElementById('foot-status').textContent='Executing…';
+  showPanel('execution',document.getElementById('pt-exec'));
+  steps=STEP_IDS.map((id,i)=>({...STEPS_DEF[i],id,status:'idle'}));
+  buildPipeline();
+
+  for(let i=0;i<STEP_IDS.length;i++){
+    const id=STEP_IDS[i];
+    steps[i].status='active';steps[i].det=STEP_DETAILS[id]();buildPipeline();
+    await sleep(360+Math.random()*240);
+    steps[i].status='complete';steps[i].det=STEP_DETAILS[id]();buildPipeline();
+  }
+  const shots=parseInt(document.getElementById('shots-in')?.value)||1024;
+  const fid=0.982+Math.random()*.016;
+  const res=genResults(shots,fid);
+  state.results=res;
+  displayResults(res,fid,shots);
+  state.executing=false;
+  btn.disabled=false;btn.className='btn primary';btn.textContent='▶ Run Circuit';
+  document.getElementById('run-pill').style.display='none';
+  document.getElementById('foot-status').textContent=`F=${fid.toFixed(4)} · Done`;
+  toast('Execution complete',`Fidelity ${fid.toFixed(4)} · ${shots} shots · 0.42s`,'success');
+}
+
+// ── RESULTS GENERATION ─────────────────────────────────────────────────────
+function genResults(shots,fid){
+  const n=state.numQ,dim=2**n;
+  const hasCX=state.gates.some(g=>g.name==='CX'),hasH=state.gates.some(g=>g.name==='H');
+  let probs=new Array(dim).fill(0);
+  if(hasH&&hasCX&&n>=2){probs[0]=0.5;probs[dim-1]=0.5;probs=probs.map(p=>Math.max(0,p+(Math.random()-.5)*.025));}
+  else if(state.gates.length>0){probs=Array.from({length:dim},()=>Math.random()**2);}
+  else{probs[0]=1;}
+  const tot=probs.reduce((a,b)=>a+b,0);probs=probs.map(p=>p/tot);
+  const counts={};let rem=shots;
+  probs.forEach((p,i)=>{const c=i===probs.length-1?rem:Math.round(p*shots);rem-=c;if(c>0)counts[i.toString(2).padStart(n,'0')]=c;});
+  const sv=probs.map(p=>{const amp=Math.sqrt(p),phi=Math.random()*Math.PI*2;return[amp*Math.cos(phi),amp*Math.sin(phi)];});
+  return{counts,probs,shots,sv,n,fid};
+}
+
+// ── PROMPT 6+7: DISPLAY RESULTS ───────────────────────────────────────────
+function displayResults(res,fid,shots){
+  showPanel('results',document.getElementById('pt-res'));
+  document.getElementById('no-results').style.display='none';
+  document.getElementById('results-content').style.display='block';
+  const be=document.getElementById('opt-mode').value==='manual'?document.getElementById('manual-be').value:'tensornetwork (MPS)';
+  document.getElementById('r-status').textContent='Completed ✓';
+  document.getElementById('r-backend').textContent=be;
+  document.getElementById('r-time').textContent=(0.28+Math.random()*.4).toFixed(3)+'s';
+  document.getElementById('r-fid').textContent=fid.toFixed(4);
+  document.getElementById('fid-fill').style.width=(fid*100)+'%';
+  document.getElementById('r-shots').textContent=shots+' shots';
+  document.getElementById('r-conf').textContent=(82+Math.random()*12).toFixed(1)+'%';
+  document.getElementById('r-reason').textContent=be+' · rl_refine';
+  renderProbBars(res);
+  renderSVBars(res);
+  // Update Bloch
+  state.blochPhase=Math.random()*Math.PI*2;
+  drawBloch();
+  // Update entanglement
+  drawEntanglement(res);
+}
+
+function renderProbBars(res){
+  const cont=document.getElementById('prob-bars');cont.innerHTML='';
+  const entries=Object.entries(res.counts).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const maxC=Math.max(...entries.map(e=>e[1]));
+  entries.forEach(([bs,cnt])=>{
+    const pct=(cnt/res.shots*100).toFixed(1);
+    const row=document.createElement('div');row.className='bar-row';
+    row.innerHTML=`<span class="bar-bs">|${bs}⟩</span><div class="bar-bg"><div class="bar-fill" style="width:${cnt/maxC*100}%;transition:width .5s ease"></div></div><span class="bar-pct">${pct}%</span>`;
+    row.title=`|${bs}⟩: ${cnt} counts (${pct}%)`;
+    cont.appendChild(row);
+  });
+}
+function renderSVBars(res){
+  const cont=document.getElementById('sv-bars');cont.innerHTML='';
+  const dim=Math.min(2**res.n,16);
+  const maxAmp=Math.max(...res.sv.slice(0,dim).map(([r,i])=>Math.sqrt(r*r+i*i)),1e-10);
+  res.sv.slice(0,dim).forEach(([re,im],idx)=>{
+    const bs=idx.toString(2).padStart(res.n,'0');
+    const row=document.createElement('div');row.className='sv-row';
+    row.innerHTML=`
+      <span class="sv-bs">|${bs}⟩</span>
+      <div style="flex:1;height:22px;position:relative">
+        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.07)"></div>
+        <div style="height:9px;position:absolute;top:2px;border-radius:1px;background:rgba(0,132,255,.85);${re>=0?'left:50%':'right:50%;'};width:${Math.abs(re)/maxAmp*45}%"></div>
+        <div style="height:9px;position:absolute;bottom:2px;border-radius:1px;background:rgba(0,212,184,.85);${im>=0?'left:50%':'right:50%;'};width:${Math.abs(im)/maxAmp*45}%"></div>
+      </div>
+      <span style="font-size:8px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:28px;text-align:right">${(Math.sqrt(re*re+im*im)/maxAmp*100).toFixed(0)}%</span>
+    `;
+    row.title=`|${bs}⟩: re=${re.toFixed(4)} im=${im.toFixed(4)}`;
+    cont.appendChild(row);
+  });
+}
+
+// ── PROMPT 7: 3D BLOCH SPHERE (Canvas) ─────────────────────────────────────
+let blochAutoTick=null;
+
+function proj3d(x,y,z,rx,ry){
+  const D=300;
+  const x1=x*Math.cos(ry)+z*Math.sin(ry),z1=-x*Math.sin(ry)+z*Math.cos(ry);
+  const y2=y*Math.cos(rx)-z1*Math.sin(rx),z2=y*Math.sin(rx)+z1*Math.cos(rx);
+  const s=D/(D+z2+100);
+  return{px:x1*s,py:y2*s,d:z2};
+}
+
+function drawBloch(){
+  const canvas=document.getElementById('bloch-canvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,R=W*.37;
+  const rx=state.blochRx,ry=state.blochRy;
+  ctx.clearRect(0,0,W,H);
+
+  const p0=state.results?state.results.probs[0]??0.5:1;
+  const clamp=Math.max(1e-6,Math.min(1-1e-6,p0));
+  const theta=2*Math.acos(Math.sqrt(clamp));
+  const phi=state.blochPhase;
+  const sx=R*Math.sin(theta)*Math.cos(phi),sy=-R*Math.cos(theta),sz=R*Math.sin(theta)*Math.sin(phi);
+
+  // Sphere
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(22,36,64,0.7)';ctx.lineWidth=1;ctx.stroke();
+
+  // Wireframe
+  const N=40;
+  for(let li=1;li<7;li++){
+    const lat=li/7*Math.PI,yr=R*Math.cos(lat),rr=R*Math.sin(lat);
+    ctx.beginPath();
+    for(let ai=0;ai<=N;ai++){
+      const a=ai/N*Math.PI*2,p=proj3d(rr*Math.cos(a),yr,rr*Math.sin(a),rx,ry);
+      ai===0?ctx.moveTo(cx+p.px,cy+p.py):ctx.lineTo(cx+p.px,cy+p.py);
+    }
+    ctx.strokeStyle='rgba(22,36,64,0.8)';ctx.lineWidth=.5;ctx.stroke();
+  }
+  for(let li=0;li<4;li++){
+    const lon=li/4*Math.PI;
+    ctx.beginPath();
+    for(let ai=0;ai<=N;ai++){
+      const lat=ai/N*Math.PI,p=proj3d(R*Math.sin(lat)*Math.cos(lon),-R*Math.cos(lat),R*Math.sin(lat)*Math.sin(lon),rx,ry);
+      ai===0?ctx.moveTo(cx+p.px,cy+p.py):ctx.lineTo(cx+p.px,cy+p.py);
+    }
+    ctx.strokeStyle='rgba(22,36,64,0.8)';ctx.lineWidth=.5;ctx.stroke();
+  }
+
+  // Axes
+  [[[0,1,0],'+Z','#5A7AB0'],[[0,-1,0],'-Z','#2A3F60'],[[1,0,0],'X','#3A5070'],[[0,0,1],'Y','#3A5070']].forEach(([v,lbl,col])=>{
+    const tip=proj3d(v[0]*R*1.22,v[1]*R*1.22,v[2]*R*1.22,rx,ry);
+    const neg=proj3d(v[0]*R*-.2,v[1]*R*-.2,v[2]*R*-.2,rx,ry);
+    ctx.beginPath();ctx.moveTo(cx+neg.px,cy+neg.py);ctx.lineTo(cx+tip.px,cy+tip.py);
+    ctx.strokeStyle='#1D3058';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle=col;ctx.font='8px IBM Plex Mono,monospace';ctx.textAlign='center';
+    ctx.fillText(lbl,cx+tip.px+(tip.px)*0.07,cy+tip.py+(tip.py)*0.07+3);
+  });
+
+  // State vector glow
+  const tip=proj3d(sx,sy,sz,rx,ry);
+  const ori=proj3d(0,0,0,rx,ry);
+  const grd=ctx.createLinearGradient(cx+ori.px,cy+ori.py,cx+tip.px,cy+tip.py);
+  grd.addColorStop(0,'rgba(0,132,255,0)');grd.addColorStop(1,'rgba(0,132,255,0.4)');
+  ctx.beginPath();ctx.moveTo(cx+ori.px,cy+ori.py);ctx.lineTo(cx+tip.px,cy+tip.py);
+  ctx.strokeStyle=grd;ctx.lineWidth=6;ctx.lineCap='round';ctx.stroke();
+  // Main line
+  ctx.beginPath();ctx.moveTo(cx+ori.px,cy+ori.py);ctx.lineTo(cx+tip.px,cy+tip.py);
+  ctx.strokeStyle='#0084FF';ctx.lineWidth=2.5;ctx.shadowColor='rgba(0,132,255,0.8)';ctx.shadowBlur=8;ctx.stroke();
+  ctx.shadowBlur=0;
+  // Tip circles
+  ctx.beginPath();ctx.arc(cx+tip.px,cy+tip.py,8,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,212,184,0.15)';ctx.strokeStyle='#00D4B8';ctx.lineWidth=1.5;
+  ctx.shadowColor='rgba(0,212,184,0.6)';ctx.shadowBlur=12;ctx.fill();ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.beginPath();ctx.arc(cx+tip.px,cy+tip.py,4,0,Math.PI*2);
+  ctx.fillStyle='#00D4B8';ctx.shadowColor='rgba(0,212,184,0.9)';ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;
+  // Origin
+  ctx.beginPath();ctx.arc(cx+ori.px,cy+ori.py,2,0,Math.PI*2);ctx.fillStyle='#2A3F60';ctx.fill();
+
+  // Update coords display
+  document.getElementById('bloch-coords').textContent=`θ=${theta.toFixed(3)} rad  φ=${phi.toFixed(3)} rad`;
+  document.getElementById('bloch-probs').textContent=`P(|0⟩)=${p0.toFixed(4)}  P(|1⟩)=${(1-p0).toFixed(4)}`;
+}
+
+function resetBloch(){state.blochRx=-.38;state.blochRy=.55;drawBloch();}
+
+// Bloch drag
+const bc=()=>document.getElementById('bloch-canvas');
+function blochDown(e){state.blochDragging=true;state.blochLast={x:e.clientX,y:e.clientY};if(blochAutoTick)clearInterval(blochAutoTick);}
+function blochMove(e){
+  if(!state.blochDragging)return;
+  const dx=e.clientX-state.blochLast.x,dy=e.clientY-state.blochLast.y;
+  state.blochRy+=dx*.011;state.blochRx+=dy*.011;
+  state.blochLast={x:e.clientX,y:e.clientY};drawBloch();
+}
+function blochUp(){state.blochDragging=false;}
+
+// ── PROMPT 7: ENTANGLEMENT ─────────────────────────────────────────────────
+function computeEntanglement(counts,n,shots){
+  const mat=Array.from({length:n},()=>new Array(n).fill(0));
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+    const joint={};
+    for(const[bs,cnt]of Object.entries(counts)){
+      const bi=bs[bs.length-1-i]??'0',bj=bs[bs.length-1-j]??'0';
+      const k=bi+bj;joint[k]=(joint[k]||0)+cnt/shots;
+    }
+    const H=(p)=>p>0?-p*Math.log2(p):0;
+    const px0=(joint['00']||0)+(joint['01']||0),px1=(joint['10']||0)+(joint['11']||0);
+    const py0=(joint['00']||0)+(joint['10']||0),py1=(joint['01']||0)+(joint['11']||0);
+    const HX=H(px0)+H(px1),HY=H(py0)+H(py1);
+    const HXY=H(joint['00']||0)+H(joint['01']||0)+H(joint['10']||0)+H(joint['11']||0);
+    const MI=Math.max(0,(HX+HY-HXY));
+    mat[i][j]=mat[j][i]=Math.min(1,MI);
+  }
+  return mat;
+}
+
+function drawEntanglement(res){
+  if(!res||!res.n||res.n<2)return;
+  const mat=computeEntanglement(res.counts,res.n,res.shots);
+  drawHeatmap(mat,res.n);
+  drawChord(mat,res.n);
+}
+
+function drawHeatmap(mat,n){
+  const CELL=Math.min(Math.floor(280/(n+1)),32);
+  const canvas=document.getElementById('heat-canvas');
+  canvas.width=(n+1)*CELL;canvas.height=(n+1)*CELL;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Labels
+  ctx.fillStyle='var(--t3)';ctx.font='9px IBM Plex Mono,monospace';ctx.textAlign='center';
+  for(let j=0;j<n;j++)ctx.fillText('Q'+j,CELL+j*CELL+CELL/2,CELL-3);
+  ctx.textAlign='right';
+  for(let i=0;i<n;i++)ctx.fillText('Q'+i,CELL-4,CELL+i*CELL+CELL/2+3);
+  // Cells
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+    const val=i===j?1:(mat[i]?.[j]??0);
+    const r=Math.round(val*0),g=Math.round(val*212),b=Math.round(val*184+(1-val)*255);
+    ctx.fillStyle=i===j?'rgba(0,132,255,0.3)':`rgba(${r},${g},${b},${0.2+val*0.8})`;
+    ctx.beginPath();ctx.roundRect(CELL+j*CELL,CELL+i*CELL,CELL-2,CELL-2,2);ctx.fill();
+    if(i!==j&&val>0.08){
+      ctx.fillStyle='rgba(255,255,255,0.65)';ctx.font='7px IBM Plex Mono,monospace';ctx.textAlign='center';
+      ctx.fillText(val.toFixed(2),CELL+j*CELL+CELL/2-1,CELL+i*CELL+CELL/2+3);
+    }
+  }
+}
+
+function drawChord(mat,n){
+  const canvas=document.getElementById('chord-canvas');
+  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,R=74;
+  ctx.clearRect(0,0,W,H);
+  const nodes=Array.from({length:n},(_,i)=>{const a=(i/n)*Math.PI*2-Math.PI/2;return{i,x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)};});
+  // Chords
+  nodes.forEach(ni=>nodes.filter(nj=>nj.i>ni.i).forEach(nj=>{
+    const val=mat[ni.i]?.[nj.i]??0;if(val<0.02)return;
+    const grd=ctx.createLinearGradient(ni.x,ni.y,nj.x,nj.y);
+    grd.addColorStop(0,'rgba(0,132,255,'+(0.3+val*.6)+')');
+    grd.addColorStop(1,'rgba(0,212,184,'+(0.3+val*.6)+')');
+    ctx.beginPath();ctx.moveTo(ni.x,ni.y);ctx.quadraticCurveTo(cx,cy,nj.x,nj.y);
+    ctx.strokeStyle=grd;ctx.lineWidth=Math.max(.5,val*5);ctx.stroke();
+  }));
+  // Nodes
+  nodes.forEach(n=>{
+    ctx.beginPath();ctx.arc(n.x,n.y,8,0,Math.PI*2);
+    ctx.fillStyle='var(--card)';ctx.strokeStyle='var(--blue)';ctx.lineWidth=1.5;ctx.fill();ctx.stroke();
+    ctx.fillStyle='var(--blue)';ctx.font='8px IBM Plex Mono,monospace';ctx.textAlign='center';
+    ctx.fillText('Q'+n.i,n.x,n.y+3.5);
+  });
+}
+
+// ── TAB / PANEL SWITCHING ──────────────────────────────────────────────────
+function showTab(t,btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['ov-ai','ov-jobs','ov-backends'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  if(t==='ai'){buildAIPanel();document.getElementById('ov-ai').classList.add('show');}
+  if(t==='jobs'){buildJobList();document.getElementById('ov-jobs').classList.add('show');}
+  if(t==='backends'){buildBackends();document.getElementById('ov-backends').classList.add('show');}
+}
+function closeOverlay(id){document.getElementById(id).classList.remove('show')}
+function showPanel(p,btn){
+  ['properties','execution','results'].forEach(n=>document.getElementById(`p-${n}`).style.display=n===p?'block':'none');
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById(`pt-${p==='properties'?'prop':p==='execution'?'exec':'res'}`).classList.add('active');
+}
+function showViz(v,btn){
+  document.querySelectorAll('.vtab').forEach(b=>b.classList.remove('av'));btn.classList.add('av');
+  ['probs','sv','bloch','engl'].forEach(id=>document.getElementById('viz-'+id).style.display=id===v?'block':'none');
+  if(v==='bloch'){drawBloch();startBlochAuto();}
+  if(v==='engl'&&state.results)drawEntanglement(state.results);
+}
+function showEngl(m,btn){
+  state.englMode=m;
+  document.querySelectorAll('.engl-tab').forEach(b=>b.classList.remove('av'));btn.classList.add('av');
+  document.getElementById('engl-heat').style.display=m==='heat'?'block':'none';
+  document.getElementById('engl-chord').style.display=m==='chord'?'block':'none';
+}
+
+function startBlochAuto(){
+  if(blochAutoTick)clearInterval(blochAutoTick);
+  blochAutoTick=setInterval(()=>{if(!state.blochDragging){state.blochRy+=.007;drawBloch();}},40);
+}
+function modeChange(v){document.getElementById('manual-row').style.display=v==='manual'?'flex':'none'}
+function filterGates(q){document.querySelectorAll('#gate-palette .gi').forEach(item=>{const t=item.textContent.toLowerCase();item.style.display=(!q||t.includes(q.toLowerCase()))?'flex':'none'});}
+
+// ── PROMPT 9: AI PANEL ─────────────────────────────────────────────────────
+const FEATURES=[
+  {n:'entanglement',v:.78,c:'#00D4B8',desc:'Mean concurrence across qubit pairs'},
+  {n:'n_qubits',    v:.62,c:'#0084FF',desc:'Circuit qubit count (normalised)'},
+  {n:'sv_feasible', v:.55,c:'#F5A623',desc:'Statevector simulation feasible flag'},
+  {n:'depth',       v:.44,c:'#FF4757',desc:'Circuit depth (normalised)'},
+  {n:'hw_available',v:.33,c:'#A855F7',desc:'Real hardware availability score'},
+  {n:'queue_time',  v:.18,c:'#7C3AED',desc:'Estimated queue wait (inverted)'},
+  {n:'clifford_frac',v:.15,c:'#10B981',desc:'Fraction of Clifford gates'},
+  {n:'param_count', v:.12,c:'#E91E8C',desc:'Parameterized gate count (normalised)'},
+];
+const MHOS_DEVS=[
+  {d:'tensornetwork',p:'local',s:.963,f:.991,lat:.920,cost:1.00,st:'online',chosen:true},
+  {d:'ionq_aria-1',  p:'ionq', s:.954,f:.995,lat:.720,cost:.320,st:'online',chosen:false},
+  {d:'ibm_kyoto',    p:'ibm',  s:.914,f:.982,lat:.610,cost:.990,st:'online',chosen:false},
+  {d:'statevector',  p:'local',s:.982,f:1.000,lat:.950,cost:1.00,st:'online',chosen:false},
+];
+
+function buildAIPanel(){
+  // Features
+  const fr=document.getElementById('feat-rows');if(!fr)return;fr.innerHTML='';
+  FEATURES.forEach(f=>{
+    const row=document.createElement('div');row.className='feat-row';row.title=f.desc;
+    row.innerHTML=`<span class="feat-nm">${f.n}</span><div class="feat-bg"><div class="feat-fill" style="width:${f.v*100}%;background:${f.c}"></div></div><span class="feat-v">${f.v.toFixed(2)}</span>`;
+    fr.appendChild(row);
+  });
+  // MHOS devices
+  const md=document.getElementById('mhos-devices');if(!md)return;md.innerHTML='';
+  const provColors={ibm:'#0084FF',ionq:'#A855F7',local:'#00D4B8'};
+  MHOS_DEVS.forEach(d=>{
+    const div=document.createElement('div');div.className='bc-row'+(d.chosen?' chosen':'');
+    const pc=provColors[d.p]||'#4A6080';
+    div.innerHTML=`
+      <div class="bc-icon" style="background:${pc}18;color:${pc};border:1px solid ${pc}35">${d.p.slice(0,2).toUpperCase()}</div>
+      <div class="bc-info">
+        <div class="bc-name">${d.d}${d.chosen?'<span class="tag tag-mhos" style="margin-left:5px">chosen</span>':''}</div>
+        <div class="bc-meta">F=${d.f.toFixed(3)} · lat=${d.lat.toFixed(2)} · cost=${d.cost.toFixed(2)}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="bc-score" style="color:${d.s>.95?'var(--ok)':d.s>.85?'var(--cyan)':'var(--warn)'}">${d.s.toFixed(3)}</div>
+        <div class="score-bar"><div class="score-fill" style="width:${d.s*100}%;background:${d.chosen?'linear-gradient(90deg,var(--blue),var(--cyan))':'var(--bhi)'}"></div></div>
+      </div>
+    `;
+    md.appendChild(div);
+  });
+}
+
+// ── JOB/BACKEND DATA ─────────────────────────────────────────────────────────
+const JOBS=[
+  {id:'j-a1b2',name:'Bell State',      st:'completed',be:'tensornetwork',time:'2m ago', fid:'0.9997'},
+  {id:'j-c3d4',name:'GHZ 5-qubit',     st:'completed',be:'ibm_kyoto',   time:'15m ago',fid:'0.9821'},
+  {id:'j-e5f6',name:'VQE Ansatz',       st:'running',  be:'ionq_aria',   time:'now',    fid:'—'},
+  {id:'j-g7h8',name:'QFT n=4',          st:'completed',be:'statevector', time:'1h ago', fid:'1.0000'},
+  {id:'j-i9j0',name:'QAOA MaxCut',      st:'queued',   be:'braket',      time:'queued', fid:'—'},
+  {id:'j-k1l2',name:'Grover Search',    st:'completed',be:'tensornetwork',time:'2h ago',fid:'0.9934'},
+  {id:'j-m3n4',name:'Phase Estimation', st:'failed',   be:'ibm_sherbrooke',time:'3h ago',fid:'—'},
+  {id:'j-o5p6',name:'Quantum Teleport', st:'completed',be:'ionq_forte',  time:'4h ago', fid:'0.9886'},
+];
+const DC={completed:'var(--ok)',running:'var(--warn)',queued:'var(--blue)',failed:'var(--err)'};
+function buildJobList(){
+  const el=document.getElementById('jobs-list');if(!el)return;
+  el.innerHTML=JOBS.map(j=>`
+    <div class="jrow">
+      <div class="jdot" style="background:${DC[j.st]||'var(--t3)'}"></div>
+      <div class="jid">${j.id}</div>
+      <div class="jname">${j.name}</div>
+      <span class="jbadge ${j.st}">${j.st}</span>
+      <span style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:56px">${j.be.slice(0,10)}</span>
+      ${j.fid!=='—'?`<span style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--cyan)">${j.fid}</span>`:'<span style="width:38px"></span>'}
+      <div class="jtime">${j.time}</div>
+    </div>`).join('');
+}
+const BACKENDS=[
+  {id:'statevector',  name:'StatevectorSimulator',  prov:'local',  n:28, q:0, f:'1.000',cost:'Free',    st:'online',  sc:'0.982',ic:'SV',c:'#0084FF'},
+  {id:'tensornetwork',name:'TensorNet MPS χ=64',    prov:'local',  n:200,q:0, f:'0.991',cost:'Free',    st:'online',  sc:'0.963',ic:'TN',c:'#00D4B8'},
+  {id:'ibm_kyoto',    name:'IBM Kyoto',              prov:'ibm',    n:127,q:12,f:'0.982',cost:'Free',    st:'online',  sc:'0.914',ic:'IB',c:'#0084FF'},
+  {id:'ibm_sherbrooke',name:'IBM Sherbrooke',        prov:'ibm',    n:127,q:4, f:'0.987',cost:'Free',    st:'online',  sc:'0.931',ic:'IB',c:'#0084FF'},
+  {id:'ionq_aria',    name:'IonQ Aria 1',            prov:'ionq',   n:25, q:5, f:'0.995',cost:'$0.00035/shot',st:'online',sc:'0.954',ic:'IQ',c:'#A855F7'},
+  {id:'ionq_forte',   name:'IonQ Forte 1',           prov:'ionq',   n:36, q:2, f:'0.998',cost:'$0.00097/shot',st:'online',sc:'0.972',ic:'IQ',c:'#A855F7'},
+  {id:'braket_ankaa', name:'Rigetti Ankaa-2 (Braket)',prov:'braket', n:84, q:1, f:'0.967',cost:'$0.00035/shot',st:'online',sc:'0.861',ic:'AW',c:'#F59E0B'},
+  {id:'rigetti_qcs',  name:'Rigetti Ankaa-2 (QCS)',  prov:'rigetti',n:84, q:3, f:'0.963',cost:'$0.00035/shot',st:'degraded',sc:'0.782',ic:'RG',c:'#10B981'},
+];
+function buildBackends(){
+  const el=document.getElementById('backends-list');if(!el)return;
+  el.innerHTML=BACKENDS.map(b=>`
+    <div class="bcard">
+      <div style="width:30px;height:30px;border-radius:var(--r1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:${b.c}18;color:${b.c};border:1px solid ${b.c}35">${b.ic}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:600">${b.name}</div>
+        <div style="font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:1px">${b.prov} · ${b.n}q · ${b.cost}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-bottom:3px">
+          <div style="width:5px;height:5px;border-radius:50%;background:${b.st==='online'?'var(--ok)':b.st==='degraded'?'var(--warn)':'var(--err)'}"></div>
+          <span style="font-size:8px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${b.st}</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${parseFloat(b.sc)>.9?'var(--ok)':parseFloat(b.sc)>.8?'var(--cyan)':'var(--warn)'}">${b.sc}</div>
+        <div style="font-size:8px;color:var(--t3)">MHOS score</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── TOASTS ──────────────────────────────────────────────────────────────────
+function toast(title,msg,type='info'){
+  const icons={success:'✓',error:'✕',warn:'⚠',info:'ℹ'};
+  const t=document.createElement('div');t.className=`toast ${type}`;
+  t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><div><div class="toast-title">${title}</div><div class="toast-body">${msg}</div></div>`;
+  document.getElementById('toast-con').appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},3500);
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  const tag=e.target.tagName;if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undo();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='e'){e.preventDefault();exportCircuit();}
+  if((e.key==='Delete'||e.key==='Backspace')&&state.selId){e.preventDefault();delGate();}
+});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  // Load Bell state demo
+  pushHistory();
+  state.gates=[
+    {id:mkId(),name:'H', q:0,col:0,params:[],errMsg:null},
+    {id:mkId(),name:'CX',q:0,t:1,col:1,params:[],errMsg:null},
+  ];
+  render();
+  buildPipeline();
+  buildAIPanel();
+
+  // Bloch sphere drag
+  const bc=document.getElementById('bloch-canvas');
+  bc.addEventListener('mousedown',e=>{state.blochDragging=true;state.blochLast={x:e.clientX,y:e.clientY};});
+  bc.addEventListener('mousemove',blochMove);
+  bc.addEventListener('mouseup',blochUp);
+  bc.addEventListener('mouseleave',blochUp);
+
+  // Scroll → redraw connectors
+  document.getElementById('canvas-scroll').addEventListener('scroll',()=>setTimeout(drawConnectors,10));
+
+  document.getElementById('circ-name').addEventListener('input',e=>{state.name=e.target.value});
+
+  toast('Platform Ready','Zuntenium Visual Tools v5 · Prompts 1–9 Complete ✓','success');
+  // Auto-spin bloch (idle)
+  blochAutoTick=setInterval(()=>{if(!state.blochDragging){state.blochRy+=.007;drawBloch();}},40);
+});
+</script>
+</body>
+</html>

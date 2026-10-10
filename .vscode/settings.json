@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "/home/vincent/zuntenium/bindings",
+    "github-actions.workflows.pinned.refresh.enabled": false,
+    "github-actions.org.features.actions": false,
+    "github-actions.remote-action-resolution.enabled": false,
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+}

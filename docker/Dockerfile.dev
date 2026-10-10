@@ -1,0 +1,25 @@
+FROM python:3.11-slim
+
+LABEL maintainer="dev@zuntenium.io"
+LABEL description="ZUNTENIUM development environment"
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    libopenblas-dev \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY pyproject.toml setup.cfg ./
+RUN pip install --upgrade pip && pip install -e ".[dev]"
+
+COPY . .
+RUN bash scripts/build_bindings.sh || echo "C++ bindings skipped — falling back to pure Python"
+
+ENV ZUNTENIUM_BACKEND=auto
+ENV PYTHONUNBUFFERED=1
+
+CMD ["pytest", "tests/", "-v", "--tb=short"]

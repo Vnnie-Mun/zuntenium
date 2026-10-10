@@ -1,0 +1,50 @@
+name: Benchmarks
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 3 * * 1"   # Every Monday at 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y build-essential cmake libopenblas-dev
+          pip install -e ".[dev]"
+
+      - name: Build C++ bindings
+        run: bash scripts/build_bindings.sh
+        continue-on-error: true
+
+      - name: Run benchmarks
+        run: |
+          python scripts/benchmark_runner.py \
+            --output benchmark_results.json \
+            --qubit-range 2,20 \
+            --shots 1024
+
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: pytest
+          output-file-path: benchmark_results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          alert-threshold: "150%"
+          comment-on-alert: true
+          fail-on-alert: false

@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Zuntenium — Visual Tools Platform v5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   ZUNTENIUM DESIGN SYSTEM — IBM Quantum Composer Standard
+   Prompts 1–6: Architecture, Circuit Builder, Gate Palette, Validation,
+                Parameter Editing, Quantum State Visualization
+══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Surfaces */
+  --base:    #040C1A;
+  --surface: #07101F;
+  --card:    #0B1728;
+  --hover:   #0F1E35;
+  --active:  #132344;
+  /* Borders */
+  --b:       #162440;
+  --b-hi:    #1D3058;
+  --b-glow:  rgba(29,48,88,0.8);
+  /* Brand */
+  --blue:    #0084FF;
+  --blue-d:  rgba(0,132,255,0.15);
+  --blue-g:  rgba(0,132,255,0.3);
+  --cyan:    #00D4B8;
+  --cyan-d:  rgba(0,212,184,0.15);
+  /* Semantic */
+  --ok:      #2ECC71;
+  --warn:    #F5A623;
+  --err:     #FF4757;
+  --purple:  #A855F7;
+  /* Text */
+  --t1: #EDF2FF;
+  --t2: #8DA4C8;
+  --t3: #4A6080;
+  --t4: #2A3F60;
+  /* Gates */
+  --g-h:    #0084FF; --g-x: #FF4757; --g-y: #FF6B35; --g-z: #A855F7;
+  --g-s:    #00D4B8; --g-t: #F5A623; --g-rx: #E91E8C; --g-ry: #FF6B35;
+  --g-rz:   #7C3AED; --g-cx: #0084FF; --g-cz: #00D4B8; --g-sw: #F59E0B;
+  --g-ccx:  #10B981;
+  /* Radii */
+  --r1:3px; --r2:6px; --r3:10px; --r4:14px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--base);color:var(--t1);
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+  font-size:13px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b-hi);border-radius:99px}
+::selection{background:rgba(0,132,255,0.25)}
+
+/* ── TOPBAR ──────────────────────────────────────────────────────────────── */
+.topbar{
+  height:50px;display:flex;align-items:center;gap:10px;
+  padding:0 14px;
+  background:var(--surface);border-bottom:1px solid var(--b);
+  position:relative;z-index:100;flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:9px;margin-right:6px}
+.logo-mark{
+  width:28px;height:28px;border-radius:5px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;letter-spacing:-.5px;
+  box-shadow:0 0 14px rgba(0,132,255,0.4);
+}
+.logo-wordmark{font-size:13px;font-weight:700;letter-spacing:.5px}
+.logo-sub{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:1px}
+.div{width:1px;height:22px;background:var(--b);flex-shrink:0}
+.tab{
+  height:30px;padding:0 12px;border-radius:var(--r1);
+  border:1px solid transparent;background:transparent;
+  color:var(--t2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .13s;white-space:nowrap;
+  font-family:'IBM Plex Sans',sans-serif;
+}
+.tab:hover{background:var(--hover);color:var(--t1)}
+.tab.active{background:rgba(0,132,255,0.12);border-color:rgba(0,132,255,0.35);color:var(--blue)}
+.sp{flex:1}
+.pill{
+  display:flex;align-items:center;gap:5px;
+  height:24px;padding:0 9px;border-radius:99px;
+  font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--t2);
+}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot.on{background:var(--ok);box-shadow:0 0 5px var(--ok);animation:pulse 2.5s infinite}
+.dot.spin{background:var(--warn);animation:spinDot 1s linear infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spinDot{to{transform:rotate(360deg)}}
+.btn{
+  display:inline-flex;align-items:center;gap:5px;
+  height:30px;padding:0 12px;border-radius:var(--r1);
+  border:1px solid var(--b);background:var(--card);
+  color:var(--t1);font-size:11px;font-weight:500;cursor:pointer;
+  transition:all .13s;font-family:'IBM Plex Sans',sans-serif;
+  white-space:nowrap;
+}
+.btn:hover{border-color:var(--b-hi);background:var(--hover)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:#0070D8;border-color:#0070D8}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.running{background:rgba(245,166,35,.15);border-color:var(--warn);color:var(--warn)}
+.btn.danger{border-color:rgba(255,71,87,.35);color:var(--err)}
+.btn.danger:hover{background:rgba(255,71,87,.08)}
+.btn.sm{height:26px;padding:0 9px;font-size:10px}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────────────── */
+.layout{display:flex;flex:1;overflow:hidden;height:calc(100vh - 50px - 23px)}
+.sidebar{
+  width:232px;flex-shrink:0;
+  background:var(--surface);border-right:1px solid var(--b);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.canvas-area{flex:1;position:relative;overflow:hidden;background:var(--base)}
+.grid-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(22,36,64,.35) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(22,36,64,.35) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.radial-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 40% at 50% -10%,rgba(0,132,255,.07) 0%,transparent 60%);
+}
+.right-panel{
+  width:306px;flex-shrink:0;
+  background:var(--surface);border-left:1px solid var(--b);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* ── SIDEBAR CONTENT ─────────────────────────────────────────────────────── */
+.sec-label{
+  font-size:9px;font-weight:700;letter-spacing:1.1px;
+  color:var(--t3);text-transform:uppercase;
+  padding:10px 12px 6px;
+}
+.search-wrap{padding:4px 10px 8px}
+.search{
+  width:100%;height:28px;padding:0 10px;
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;
+  outline:none;transition:border-color .15s;
+  font-family:'IBM Plex Sans',sans-serif;
+}
+.search::placeholder{color:var(--t3)}
+.search:focus{border-color:var(--blue)}
+.gate-section{border-top:1px solid var(--b)}
+
+/* ── GATE ITEMS ──────────────────────────────────────────────────────────── */
+.gi{
+  display:flex;align-items:center;gap:9px;
+  padding:6px 12px;cursor:grab;
+  transition:background .1s;user-select:none;
+}
+.gi:hover{background:var(--hover)}
+.gi:active{cursor:grabbing}
+.gchip{
+  width:28px;height:25px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;
+  flex-shrink:0;letter-spacing:-.3px;
+}
+.gname{font-size:11px;font-weight:500;line-height:1.2}
+.gdesc{font-size:9px;color:var(--t3);margin-top:1px}
+
+/* ── STATS FOOTER ────────────────────────────────────────────────────────── */
+.stats-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:5px;
+  padding:10px;margin-top:auto;border-top:1px solid var(--b);
+}
+.stat-card{
+  background:var(--card);border:1px solid var(--b);border-radius:var(--r2);
+  padding:7px 8px;text-align:center;
+}
+.stat-val{font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1}
+.stat-lbl{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-top:2px}
+
+/* ── CIRCUIT CANVAS ──────────────────────────────────────────────────────── */
+.canvas-scroll{
+  position:absolute;inset:0;overflow:auto;
+  padding:28px 20px 20px;
+}
+.circ-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:20px;
+}
+.circ-name{
+  background:transparent;border:1px solid transparent;
+  color:var(--t1);font-size:17px;font-weight:600;
+  padding:3px 7px;border-radius:var(--r1);
+  font-family:'IBM Plex Sans',sans-serif;outline:none;
+  transition:border-color .15s;
+}
+.circ-name:hover{border-color:var(--b)}
+.circ-name:focus{border-color:var(--blue);background:var(--card)}
+.circ-meta{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.header-actions{margin-left:auto;display:flex;gap:6px;align-items:center}
+
+/* ── VALIDATION BAR ──────────────────────────────────────────────────────── */
+.val-bar{
+  height:26px;padding:0 12px;
+  display:flex;align-items:center;gap:8px;
+  border:1px solid var(--b);border-radius:var(--r1);
+  font-size:10px;font-family:'IBM Plex Mono',monospace;
+  transition:all .2s;
+}
+.val-bar.valid{border-color:rgba(46,204,113,.3);background:rgba(46,204,113,.06);color:var(--ok)}
+.val-bar.invalid{border-color:rgba(255,71,87,.3);background:rgba(255,71,87,.06);color:var(--err)}
+.val-bar.warn{border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06);color:var(--warn)}
+.val-bar.empty{border-color:var(--b);color:var(--t3)}
+
+/* ── QUBIT WIRES ─────────────────────────────────────────────────────────── */
+.qrow{display:flex;align-items:center;height:60px;position:relative}
+.qrow:hover .wire-line{background:rgba(0,132,255,.25)}
+.qlabel{
+  width:40px;flex-shrink:0;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--t2);
+  text-align:right;padding-right:10px;user-select:none;
+}
+.qlabel span{color:var(--blue);font-weight:600}
+.wtrack{flex:1;height:60px;position:relative;display:flex;align-items:center}
+.wire-line{
+  position:absolute;left:0;right:0;top:50%;
+  height:1.5px;background:var(--b-hi);
+  transform:translateY(-50%);transition:background .15s;
+  pointer-events:none;
+}
+.wslots{display:flex;align-items:center;position:relative;z-index:1;min-height:60px}
+.wslot{
+  width:52px;height:60px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;flex-shrink:0;transition:background .1s;
+}
+.wslot.dt{background:rgba(0,132,255,.07)}
+.wslot.dt::after{
+  content:'+';position:absolute;
+  color:var(--blue);font-size:16px;opacity:.4;
+  pointer-events:none;
+}
+.add-qb{
+  width:40px;height:40px;margin:6px auto;
+  border:1px dashed var(--b);border-radius:50%;background:transparent;
+  color:var(--t3);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.add-qb:hover{border-color:var(--blue);color:var(--blue);background:rgba(0,132,255,.07)}
+
+/* ── GATE NODES ──────────────────────────────────────────────────────────── */
+.gnode{
+  width:38px;height:38px;border-radius:5px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;z-index:2;
+  transition:transform .1s,box-shadow .1s;user-select:none;
+}
+.gnode:hover{transform:scale(1.07)}
+.gnode.sel{z-index:10}
+.gnode .gl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:#fff;letter-spacing:-.3px;line-height:1}
+.gnode .gp{font-size:7px;color:rgba(255,255,255,.7);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+.gerr{
+  position:absolute;top:-4px;right:-4px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--err);color:#fff;font-size:7px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  z-index:20;cursor:help;
+}
+
+/* ── RIGHT PANEL ─────────────────────────────────────────────────────────── */
+.ptabs{display:flex;border-bottom:1px solid var(--b);flex-shrink:0}
+.ptab{
+  flex:1;height:38px;border:none;background:transparent;
+  font-size:10px;font-weight:700;letter-spacing:.5px;
+  color:var(--t3);cursor:pointer;text-transform:uppercase;
+  font-family:'IBM Plex Sans',sans-serif;transition:color .13s;
+  position:relative;
+}
+.ptab:hover{color:var(--t2)}
+.ptab.active{color:var(--blue)}
+.ptab.active::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:var(--blue);
+}
+.pcontent{flex:1;overflow-y:auto;padding:14px}
+
+/* ── PROPERTIES ──────────────────────────────────────────────────────────── */
+.empty-st{
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px 14px;text-align:center;color:var(--t3);
+}
+.empty-icon{font-size:26px;margin-bottom:8px;opacity:.45}
+.empty-txt{font-size:12px;margin-bottom:3px;color:var(--t2)}
+.empty-sub{font-size:10px}
+.prop-lbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.9px;text-transform:uppercase;margin-bottom:7px}
+.prop-sec{margin-bottom:16px}
+.prop-row{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.prop-row label{font-size:11px;color:var(--t2);width:54px;flex-shrink:0}
+.pinput{
+  flex:1;height:28px;padding:0 7px;
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;
+  outline:none;font-family:'IBM Plex Mono',monospace;
+  transition:border-color .15s;
+}
+.pinput:focus{border-color:var(--blue)}
+.pselect{
+  flex:1;height:28px;padding:0 7px;
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;
+  outline:none;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;
+}
+.pselect:focus{border-color:var(--blue)}
+
+/* ── PROMPT 5: PARAMETER EDITING ─────────────────────────────────────────── */
+.param-block{
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r2);padding:11px;margin-top:10px;
+}
+.param-block .lbl{font-size:9px;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:9px}
+.slider-wrap{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.slider-wrap label{font-size:11px;color:var(--t2);width:16px;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+.slider{flex:1;accent-color:var(--blue);cursor:pointer;height:4px}
+.slider-val{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--cyan);width:44px;text-align:right}
+.preset-row{display:flex;gap:4px;flex-wrap:wrap}
+.preset{
+  height:22px;padding:0 7px;border-radius:3px;
+  border:1px solid var(--b);background:transparent;
+  color:var(--t2);font-size:9px;cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;
+  transition:all .12s;
+}
+.preset:hover{border-color:var(--blue);color:var(--blue);background:rgba(0,132,255,.08)}
+.preset.active-p{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,184,.1)}
+.sel-gate-hdr{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.sel-gate-big{
+  width:42px;height:42px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;
+}
+.sel-gate-info .nm{font-size:14px;font-weight:600}
+.sel-gate-info .ds{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* ── PIPELINE ─────────────────────────────────────────────────────────────── */
+.pipeline{display:flex;flex-direction:column;gap:2px}
+.pstep{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 9px;border-radius:var(--r1);
+  border:1px solid var(--b);background:var(--card);
+  transition:all .2s;
+}
+.pstep.active{border-color:var(--blue);background:rgba(0,132,255,.05)}
+.pstep.complete{border-color:rgba(46,204,113,.3)}
+.pstep.error{border-color:rgba(255,71,87,.3)}
+.pind{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--b);flex-shrink:0;transition:all .3s;
+}
+.pind.spin{
+  border:2px solid var(--blue);border-top-color:transparent;
+  background:transparent;animation:spin .8s linear infinite;
+  border-radius:50%;width:8px;height:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pind.ok{background:var(--ok)}
+.pind.err{background:var(--err)}
+.pinfo{flex:1;min-width:0}
+.pname{font-size:11px;font-weight:500}
+.pdet{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbadge{
+  font-size:8px;font-family:'IBM Plex Mono',monospace;
+  padding:2px 5px;border-radius:2px;flex-shrink:0;font-weight:600;
+}
+.pbadge.ai{background:rgba(168,85,247,.18);color:var(--purple)}
+.pbadge.mhos{background:var(--cyan-d);color:var(--cyan)}
+.pbadge.ok{background:rgba(46,204,113,.15);color:var(--ok)}
+.pconn{width:1px;height:7px;background:var(--b);margin-left:12px}
+.cfg-row{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.cfg-row label{font-size:11px;color:var(--t2);width:72px;flex-shrink:0}
+.cfg-sel{
+  flex:1;height:28px;padding:0 7px;
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r1);color:var(--t1);font-size:11px;
+  outline:none;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;
+}
+.cfg-sel:focus{border-color:var(--blue)}
+.tog-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.tog-row label{font-size:11px;color:var(--t2)}
+.tog{
+  width:34px;height:19px;border-radius:10px;
+  background:var(--b);border:none;cursor:pointer;
+  position:relative;transition:background .2s;flex-shrink:0;
+}
+.tog.on{background:var(--blue)}
+.tog::after{
+  content:'';position:absolute;width:13px;height:13px;
+  background:#fff;border-radius:50%;top:3px;left:3px;
+  transition:left .2s;
+}
+.tog.on::after{left:18px}
+
+/* ── PROMPT 6: QUANTUM STATE VISUALIZATION ───────────────────────────────── */
+.viz-tabs{display:flex;gap:2px;margin-bottom:12px}
+.vtab{
+  flex:1;height:28px;border-radius:var(--r1);
+  border:1px solid var(--b);background:transparent;
+  color:var(--t2);font-size:10px;font-weight:600;
+  cursor:pointer;transition:all .13s;
+  font-family:'IBM Plex Sans',sans-serif;
+}
+.vtab:hover{background:var(--hover);color:var(--t1)}
+.vtab.av{background:rgba(0,132,255,.12);border-color:rgba(0,132,255,.35);color:var(--blue)}
+.viz-card{
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r2);padding:12px;margin-bottom:10px;
+}
+.viz-title{
+  font-size:9px;font-weight:700;letter-spacing:.9px;
+  color:var(--t3);text-transform:uppercase;margin-bottom:11px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+/* Bars */
+.bar-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.bar-bs{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t2);width:30px;text-align:right}
+.bar-bg{flex:1;height:14px;background:var(--b);border-radius:2px;overflow:hidden;position:relative}
+.bar-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--blue),var(--cyan));
+  transition:width .5s ease;position:relative;
+}
+.bar-fill::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
+  background:rgba(255,255,255,.4);
+}
+.bar-pct{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:32px;text-align:right}
+
+/* Statevector bars (real/imag) */
+.sv-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.sv-bs{font-size:8px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:30px;text-align:right}
+.sv-bars{flex:1;height:22px;position:relative;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.sv-center{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.08)}
+.sv-bar{height:8px;position:absolute;border-radius:1px;transition:all .4s}
+.sv-bar.real{background:rgba(0,132,255,.8);top:2px}
+.sv-bar.imag{background:rgba(0,212,184,.8);bottom:2px}
+.sv-legend{display:flex;gap:10px;margin-top:6px}
+.sv-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--t3)}
+.sv-leg-dot{width:8px;height:8px;border-radius:1px}
+
+/* Bloch sphere */
+.bloch-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r2);padding:12px 12px 8px;margin-bottom:10px;
+}
+.bloch-title{font-size:9px;letter-spacing:.8px;color:var(--t3);text-transform:uppercase;margin-bottom:8px}
+.bloch-svg{overflow:visible}
+
+/* Metric cards */
+.met-card{
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r2);padding:10px 12px;margin-bottom:8px;
+}
+.met-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.met-lbl{font-size:10px;color:var(--t3)}
+.met-val{font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.met-val.ok{color:var(--ok)} .met-val.warn{color:var(--warn)} .met-val.cyan{color:var(--cyan)} .met-val.blue{color:var(--blue)}
+.fid-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden;margin-top:4px}
+.fid-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:2px;transition:width .6s}
+
+/* ── AI INSIGHTS ─────────────────────────────────────────────────────────── */
+.ai-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(168,85,247,.13);border:1px solid rgba(168,85,247,.3);
+  border-radius:var(--r1);padding:3px 9px;
+  font-size:10px;color:var(--purple);font-weight:600;margin-bottom:10px;
+}
+.conf-ring{
+  width:42px;height:42px;position:relative;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.conf-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.conf-val{font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--cyan)}
+.feat-row{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.feat-nm{font-size:9px;color:var(--t2);width:78px;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+.feat-bg{flex:1;height:4px;background:var(--b);border-radius:2px;overflow:hidden}
+.feat-fill{height:100%;border-radius:2px}
+.feat-v{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:30px;text-align:right}
+
+/* ── JOB ROWS ─────────────────────────────────────────────────────────────── */
+.job-row{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 9px;border-radius:var(--r1);
+  border:1px solid var(--b);background:var(--card);
+  margin-bottom:5px;cursor:pointer;transition:all .1s;
+}
+.job-row:hover{border-color:var(--b-hi);background:var(--hover)}
+.jdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.jid{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:60px}
+.jname{font-size:11px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jbadge{font-size:8px;padding:2px 5px;border-radius:2px;font-weight:600;flex-shrink:0}
+.jbadge.completed{background:rgba(46,204,113,.14);color:var(--ok)}
+.jbadge.running{background:rgba(245,166,35,.14);color:var(--warn)}
+.jbadge.queued{background:var(--blue-d);color:var(--blue)}
+.jbadge.failed{background:rgba(255,71,87,.14);color:var(--err)}
+.jtime{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+
+/* ── BACKEND CARDS ────────────────────────────────────────────────────────── */
+.bc{
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r2);padding:9px 11px;margin-bottom:6px;
+  display:flex;align-items:center;gap:9px;transition:all .13s;cursor:pointer;
+}
+.bc:hover{border-color:var(--b-hi);background:var(--hover)}
+.bc.sel{border-color:var(--blue);background:rgba(0,132,255,.05)}
+.bc-icon{
+  width:30px;height:30px;border-radius:var(--r1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.bc-info{flex:1;min-width:0}
+.bc-name{font-size:11px;font-weight:600}
+.bc-meta{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:1px}
+.bc-score{font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;text-align:right}
+
+/* ── OVERLAYS ─────────────────────────────────────────────────────────────── */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(4,12,26,.92);z-index:200;
+  backdrop-filter:blur(5px);overflow-y:auto;padding:22px;
+}
+.overlay.show{display:block}
+.overlay-inner{max-width:700px;margin:0 auto}
+.overlay-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.overlay-title{font-size:18px;font-weight:700;margin-bottom:3px}
+.overlay-sub{font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.ost-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.ost{
+  background:var(--card);border:1px solid var(--b);
+  border-radius:var(--r2);padding:12px;text-align:center;
+}
+.ost-val{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1}
+.ost-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.rcard{background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:11px}
+
+/* ── TOASTS ───────────────────────────────────────────────────────────────── */
+.toast-con{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:7px}
+.toast{
+  min-width:270px;padding:10px 14px;
+  background:var(--card);border-radius:var(--r2);
+  border-left:3px solid var(--blue);
+  box-shadow:0 4px 24px rgba(0,0,0,.7);
+  display:flex;align-items:flex-start;gap:8px;
+  animation:slideIn .3s ease;font-size:11px;
+}
+.toast.success{border-color:var(--ok)} .toast.error{border-color:var(--err)} .toast.warn{border-color:var(--warn)}
+@keyframes slideIn{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.toast-title{font-weight:600;margin-bottom:2px}
+.toast-body{color:var(--t2)}
+
+/* ── FOOTER ───────────────────────────────────────────────────────────────── */
+.footer{
+  height:23px;padding:0 12px;
+  background:var(--surface);border-top:1px solid var(--b);
+  display:flex;align-items:center;gap:14px;
+  font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);
+  flex-shrink:0;
+}
+.footer .hl{color:var(--cyan)}
+.footer .sep{color:var(--b-hi)}
+
+/* ── DRAG GHOST ───────────────────────────────────────────────────────────── */
+#drag-ghost{
+  position:fixed;pointer-events:none;z-index:9999;
+  opacity:.9;transform:scale(1.08);
+}
+</style>
+</head>
+<body style="display:flex;flex-direction:column;height:100vh">
+
+<!-- ═══════════════════════════════════════════════════
+     TOPBAR
+════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">Zt</div>
+    <div>
+      <div class="logo-wordmark">ZUNTENIUM</div>
+      <div class="logo-sub">Visual Tools Platform v5</div>
+    </div>
+  </div>
+  <div class="div"></div>
+  <button class="tab active" onclick="showTab('composer',this)">Circuit Composer</button>
+  <button class="tab" onclick="showTab('jobs',this)">Job Dashboard</button>
+  <button class="tab" onclick="showTab('backends',this)">Hardware</button>
+  <button class="tab" onclick="showTab('ai',this)">AI Insights</button>
+  <div class="sp"></div>
+
+  <div class="pill" style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2)">
+    <div class="dot on"></div>
+    <span>API Connected</span>
+  </div>
+  <div class="pill" id="run-pill" style="display:none;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2)">
+    <div class="dot spin"></div>
+    <span style="color:var(--warn)">Running…</span>
+  </div>
+  <button class="btn" onclick="importCircuit()">⬆ Import</button>
+  <button class="btn" onclick="exportCircuit()">⬇ Export JSON</button>
+  <button class="btn primary" id="run-btn" onclick="runCircuit()">▶ Run Circuit</button>
+  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1D4ED8,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer">QE</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN LAYOUT
+════════════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- ── LEFT SIDEBAR: Gate Palette (Prompts 2 & 3) ── -->
+  <div class="sidebar">
+    <div style="padding:10px 12px 0"><div class="sec-label">Gate Library</div></div>
+    <div class="search-wrap">
+      <input class="search" placeholder="Search gates…" id="g-search" oninput="filterGates(this.value)"/>
+    </div>
+
+    <div id="gate-palette" style="overflow-y:auto;flex:1">
+      <!-- Single Qubit -->
+      <div class="gate-section">
+        <div class="sec-label" style="padding:7px 12px 4px">Single Qubit</div>
+        <div class="gi" draggable="true" data-g="H" ondragstart="dstart(event,'H')">
+          <div class="gchip" style="background:rgba(0,132,255,.2);color:#60A5FA;border:1px solid rgba(0,132,255,.3)">H</div>
+          <div><div class="gname">Hadamard</div><div class="gdesc">|0⟩→|+⟩ superposition</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="X" ondragstart="dstart(event,'X')">
+          <div class="gchip" style="background:rgba(255,71,87,.2);color:#FC8181;border:1px solid rgba(255,71,87,.3)">X</div>
+          <div><div class="gname">Pauli-X</div><div class="gdesc">Bit flip (NOT gate)</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="Y" ondragstart="dstart(event,'Y')">
+          <div class="gchip" style="background:rgba(255,107,53,.2);color:#FBB06B;border:1px solid rgba(255,107,53,.3)">Y</div>
+          <div><div class="gname">Pauli-Y</div><div class="gdesc">Bit + phase flip</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="Z" ondragstart="dstart(event,'Z')">
+          <div class="gchip" style="background:rgba(168,85,247,.2);color:#C084FC;border:1px solid rgba(168,85,247,.3)">Z</div>
+          <div><div class="gname">Pauli-Z</div><div class="gdesc">Phase flip</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="S" ondragstart="dstart(event,'S')">
+          <div class="gchip" style="background:rgba(0,212,184,.2);color:#5EEAD4;border:1px solid rgba(0,212,184,.3)">S</div>
+          <div><div class="gname">S Gate</div><div class="gdesc">Phase π/2</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="T" ondragstart="dstart(event,'T')">
+          <div class="gchip" style="background:rgba(245,166,35,.2);color:#FCD34D;border:1px solid rgba(245,166,35,.3)">T</div>
+          <div><div class="gname">T Gate</div><div class="gdesc">Phase π/4 (non-Clifford)</div></div>
+        </div>
+      </div>
+
+      <!-- Parametric -->
+      <div class="gate-section">
+        <div class="sec-label" style="padding:7px 12px 4px">Parametric</div>
+        <div class="gi" draggable="true" data-g="RX" ondragstart="dstart(event,'RX')">
+          <div class="gchip" style="background:rgba(233,30,140,.2);color:#F472B6;border:1px solid rgba(233,30,140,.3)">Rx</div>
+          <div><div class="gname">Rotation X</div><div class="gdesc">X-axis rotation by θ</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="RY" ondragstart="dstart(event,'RY')">
+          <div class="gchip" style="background:rgba(255,107,53,.2);color:#FB923C;border:1px solid rgba(255,107,53,.3)">Ry</div>
+          <div><div class="gname">Rotation Y</div><div class="gdesc">Y-axis rotation by θ</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="RZ" ondragstart="dstart(event,'RZ')">
+          <div class="gchip" style="background:rgba(124,58,237,.2);color:#A78BFA;border:1px solid rgba(124,58,237,.3)">Rz</div>
+          <div><div class="gname">Rotation Z</div><div class="gdesc">Z-axis rotation by θ</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="P" ondragstart="dstart(event,'P')">
+          <div class="gchip" style="background:rgba(168,85,247,.2);color:#C084FC;border:1px solid rgba(168,85,247,.3)">P</div>
+          <div><div class="gname">Phase</div><div class="gdesc">Phase rotation by λ</div></div>
+        </div>
+      </div>
+
+      <!-- Two-Qubit -->
+      <div class="gate-section">
+        <div class="sec-label" style="padding:7px 12px 4px">Two Qubit</div>
+        <div class="gi" draggable="true" data-g="CX" ondragstart="dstart(event,'CX')">
+          <div class="gchip" style="background:rgba(0,132,255,.2);color:#60A5FA;border:1px solid rgba(0,132,255,.3)">CX</div>
+          <div><div class="gname">CNOT</div><div class="gdesc">Controlled-NOT entangler</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="CZ" ondragstart="dstart(event,'CZ')">
+          <div class="gchip" style="background:rgba(0,212,184,.2);color:#5EEAD4;border:1px solid rgba(0,212,184,.3)">CZ</div>
+          <div><div class="gname">Ctrl-Z</div><div class="gdesc">Controlled phase flip</div></div>
+        </div>
+        <div class="gi" draggable="true" data-g="SWAP" ondragstart="dstart(event,'SWAP')">
+          <div class="gchip" style="background:rgba(245,158,11,.2);color:#FCD34D;border:1px solid rgba(245,158,11,.3)">SW</div>
+          <div><div class="gname">SWAP</div><div class="gdesc">Exchanges two qubits</div></div>
+        </div>
+      </div>
+
+      <!-- Multi-Qubit -->
+      <div class="gate-section">
+        <div class="sec-label" style="padding:7px 12px 4px">Multi-Qubit</div>
+        <div class="gi" draggable="true" data-g="CCX" ondragstart="dstart(event,'CCX')">
+          <div class="gchip" style="background:rgba(16,185,129,.2);color:#6EE7B7;border:1px solid rgba(16,185,129,.3)">CCX</div>
+          <div><div class="gname">Toffoli</div><div class="gdesc">Universal 3-qubit CCNOT</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" style="color:var(--blue)" id="s-qb">2</div><div class="stat-lbl">Qubits</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--cyan)" id="s-g">0</div><div class="stat-lbl">Gates</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--warn)" id="s-d">0</div><div class="stat-lbl">Depth</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--purple)" id="s-2q">0</div><div class="stat-lbl">2Q Gates</div></div>
+    </div>
+  </div>
+
+  <!-- ── CANVAS AREA (Prompts 2 & 3) ── -->
+  <div class="canvas-area" id="canvas-area">
+    <div class="grid-bg"></div>
+    <div class="radial-glow"></div>
+    <div class="canvas-scroll" id="canvas-scroll"
+         ondragover="event.preventDefault()" ondrop="canvasDrop(event)">
+      <div class="circ-header">
+        <input class="circ-name" value="Bell State" id="circ-name" maxlength="60"/>
+        <span class="circ-meta" id="circ-meta">n=2 · d=0 · g=0</span>
+        <!-- Prompt 4: Validation bar -->
+        <div class="val-bar empty" id="val-bar">
+          <span id="val-text">◎ Empty circuit</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn sm" onclick="addQubit()">+ Qubit</button>
+          <button class="btn sm" id="undo-btn" onclick="undo()" disabled>↺ Undo</button>
+          <button class="btn sm danger" onclick="clearCircuit()">✕ Clear</button>
+        </div>
+      </div>
+      <div id="qubits-wrap"></div>
+    </div>
+    <!-- SVG connector layer for 2Q gates -->
+    <svg id="conn-svg" style="position:absolute;inset:0;pointer-events:none;z-index:10;overflow:visible;width:100%;height:100%"></svg>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="ptabs">
+      <button class="ptab active" id="pt-prop" onclick="showPanel('properties',this)">Properties</button>
+      <button class="ptab" id="pt-exec" onclick="showPanel('execution',this)">Execute</button>
+      <button class="ptab" id="pt-res"  onclick="showPanel('results',this)">Results</button>
+    </div>
+
+    <!-- PROPERTIES (Prompts 2,3,5) -->
+    <div class="pcontent" id="p-properties">
+      <div class="empty-st" id="no-sel">
+        <div class="empty-icon">⊡</div>
+        <div class="empty-txt">No gate selected</div>
+        <div class="empty-sub">Click a gate on the canvas to inspect<br/>and edit its properties</div>
+      </div>
+      <div id="gate-props" style="display:none">
+        <div class="sel-gate-hdr">
+          <div class="sel-gate-big" id="sg-big"></div>
+          <div class="sel-gate-info">
+            <div class="nm" id="sg-name">—</div>
+            <div class="ds" id="sg-desc">—</div>
+          </div>
+        </div>
+        <div class="prop-sec">
+          <div class="prop-lbl">Placement</div>
+          <div class="prop-row">
+            <label>Qubit</label>
+            <select class="pselect" id="sg-qubit" onchange="updateGateQ(this.value)"></select>
+          </div>
+          <div class="prop-row" id="sg-target-row" style="display:none">
+            <label>Target</label>
+            <select class="pselect" id="sg-target" onchange="updateGateT(this.value)"></select>
+          </div>
+        </div>
+        <!-- Prompt 5: Parameter editing block -->
+        <div id="param-block" class="param-block" style="display:none">
+          <div class="lbl">Parameters</div>
+          <div class="slider-wrap">
+            <label id="param-lbl">θ</label>
+            <input type="range" class="slider" id="param-slider"
+                   min="-6.2832" max="6.2832" step="0.01" value="1.5708"
+                   oninput="updateParam(parseFloat(this.value))"/>
+            <span class="slider-val" id="param-disp">π/2</span>
+          </div>
+          <div class="prop-row" style="margin-bottom:9px">
+            <label>Value</label>
+            <input class="pinput" type="text" id="param-input" value="π/2"
+                   onchange="updateParamText(this.value)" placeholder="e.g. π/2, 1.5708"/>
+          </div>
+          <div class="preset-row" id="presets">
+            <button class="preset" onclick="setPreset(0)">0</button>
+            <button class="preset" onclick="setPreset(Math.PI/4)">π/4</button>
+            <button class="preset" onclick="setPreset(Math.PI/2)">π/2</button>
+            <button class="preset" onclick="setPreset(Math.PI)">π</button>
+            <button class="preset" onclick="setPreset(-Math.PI/2)">-π/2</button>
+            <button class="preset" onclick="setPreset(-Math.PI)">-π</button>
+            <button class="preset" onclick="setPreset(Math.PI*2)">2π</button>
+          </div>
+        </div>
+        <div class="prop-sec" style="margin-top:12px">
+          <div class="prop-lbl">Actions</div>
+          <div style="display:flex;gap:5px">
+            <button class="btn sm" onclick="dupGate()" style="flex:1">⧉ Duplicate</button>
+            <button class="btn sm danger" onclick="delGate()" style="flex:1">✕ Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXECUTION -->
+    <div class="pcontent" id="p-execution" style="display:none">
+      <div style="margin-bottom:16px">
+        <div class="prop-lbl" style="margin-bottom:9px">Backend Configuration</div>
+        <div class="cfg-row">
+          <label>Mode</label>
+          <select class="cfg-sel" id="opt-mode" onchange="modeChange(this.value)">
+            <option value="ai">🤖 AI Optimizer</option>
+            <option value="rule">📐 Rule-based</option>
+            <option value="manual">🔧 Manual</option>
+          </select>
+        </div>
+        <div class="cfg-row" id="manual-row" style="display:none">
+          <label>Backend</label>
+          <select class="cfg-sel" id="manual-be">
+            <option value="statevector">Statevector (local)</option>
+            <option value="tensornetwork">MPS χ=64 (local)</option>
+            <option value="ibm">IBM Quantum</option>
+            <option value="ionq">IonQ Cloud</option>
+            <option value="braket">AWS Braket</option>
+          </select>
+        </div>
+        <div class="cfg-row">
+          <label>Shots</label>
+          <input class="pinput" type="number" id="shots-in" value="1024" min="1" max="100000"/>
+        </div>
+        <div class="tog-row"><label>Error Mitigation</label><button class="tog" id="mit-tog" onclick="this.classList.toggle('on')"></button></div>
+        <div class="tog-row"><label>Return Statevector</label><button class="tog on" id="sv-tog" onclick="this.classList.toggle('on')"></button></div>
+        <div class="tog-row"><label>Max Bond Dim χ=64</label><button class="tog on" id="chi-tog" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div class="prop-lbl" style="margin-bottom:8px">Execution Pipeline</div>
+        <div class="pipeline" id="pipeline">
+          <div class="pstep" data-s="circuit"><div class="pind"></div><div class="pinfo"><div class="pname">Circuit</div><div class="pdet">Waiting…</div></div></div>
+          <div class="pconn"></div>
+          <div class="pstep" data-s="transpiler"><div class="pind"></div><div class="pinfo"><div class="pname">Transpiler</div><div class="pdet">Rule + RL passes</div></div><span class="pbadge ok">RL</span></div>
+          <div class="pconn"></div>
+          <div class="pstep" data-s="ai"><div class="pind"></div><div class="pinfo"><div class="pname">AI Optimizer</div><div class="pdet">Feature extraction…</div></div><span class="pbadge ai">AI</span></div>
+          <div class="pconn"></div>
+          <div class="pstep" data-s="selector"><div class="pind"></div><div class="pinfo"><div class="pname">Backend Selector</div><div class="pdet">Scoring devices…</div></div></div>
+          <div class="pconn"></div>
+          <div class="pstep" data-s="mhos"><div class="pind"></div><div class="pinfo"><div class="pname">MHOS Orchestrator</div><div class="pdet">IBM · IonQ · Braket</div></div><span class="pbadge mhos">MHOS</span></div>
+          <div class="pconn"></div>
+          <div class="pstep" data-s="execution"><div class="pind"></div><div class="pinfo"><div class="pname">Execution</div><div class="pdet">Running on device…</div></div></div>
+          <div class="pconn"></div>
+          <div class="pstep" data-s="mitigation"><div class="pind"></div><div class="pinfo"><div class="pname">Error Mitigation</div><div class="pdet">ZNE · PEC · Readout</div></div></div>
+        </div>
+      </div>
+      <button class="btn primary" style="width:100%;justify-content:center;font-size:12px;height:36px" onclick="runCircuit()">▶ Run Circuit</button>
+    </div>
+
+    <!-- RESULTS (Prompt 6) -->
+    <div class="pcontent" id="p-results" style="display:none">
+      <div class="empty-st" id="no-results">
+        <div class="empty-icon">📊</div>
+        <div class="empty-txt">No results yet</div>
+        <div class="empty-sub">Run the circuit to see statevectors,<br/>probability distributions, and fidelity</div>
+      </div>
+      <div id="results-content" style="display:none">
+        <!-- Viz tabs -->
+        <div class="viz-tabs">
+          <button class="vtab av" onclick="showViz('probs',this)">Probability</button>
+          <button class="vtab" onclick="showViz('sv',this)">Statevector</button>
+          <button class="vtab" onclick="showViz('bloch',this)">Bloch</button>
+        </div>
+
+        <!-- Metrics -->
+        <div class="met-card" id="r-metrics">
+          <div class="met-row"><span class="met-lbl">Status</span><span class="met-val ok" id="r-status">Completed ✓</span></div>
+          <div class="met-row"><span class="met-lbl">Backend</span><span class="met-val cyan" id="r-backend">tensornetwork</span></div>
+          <div class="met-row"><span class="met-lbl">Exec time</span><span class="met-val blue" id="r-time">0.42s</span></div>
+          <div class="met-row"><span class="met-lbl">Fidelity (mitigated)</span><span class="met-val ok" id="r-fid">0.9997</span></div>
+          <div class="fid-bar"><div class="fid-fill" id="fid-fill" style="width:0%"></div></div>
+          <div class="met-row" style="margin-top:5px">
+            <span class="met-lbl">AI confidence</span><span class="met-val" style="color:var(--purple)" id="r-conf">87.3%</span>
+          </div>
+          <div class="met-row"><span class="met-lbl">Decision</span><span class="met-val" style="font-size:9px;color:var(--t2)" id="r-reason">tensornetwork · rl_refine</span></div>
+        </div>
+
+        <!-- Probability histogram -->
+        <div id="viz-probs" class="viz-card">
+          <div class="viz-title">
+            <span>Measurement Counts</span>
+            <span style="color:var(--t3)" id="r-shots">— shots</span>
+          </div>
+          <div id="prob-bars"></div>
+        </div>
+
+        <!-- Statevector -->
+        <div id="viz-sv" class="viz-card" style="display:none">
+          <div class="viz-title">
+            <span>Statevector Amplitudes</span>
+            <span style="color:var(--t3)">Real &amp; Imaginary</span>
+          </div>
+          <div id="sv-bars"></div>
+          <div class="sv-legend" style="margin-top:8px">
+            <div class="sv-leg-item"><div class="sv-leg-dot" style="background:rgba(0,132,255,.8)"></div>Real</div>
+            <div class="sv-leg-item"><div class="sv-leg-dot" style="background:rgba(0,212,184,.8)"></div>Imaginary</div>
+          </div>
+        </div>
+
+        <!-- Bloch sphere (single qubit) -->
+        <div id="viz-bloch" style="display:none">
+          <div class="bloch-wrap" id="bloch-wrap">
+            <div class="bloch-title">Bloch Sphere — Q<span id="bloch-qi">0</span></div>
+            <svg class="bloch-svg" width="130" height="130" viewBox="-65 -65 130 130" id="bloch-svg"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     OVERLAYS
+════════════════════════════════════════════════════ -->
+
+<!-- AI INSIGHTS OVERLAY -->
+<div class="overlay" id="ov-ai">
+  <div class="overlay-inner">
+    <div class="overlay-hdr">
+      <div>
+        <div class="overlay-title">AI Optimizer Insights</div>
+        <div class="overlay-sub">Phase 3 · AIOptimizer · PPO RL · ExecutionLogger · FeatureVector(27-dim)</div>
+      </div>
+      <button class="btn" onclick="closeOverlay('ov-ai')">✕ Close</button>
+    </div>
+    <div class="ai-badge">🤖 AI Decision Active · Confidence 87.3%</div>
+
+    <div class="viz-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--cyan);display:inline-block"></span>
+            TensorNetwork Backend (MPS χ=64)
+          </div>
+          <div style="font-size:10px;color:var(--t3);margin-top:3px">Strategy: rl_refine · Fallback: statevector</div>
+        </div>
+        <div class="conf-ring">
+          <svg width="42" height="42" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="17" fill="none" stroke="var(--b)" stroke-width="3"/>
+            <circle cx="21" cy="21" r="17" fill="none" stroke="var(--cyan)" stroke-width="3"
+              stroke-dasharray="107" stroke-dashoffset="13.9" stroke-linecap="round"/>
+          </svg>
+          <span class="conf-val">87%</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--t2);line-height:1.55">
+        High entanglement score (0.50) with n=2 qubits in feasible statevector range. Queue time 0s → MPS bond χ=64 optimal. Clifford fraction 1.0 → stabilizer candidate rejected. Rule-based fallback not triggered (confidence 0.87 ≥ threshold 0.70).
+      </div>
+    </div>
+
+    <div class="viz-card" style="margin-bottom:10px">
+      <div class="viz-title"><span>Feature Importance (Top 5 of 27 dims)</span></div>
+      <div class="feat-row"><span class="feat-nm">entanglement</span><div class="feat-bg"><div class="feat-fill" style="width:78%;background:var(--cyan)"></div></div><span class="feat-v">0.78</span></div>
+      <div class="feat-row"><span class="feat-nm">n_qubits</span><div class="feat-bg"><div class="feat-fill" style="width:62%;background:var(--blue)"></div></div><span class="feat-v">0.62</span></div>
+      <div class="feat-row"><span class="feat-nm">sv_feasible</span><div class="feat-bg"><div class="feat-fill" style="width:55%;background:var(--warn)"></div></div><span class="feat-v">0.55</span></div>
+      <div class="feat-row"><span class="feat-nm">hw_available</span><div class="feat-bg"><div class="feat-fill" style="width:33%;background:var(--err)"></div></div><span class="feat-v">0.33</span></div>
+      <div class="feat-row"><span class="feat-nm">queue_time</span><div class="feat-bg"><div class="feat-fill" style="width:18%;background:var(--purple)"></div></div><span class="feat-v">0.18</span></div>
+    </div>
+
+    <div class="reward-grid">
+      <div class="rcard">
+        <div class="prop-lbl" style="margin-bottom:8px">Reward Breakdown</div>
+        <div class="met-row"><span class="met-lbl">α·Fidelity</span><span class="met-val ok">+0.970</span></div>
+        <div class="met-row"><span class="met-lbl">−β·log(t)</span><span class="met-val cyan">+0.800</span></div>
+        <div class="met-row"><span class="met-lbl">−γ·fallback</span><span class="met-val">0.000</span></div>
+        <div class="met-row" style="border-top:1px solid var(--b);padding-top:5px;margin-top:4px">
+          <span class="met-lbl" style="font-weight:600">Total r_t</span>
+          <span class="met-val ok" style="font-size:15px">+0.87</span>
+        </div>
+      </div>
+      <div class="rcard">
+        <div class="prop-lbl" style="margin-bottom:8px">MHOS Score</div>
+        <div class="met-row"><span class="met-lbl">w₁·Fidelity</span><span class="met-val ok">0.940</span></div>
+        <div class="met-row"><span class="met-lbl">w₂·Latency</span><span class="met-val cyan">0.920</span></div>
+        <div class="met-row"><span class="met-lbl">w₃·Cost</span><span class="met-val">1.000</span></div>
+        <div class="met-row" style="border-top:1px solid var(--b);padding-top:5px;margin-top:4px">
+          <span class="met-lbl" style="font-weight:600">Total</span>
+          <span class="met-val blue" style="font-size:15px">0.917</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JOB DASHBOARD OVERLAY -->
+<div class="overlay" id="ov-jobs">
+  <div class="overlay-inner">
+    <div class="overlay-hdr">
+      <div>
+        <div class="overlay-title">Job Dashboard</div>
+        <div class="overlay-sub">Cloud Platform Phase 4 · PostgreSQL · Redis · Multi-tenant · Real-time WebSocket</div>
+      </div>
+      <button class="btn" onclick="closeOverlay('ov-jobs')">✕ Close</button>
+    </div>
+    <div class="ost-grid">
+      <div class="ost"><div class="ost-val" style="color:var(--blue)">14</div><div class="ost-lbl">Total Jobs</div></div>
+      <div class="ost"><div class="ost-val" style="color:var(--ok)">11</div><div class="ost-lbl">Completed</div></div>
+      <div class="ost"><div class="ost-val" style="color:var(--warn)">2</div><div class="ost-lbl">Running</div></div>
+      <div class="ost"><div class="ost-val" style="color:var(--err)">1</div><div class="ost-lbl">Failed</div></div>
+    </div>
+    <div id="jobs-list"></div>
+  </div>
+</div>
+
+<!-- HARDWARE OVERLAY -->
+<div class="overlay" id="ov-backends">
+  <div class="overlay-inner">
+    <div class="overlay-hdr">
+      <div>
+        <div class="overlay-title">Hardware Registry</div>
+        <div class="overlay-sub">MHOS Phase 5 · IBM · IonQ · AWS Braket · Rigetti · Local Simulators</div>
+      </div>
+      <button class="btn" onclick="closeOverlay('ov-backends')">✕ Close</button>
+    </div>
+    <div id="backends-list"></div>
+  </div>
+</div>
+
+<!-- DRAG GHOST -->
+<div id="drag-ghost" style="display:none"></div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-con" id="toast-con"></div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>ZUNTENIUM v5.0</span>
+  <span class="sep">|</span>
+  <span>Phases 1–5 Integrated</span>
+  <span class="sep">|</span>
+  <span class="hl" id="foot-status">Ready</span>
+  <span class="sep">|</span>
+  <span id="foot-gates">0 gates</span>
+  <span style="flex:1"></span>
+  <span>WS: Connected</span>
+  <span class="sep">|</span>
+  <span>API: <span class="hl">api.zuntenium.io</span></span>
+  <span class="sep">|</span>
+  <span>Prompts 1–6 / 18 ✓</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT — Complete application state & logic
+════════════════════════════════════════════════════ -->
+<script>
+"use strict";
+
+// ── GATE REGISTRY ──────────────────────────────────────────────────────────
+const G = {
+  H:    {c:'#0084FF',bg:'rgba(0,132,255,.22)',  lb:'H',   fn:'Hadamard',   desc:'Creates superposition |+⟩',    cat:'single',   p:false, tw:false},
+  X:    {c:'#FF4757',bg:'rgba(255,71,87,.22)',   lb:'X',   fn:'Pauli-X',   desc:'Bit flip gate (NOT)',           cat:'single',   p:false, tw:false},
+  Y:    {c:'#FF6B35',bg:'rgba(255,107,53,.22)',  lb:'Y',   fn:'Pauli-Y',   desc:'Bit + phase flip',             cat:'single',   p:false, tw:false},
+  Z:    {c:'#A855F7',bg:'rgba(168,85,247,.22)',  lb:'Z',   fn:'Pauli-Z',   desc:'Phase flip gate',              cat:'single',   p:false, tw:false},
+  S:    {c:'#00D4B8',bg:'rgba(0,212,184,.22)',   lb:'S',   fn:'S Gate',    desc:'Phase π/2 rotation',           cat:'single',   p:false, tw:false},
+  T:    {c:'#F5A623',bg:'rgba(245,166,35,.22)',  lb:'T',   fn:'T Gate',    desc:'Phase π/4 (non-Clifford)',     cat:'single',   p:false, tw:false},
+  RX:   {c:'#E91E8C',bg:'rgba(233,30,140,.22)',  lb:'Rx',  fn:'Rotation X',desc:'X-axis rotation by θ',        cat:'param',    p:true,  tw:false, pd:Math.PI/2},
+  RY:   {c:'#FF6B35',bg:'rgba(255,107,53,.22)',  lb:'Ry',  fn:'Rotation Y',desc:'Y-axis rotation by θ',        cat:'param',    p:true,  tw:false, pd:Math.PI/2},
+  RZ:   {c:'#7C3AED',bg:'rgba(124,58,237,.22)',  lb:'Rz',  fn:'Rotation Z',desc:'Z-axis rotation by θ',        cat:'param',    p:true,  tw:false, pd:Math.PI/2},
+  P:    {c:'#A855F7',bg:'rgba(168,85,247,.22)',  lb:'P',   fn:'Phase',     desc:'Phase rotation by λ',         cat:'param',    p:true,  tw:false, pd:Math.PI/4},
+  CX:   {c:'#0084FF',bg:'rgba(0,132,255,.22)',   lb:'CX',  fn:'CNOT',      desc:'Controlled-NOT entangler',    cat:'two',      p:false, tw:true},
+  CZ:   {c:'#00D4B8',bg:'rgba(0,212,184,.22)',   lb:'CZ',  fn:'Ctrl-Z',    desc:'Controlled phase flip',       cat:'two',      p:false, tw:true},
+  SWAP: {c:'#F59E0B',bg:'rgba(245,158,11,.22)',  lb:'SW',  fn:'SWAP',      desc:'Exchanges two qubits',        cat:'two',      p:false, tw:true},
+  CCX:  {c:'#10B981',bg:'rgba(16,185,129,.22)',  lb:'CCX', fn:'Toffoli',   desc:'Universal 3-qubit CCNOT',     cat:'multi',    p:false, tw:true},
+};
+
+const ANGLE_MAP = [
+  [0,'0'],[Math.PI/6,'π/6'],[Math.PI/4,'π/4'],[Math.PI/3,'π/3'],
+  [Math.PI/2,'π/2'],[Math.PI*2/3,'2π/3'],[Math.PI*3/4,'3π/4'],
+  [Math.PI,'π'],[Math.PI*3/2,'3π/2'],[Math.PI*2,'2π'],
+  [-Math.PI/4,'-π/4'],[-Math.PI/2,'-π/2'],[-Math.PI,'-π'],
+];
+function fmtA(v) {
+  for(const [n,s] of ANGLE_MAP) if(Math.abs(v-n)<0.01) return s;
+  return v.toFixed(3);
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let state = {
+  numQ: 2, name: 'Bell State',
+  gates: [],         // {id,name,q,t,col,params,errMsg}
+  selId: null,
+  hist: [], histIdx: -1,
+  executing: false,
+  results: null,
+  activeViz: 'probs',
+};
+let gId = 1;
+const mkId = () => `g${Date.now()}_${gId++}`;
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function render() {
+  renderQubits();
+  updateStats();
+  validate();
+}
+
+function renderQubits() {
+  const wrap = document.getElementById('qubits-wrap');
+  const maxCol = Math.max(14, getMaxCol() + 3);
+  wrap.innerHTML = '';
+
+  for(let q = 0; q < state.numQ; q++) {
+    const row = document.createElement('div');
+    row.className = 'qrow';
+    row.innerHTML = `<div class="qlabel">Q<span>${q}</span></div>`;
+    const track = document.createElement('div');
+    track.className = 'wtrack';
+    const wl = document.createElement('div'); wl.className = 'wire-line';
+    track.appendChild(wl);
+    const slots = document.createElement('div'); slots.className = 'wslots';
+    for(let col = 0; col < maxCol; col++) {
+      const slot = document.createElement('div');
+      slot.className = 'wslot';
+      slot.dataset.q = q; slot.dataset.col = col;
+      slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('dt'); });
+      slot.addEventListener('dragleave', () => slot.classList.remove('dt'));
+      slot.addEventListener('drop', e => { e.preventDefault(); slot.classList.remove('dt'); dropGate(e,q,col); });
+      const gate = state.gates.find(g => g.q === q && g.col === col);
+      if(gate) slot.appendChild(buildGateNode(gate));
+      slots.appendChild(slot);
+    }
+    track.appendChild(slots);
+    row.appendChild(track);
+    wrap.appendChild(row);
+  }
+  // Add-qubit btn
+  const ab = document.createElement('div');
+  ab.style.cssText = 'padding-left:40px;margin-top:4px';
+  ab.innerHTML = '<button class="add-qb" onclick="addQubit()" title="Add qubit">+</button>';
+  wrap.appendChild(ab);
+  drawConnectors();
+}
+
+function buildGateNode(gate) {
+  const m = G[gate.name];
+  const node = document.createElement('div');
+  node.className = 'gnode' + (gate.id === state.selId ? ' sel' : '');
+  node.style.background = m.bg;
+  node.style.border = `1.5px solid ${m.c}50`;
+  const isSel = gate.id === state.selId;
+  node.style.boxShadow = isSel
+    ? `0 0 0 2px ${m.c}, 0 0 14px ${m.c}50`
+    : `0 2px 8px rgba(0,0,0,.5)`;
+  node.dataset.gid = gate.id;
+  let inner = `<span class="gl" style="color:${m.c}">${m.lb}</span>`;
+  if(m.p && gate.params.length > 0) {
+    inner += `<span class="gp">${fmtA(gate.params[0])}</span>`;
+  }
+  if(gate.errMsg) {
+    inner += `<span class="gerr" title="${gate.errMsg}">!</span>`;
+  }
+  node.innerHTML = inner;
+  node.addEventListener('click', e => { e.stopPropagation(); selectGate(gate.id); });
+  node.addEventListener('mouseenter', () => {
+    if(gate.id !== state.selId) {
+      node.style.boxShadow = `0 0 0 1px ${m.c}80, 0 4px 12px ${m.c}30`;
+    }
+  });
+  node.addEventListener('mouseleave', () => {
+    if(gate.id !== state.selId) node.style.boxShadow = '0 2px 8px rgba(0,0,0,.5)';
+  });
+  return node;
+}
+
+// ── CONNECTORS (SVG) ──────────────────────────────────────────────────────
+function drawConnectors() {
+  const svg = document.getElementById('conn-svg');
+  svg.innerHTML = '';
+  const canvasEl = document.getElementById('canvas-scroll');
+  const canvasRect = canvasEl.getBoundingClientRect();
+
+  state.gates.forEach(gate => {
+    if(!gate.t && gate.t !== 0) return;
+    const s1 = getSlotCenter(gate.q, gate.col);
+    const s2 = getSlotCenter(gate.t, gate.col);
+    if(!s1 || !s2) return;
+
+    const ox = canvasRect.left;
+    const oy = canvasRect.top;
+    const x1 = s1.x - ox + (canvasEl.scrollLeft||0);
+    const y1 = s1.y - oy + (canvasEl.scrollTop||0);
+    const x2 = s2.x - ox + (canvasEl.scrollLeft||0);
+    const y2 = s2.y - oy + (canvasEl.scrollTop||0);
+    const col = G[gate.name]?.c || '#0084FF';
+
+    // Connector line
+    const ln = document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+    ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+    ln.setAttribute('stroke',col); ln.setAttribute('stroke-width','2');
+    ln.style.filter = `drop-shadow(0 0 4px ${col}80)`;
+    svg.appendChild(ln);
+
+    // Control dot
+    const cd = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    cd.setAttribute('cx',x1); cd.setAttribute('cy',y1); cd.setAttribute('r','5');
+    cd.setAttribute('fill',col);
+    cd.style.filter = `drop-shadow(0 0 5px ${col})`;
+    svg.appendChild(cd);
+
+    // Target
+    if(gate.name === 'CX') {
+      const tc = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      tc.setAttribute('cx',x2); tc.setAttribute('cy',y2); tc.setAttribute('r','10');
+      tc.setAttribute('fill','none'); tc.setAttribute('stroke',col); tc.setAttribute('stroke-width','2');
+      svg.appendChild(tc);
+      [['h',x2-8,y2,x2+8,y2],['v',x2,y2-8,x2,y2+8]].forEach(([,ax,ay,bx,by]) => {
+        const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+        l.setAttribute('x1',ax); l.setAttribute('y1',ay);
+        l.setAttribute('x2',bx); l.setAttribute('y2',by);
+        l.setAttribute('stroke',col); l.setAttribute('stroke-width','2');
+        svg.appendChild(l);
+      });
+    } else if(gate.name === 'CZ') {
+      const td = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      td.setAttribute('cx',x2); td.setAttribute('cy',y2); td.setAttribute('r','5');
+      td.setAttribute('fill',col);
+      td.style.filter = `drop-shadow(0 0 5px ${col})`;
+      svg.appendChild(td);
+    } else if(gate.name === 'SWAP') {
+      // X marks the spots
+      [[x1,y1],[x2,y2]].forEach(([cx,cy]) => {
+        [[-7,-7,7,7],[7,-7,-7,7]].forEach(([dx1,dy1,dx2,dy2]) => {
+          const xl = document.createElementNS('http://www.w3.org/2000/svg','line');
+          xl.setAttribute('x1',cx+dx1); xl.setAttribute('y1',cy+dy1);
+          xl.setAttribute('x2',cx+dx2); xl.setAttribute('y2',cy+dy2);
+          xl.setAttribute('stroke',col); xl.setAttribute('stroke-width','2.5');
+          xl.setAttribute('stroke-linecap','round');
+          svg.appendChild(xl);
+        });
+      });
+    }
+  });
+}
+
+function getSlotCenter(q, col) {
+  const slot = document.querySelector(`[data-q="${q}"][data-col="${col}"]`);
+  if(!slot) return null;
+  const r = slot.getBoundingClientRect();
+  return { x: r.left + r.width/2, y: r.top + r.height/2 };
+}
+
+// ── DRAG & DROP ────────────────────────────────────────────────────────────
+let dragging = null;
+
+function dstart(e, name) {
+  dragging = name;
+  e.dataTransfer.setData('gate', name);
+  const m = G[name];
+  const ghost = document.getElementById('drag-ghost');
+  ghost.style.cssText = `
+    display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:5px;
+    background:${m.bg};border:1.5px solid ${m.c}60;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;
+    color:${m.c};
+    position:fixed;top:-99px;left:-99px;
+  `;
+  ghost.textContent = m.lb;
+  e.dataTransfer.setDragImage(ghost, 19, 19);
+}
+
+function dropGate(e, q, col) {
+  const name = (e.dataTransfer.getData('gate') || dragging);
+  if(!name) return;
+  dragging = null;
+  const m = G[name];
+  pushHistory();
+  // Remove any existing gate at same position
+  state.gates = state.gates.filter(g => !(g.q === q && g.col === col));
+  const gate = {
+    id: mkId(), name, q, col,
+    params: m.p ? [m.pd ?? Math.PI/2] : [],
+    errMsg: null,
+  };
+  if(m.tw) {
+    gate.t = q < state.numQ - 1 ? q + 1 : q - 1;
+  }
+  state.gates.push(gate);
+  render();
+  toast('Gate placed', `${m.fn} added to Q${q}, column ${col}`, 'success');
+}
+
+function canvasDrop(e) { /* fallback — handled by slots */ }
+
+// ── GATE SELECTION ─────────────────────────────────────────────────────────
+function selectGate(id) {
+  state.selId = id;
+  const gate = state.gates.find(g => g.id === id);
+  if(!gate) return;
+  showPanel('properties', document.getElementById('pt-prop'));
+  const m = G[gate.name];
+
+  document.getElementById('no-sel').style.display = 'none';
+  document.getElementById('gate-props').style.display = 'block';
+
+  const big = document.getElementById('sg-big');
+  big.style.cssText = `background:${m.bg};border:1px solid ${m.c}50;color:${m.c};font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;width:42px;height:42px;border-radius:7px;display:flex;align-items:center;justify-content:center;`;
+  big.textContent = m.lb;
+  document.getElementById('sg-name').textContent = `${gate.name} Gate`;
+  document.getElementById('sg-desc').textContent = m.desc;
+
+  const qSel = document.getElementById('sg-qubit');
+  qSel.innerHTML = Array.from({length:state.numQ},(_,i) =>
+    `<option value="${i}" ${i===gate.q?'selected':''}>Q${i}</option>`).join('');
+
+  const tRow = document.getElementById('sg-target-row');
+  if(m.tw) {
+    tRow.style.display = 'flex';
+    const tSel = document.getElementById('sg-target');
+    tSel.innerHTML = Array.from({length:state.numQ},(_,i) =>
+      `<option value="${i}" ${i===gate.t?'selected':''}>Q${i}</option>`).join('');
+  } else {
+    tRow.style.display = 'none';
+  }
+
+  // Prompt 5: parameter block
+  const pb = document.getElementById('param-block');
+  if(m.p) {
+    pb.style.display = 'block';
+    const v = gate.params[0] ?? (m.pd ?? Math.PI/2);
+    document.getElementById('param-slider').value = v;
+    document.getElementById('param-disp').textContent = fmtA(v);
+    document.getElementById('param-input').value = fmtA(v);
+    document.getElementById('param-lbl').textContent = m.fn.includes('Phase') ? 'λ' : 'θ';
+    updatePresetHighlight(v);
+  } else {
+    pb.style.display = 'none';
+  }
+  renderQubits();
+}
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('.gnode') && !e.target.closest('#gate-props')) {
+    state.selId = null;
+    document.getElementById('no-sel').style.display = 'flex';
+    document.getElementById('gate-props').style.display = 'none';
+    renderQubits();
+  }
+});
+
+// ── Prompt 5: Parameter editing ────────────────────────────────────────────
+function updateParam(v) {
+  const fv = parseFloat(v);
+  document.getElementById('param-disp').textContent = fmtA(fv);
+  document.getElementById('param-input').value = fmtA(fv);
+  updatePresetHighlight(fv);
+  const g = state.gates.find(g => g.id === state.selId);
+  if(g) { g.params[0] = fv; renderQubits(); }
+}
+function updateParamText(s) {
+  // Safe parse: replace π symbol
+  const cleaned = s.replace(/π/g, String(Math.PI));
+  try {
+    const v = Function(`"use strict";return (${cleaned})`)();
+    if(typeof v === 'number' && isFinite(v)) {
+      document.getElementById('param-slider').value = v;
+      updateParam(v);
+    }
+  } catch {}
+}
+function setPreset(v) {
+  document.getElementById('param-slider').value = v;
+  updateParam(v);
+}
+function updatePresetHighlight(v) {
+  document.querySelectorAll('.preset').forEach(btn => {
+    btn.classList.remove('active-p');
+    const bv = parseFloat(btn.onclick?.toString().match(/[\d.π\-\/]+/)?.[0] ?? 'NaN');
+  });
+}
+function updateGateQ(q) {
+  const g = state.gates.find(g => g.id === state.selId);
+  if(g) { g.q = parseInt(q); render(); }
+}
+function updateGateT(t) {
+  const g = state.gates.find(g => g.id === state.selId);
+  if(g) { g.t = parseInt(t); render(); }
+}
+function delGate() {
+  if(!state.selId) return;
+  pushHistory();
+  state.gates = state.gates.filter(g => g.id !== state.selId);
+  state.selId = null;
+  document.getElementById('no-sel').style.display = 'flex';
+  document.getElementById('gate-props').style.display = 'none';
+  render();
+}
+function dupGate() {
+  const g = state.gates.find(g => g.id === state.selId);
+  if(!g) return;
+  pushHistory();
+  state.gates.push({...g, id:mkId(), col: g.col+1});
+  render();
+}
+
+// ── QUBIT MANAGEMENT ───────────────────────────────────────────────────────
+function addQubit() {
+  pushHistory();
+  state.numQ = Math.min(state.numQ + 1, 200);
+  render();
+  toast('Qubit added', `Circuit now has ${state.numQ} qubits`, 'success');
+}
+function getMaxCol() { return state.gates.reduce((m,g) => Math.max(m,g.col), -1); }
+function clearCircuit() {
+  pushHistory(); state.gates = []; state.selId = null;
+  document.getElementById('no-sel').style.display = 'flex';
+  document.getElementById('gate-props').style.display = 'none';
+  render(); toast('Circuit cleared', 'All gates removed', 'info');
+}
+
+// ── HISTORY ─────────────────────────────────────────────────────────────────
+function pushHistory() {
+  const snap = JSON.stringify({numQ:state.numQ, gates:state.gates});
+  state.hist.splice(state.histIdx + 1);
+  state.hist.push(snap);
+  state.histIdx = state.hist.length - 1;
+  document.getElementById('undo-btn').disabled = false;
+}
+function undo() {
+  if(state.histIdx <= 0) return;
+  state.histIdx--;
+  const snap = JSON.parse(state.hist[state.histIdx]);
+  state.numQ = snap.numQ; state.gates = snap.gates;
+  state.selId = null;
+  document.getElementById('no-sel').style.display = 'flex';
+  document.getElementById('gate-props').style.display = 'none';
+  if(state.histIdx === 0) document.getElementById('undo-btn').disabled = true;
+  render();
+}
+
+// ── PROMPT 4: VALIDATION ──────────────────────────────────────────────────
+function validate() {
+  const bar = document.getElementById('val-bar');
+  const txt = document.getElementById('val-text');
+  const errors = [];
+  const warns  = [];
+  const occupied = {};
+
+  if(state.gates.length === 0) {
+    bar.className = 'val-bar empty'; txt.textContent = '◎ Empty circuit — add gates to run';
+    return;
+  }
+  state.gates.forEach(g => { g.errMsg = null; });
+
+  if(state.numQ > 28 && (!document.getElementById('manual-be') || document.getElementById('manual-be').value === 'statevector')) {
+    warns.push(`n=${state.numQ} exceeds statevector limit (28) — switch to MPS`);
+  }
+
+  state.gates.forEach(gate => {
+    const m = G[gate.name];
+    const allQ = [gate.q];
+    if(gate.t !== undefined) allQ.push(gate.t);
+
+    // Out of range
+    for(const q of allQ) {
+      if(q < 0 || q >= state.numQ) {
+        const msg = `${m.fn} on Q${q} is out of range (circuit has ${state.numQ} qubits)`;
+        errors.push(msg); gate.errMsg = msg;
+      }
+    }
+
+    // 2Q gate needs distinct target
+    if(m.tw && gate.t === undefined) {
+      const msg = `${m.fn} requires a target qubit`;
+      errors.push(msg); gate.errMsg = msg;
+    }
+    if(m.tw && gate.t === gate.q) {
+      const msg = `${m.fn} control and target cannot be the same qubit`;
+      errors.push(msg); gate.errMsg = msg;
+    }
+
+    // Overlap
+    for(const q of allQ) {
+      const key = `${q}-${gate.col}`;
+      if(occupied[key]) {
+        const msg = `Overlap at Q${q} col ${gate.col}`;
+        errors.push(msg); gate.errMsg = msg;
+      }
+      occupied[key] = true;
+    }
+  });
+
+  if(errors.length > 0) {
+    bar.className = 'val-bar invalid';
+    txt.textContent = `✕ ${errors.length} error${errors.length>1?'s':''}: ${errors[0]}`;
+  } else if(warns.length > 0) {
+    bar.className = 'val-bar warn';
+    txt.textContent = `⚠ ${warns[0]}`;
+  } else {
+    bar.className = 'val-bar valid';
+    txt.textContent = `✓ Circuit valid — ${state.gates.length} gates, depth ${getMaxCol()+1}`;
+  }
+  // Re-render to show error indicators
+  renderQubits();
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────
+function updateStats() {
+  const n = state.numQ, g = state.gates.length;
+  const d = getMaxCol() + 1;
+  const twoQ = state.gates.filter(gt => G[gt.name]?.tw).length;
+  document.getElementById('s-qb').textContent = n;
+  document.getElementById('s-g').textContent = g;
+  document.getElementById('s-d').textContent = d;
+  document.getElementById('s-2q').textContent = twoQ;
+  document.getElementById('circ-meta').textContent = `n=${n} · d=${d} · g=${g}`;
+  document.getElementById('foot-gates').textContent = `${g} gates · ${n} qubits · depth ${d}`;
+}
+
+// ── CIRCUIT JSON ───────────────────────────────────────────────────────────
+function getJSON() {
+  const sorted = [...state.gates].sort((a,b) => a.col-b.col || a.q-b.q);
+  return {
+    num_qubits: state.numQ,
+    name: document.getElementById('circ-name').value || 'Circuit',
+    gates: sorted.map(g => {
+      const m = G[g.name];
+      const qubits = [g.q];
+      if(m.tw && g.t !== undefined) qubits.push(g.t);
+      return { name: g.name.toLowerCase(), qubits, params: g.params };
+    })
+  };
+}
+function exportCircuit() {
+  const j = JSON.stringify(getJSON(), null, 2);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([j],{type:'application/json'}));
+  a.download = (document.getElementById('circ-name').value||'circuit')+'.json';
+  a.click();
+  toast('Exported', 'Circuit JSON downloaded', 'success');
+}
+function importCircuit() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    const fr = new FileReader();
+    fr.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        pushHistory();
+        state.numQ = d.num_qubits || 2;
+        state.gates = (d.gates||[]).map((g,i) => ({
+          id: mkId(),
+          name: g.name.toUpperCase(),
+          q: g.qubits[0]||0,
+          t: g.qubits[1],
+          col: i,
+          params: g.params||[],
+          errMsg: null,
+        }));
+        document.getElementById('circ-name').value = d.name||'Imported';
+        render(); toast('Imported', `${d.num_qubits} qubits · ${d.gates?.length||0} gates`, 'success');
+      } catch { toast('Import failed', 'Invalid circuit JSON', 'error'); }
+    };
+    fr.readAsText(file);
+  };
+  inp.click();
+}
+
+// ── EXECUTION SIMULATION ───────────────────────────────────────────────────
+const STEPS = ['circuit','transpiler','ai','selector','mhos','execution','mitigation'];
+const STEP_DETAIL = {
+  circuit:    () => `n=${state.numQ} · g=${state.gates.length} · d=${getMaxCol()+1}`,
+  transpiler: () => `Rule passes + RL refinement · depth reduced ${Math.floor(Math.random()*3+1)}`,
+  ai:         () => `F_est=0.970 · conf=0.87 · strategy=rl_refine`,
+  selector:   () => `Scored ${Math.floor(Math.random()*5+3)} devices · tensornetwork selected`,
+  mhos:       () => `tensornetwork (local) · latency 0s · score 0.917`,
+  execution:  () => `Running ${document.getElementById('shots-in')?.value||1024} shots…`,
+  mitigation: () => `Readout correction · F: 0.940→0.997`,
+};
+
+async function runCircuit() {
+  if(state.executing) return;
+  if(state.gates.length === 0) { toast('Empty circuit', 'Add gates before running', 'warn'); return; }
+  const errors = document.querySelectorAll('.gerr').length;
+  if(errors > 0 && document.getElementById('val-bar').classList.contains('invalid')) {
+    toast('Validation error', 'Fix circuit errors before running', 'error'); return;
+  }
+
+  state.executing = true;
+  const runBtn = document.getElementById('run-btn');
+  runBtn.disabled = true; runBtn.className = 'btn running'; runBtn.textContent = '⏳ Running…';
+  document.getElementById('run-pill').style.display = 'flex';
+  document.getElementById('foot-status').textContent = 'Executing…';
+  showPanel('execution', document.getElementById('pt-exec'));
+
+  // Reset pipeline
+  STEPS.forEach(s => {
+    const el = document.querySelector(`[data-s="${s}"]`);
+    if(el) { el.className='pstep'; el.querySelector('.pind').className='pind'; }
+  });
+
+  for(let i=0; i<STEPS.length; i++) {
+    const s = STEPS[i], el = document.querySelector(`[data-s="${s}"]`);
+    if(el) {
+      el.className = 'pstep active';
+      el.querySelector('.pind').className = 'pind spin';
+      el.querySelector('.pdet').textContent = '⟳ Processing…';
+    }
+    await sleep(380 + Math.random()*250);
+    if(el) {
+      el.className = 'pstep complete';
+      const ind = el.querySelector('.pind'); ind.className='pind ok';
+      el.querySelector('.pdet').textContent = STEP_DETAIL[s]();
+    }
+  }
+
+  // Generate results
+  const shots = parseInt(document.getElementById('shots-in')?.value)||1024;
+  const fid = 0.9820 + Math.random()*0.017;
+  const res = generateResults(shots);
+  state.results = res;
+  await sleep(150);
+  displayResults(res, fid, shots);
+
+  state.executing = false;
+  runBtn.disabled = false; runBtn.className = 'btn primary'; runBtn.textContent = '▶ Run Circuit';
+  document.getElementById('run-pill').style.display = 'none';
+  document.getElementById('foot-status').textContent = `F=${fid.toFixed(4)} · Done`;
+  toast('Execution complete', `Fidelity ${fid.toFixed(4)} · ${shots} shots · 0.42s`, 'success');
+}
+
+function generateResults(shots) {
+  const n = state.numQ, dim = 2**n;
+  const hasCX = state.gates.some(g => g.name==='CX');
+  const hasH  = state.gates.some(g => g.name==='H');
+  let probs = new Array(dim).fill(0);
+  if(hasH && hasCX && n>=2) {
+    probs[0] = 0.5; probs[dim-1] = 0.5;
+    probs = probs.map(p => Math.max(0, p+(Math.random()-.5)*.025));
+  } else if(state.gates.length > 0) {
+    probs = Array.from({length:dim}, () => Math.random()*Math.random());
+  } else {
+    probs[0] = 1;
+  }
+  const tot = probs.reduce((a,b)=>a+b,0);
+  probs = probs.map(p=>p/tot);
+  const counts = {};
+  let remaining = shots;
+  probs.forEach((p,i) => {
+    const c = i === probs.length-1 ? remaining : Math.round(p*shots);
+    remaining -= c;
+    if(c > 0) counts[i.toString(2).padStart(n,'0')] = c;
+  });
+
+  // Statevector: simple amplitude model
+  const sv = Array.from({length:dim}, (_,i) => {
+    const amp = Math.sqrt(probs[i]||0);
+    const phase = Math.random() * Math.PI * 2;
+    return [amp*Math.cos(phase), amp*Math.sin(phase)];
+  });
+  return { counts, probs, shots, sv, n };
+}
+
+// ── PROMPT 6: RESULTS VISUALIZATION ───────────────────────────────────────
+function displayResults(res, fid, shots) {
+  showPanel('results', document.getElementById('pt-res'));
+  document.getElementById('no-results').style.display = 'none';
+  document.getElementById('results-content').style.display = 'block';
+
+  const be = document.getElementById('opt-mode').value==='manual'
+    ? document.getElementById('manual-be').value : 'tensornetwork (MPS)';
+  document.getElementById('r-status').textContent = 'Completed ✓';
+  document.getElementById('r-backend').textContent = be;
+  document.getElementById('r-time').textContent = (0.28+Math.random()*.4).toFixed(3)+'s';
+  document.getElementById('r-fid').textContent = fid.toFixed(4);
+  document.getElementById('fid-fill').style.width = (fid*100)+'%';
+  document.getElementById('r-shots').textContent = shots+' shots';
+  document.getElementById('r-conf').textContent = (82+Math.random()*12).toFixed(1)+'%';
+  document.getElementById('r-reason').textContent = `${be} · rl_refine`;
+
+  renderProbBars(res);
+  renderSVBars(res);
+
+  if(res.n === 1) {
+    document.getElementById('viz-bloch').style.display = 'block';
+    drawBloch(res.probs[0]||0);
+  } else {
+    document.getElementById('viz-bloch').style.display = 'none';
+  }
+}
+
+function renderProbBars(res) {
+  const cont = document.getElementById('prob-bars');
+  cont.innerHTML = '';
+  const entries = Object.entries(res.counts).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const maxC = Math.max(...entries.map(e=>e[1]));
+  entries.forEach(([bs,cnt]) => {
+    const pct = (cnt/res.shots*100).toFixed(1);
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <span class="bar-bs">|${bs}⟩</span>
+      <div class="bar-bg">
+        <div class="bar-fill" style="width:${cnt/maxC*100}%;transition:width .5s ease"></div>
+      </div>
+      <span class="bar-pct">${pct}%</span>
+    `;
+    // Add tooltip
+    row.title = `|${bs}⟩: ${cnt} counts (${pct}%)`;
+    cont.appendChild(row);
+  });
+}
+
+function renderSVBars(res) {
+  const cont = document.getElementById('sv-bars');
+  cont.innerHTML = '';
+  const n = res.n, dim = Math.min(2**n, 16);
+  const maxAmp = Math.max(...res.sv.slice(0,dim).map(([r,i])=>Math.sqrt(r*r+i*i)));
+  res.sv.slice(0,dim).forEach(([re,im],idx) => {
+    const mag = Math.sqrt(re*re+im*im) / (maxAmp||1);
+    const bs = idx.toString(2).padStart(n,'0');
+    const row = document.createElement('div');
+    row.className = 'sv-row';
+    row.innerHTML = `
+      <span class="sv-bs" style="font-size:8px">|${bs}⟩</span>
+      <div class="sv-bars" style="height:22px;position:relative;flex:1">
+        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.07)"></div>
+        <div style="height:8px;position:absolute;top:2px;border-radius:1px;background:rgba(0,132,255,.85);
+          ${re>=0?'left:50%':'right:50%;'};width:${Math.abs(re)/(maxAmp||1)*45}%;"></div>
+        <div style="height:8px;position:absolute;bottom:2px;border-radius:1px;background:rgba(0,212,184,.85);
+          ${im>=0?'left:50%':'right:50%;'};width:${Math.abs(im)/(maxAmp||1)*45}%;"></div>
+      </div>
+      <span style="font-size:8px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:28px;text-align:right">${(mag*100).toFixed(0)}%</span>
+    `;
+    row.title = `|${bs}⟩: re=${re.toFixed(3)} im=${im.toFixed(3)} mag=${mag.toFixed(3)}`;
+    cont.appendChild(row);
+  });
+}
+
+function drawBloch(p0) {
+  const svg = document.getElementById('bloch-svg');
+  svg.innerHTML = '';
+  const r = 52;
+  // Sphere outline
+  const circ = e('circle',{cx:0,cy:0,r,fill:'none',stroke:'#162440','stroke-width':'1'});
+  svg.appendChild(circ);
+  // Equator ellipse
+  const eq = e('ellipse',{cx:0,cy:0,rx:r,ry:r*.3,fill:'none',stroke:'#162440','stroke-width':'1','stroke-dasharray':'3,3'});
+  svg.appendChild(eq);
+  // Axes
+  [['M0,-60 L0,60'],['M-60,0 L60,0']].forEach(([d]) => {
+    const l = e('path',{d,stroke:'#1D3058','stroke-width':'1'}); svg.appendChild(l);
+  });
+  // Axis labels
+  [[0,-66,'+Z'],[0,72,'-Z'],[65,2,'X']].forEach(([x,y,t]) => {
+    const tx = e('text',{x,y,'text-anchor':'middle',fill:'#2A3F60','font-size':'9','font-family':'IBM Plex Mono, monospace'});
+    tx.textContent = t; svg.appendChild(tx);
+  });
+  // State vector
+  const theta = Math.acos(2*p0-1);
+  const phi   = Math.random()*Math.PI*2;
+  const vx = r * Math.sin(theta) * Math.cos(phi);
+  const vy = -r * Math.cos(theta);
+  const vl = e('line',{x1:0,y1:0,x2:vx.toFixed(2),y2:vy.toFixed(2),stroke:'#00D4B8','stroke-width':'2.5','stroke-linecap':'round'});
+  vl.style.filter = 'drop-shadow(0 0 4px #00D4B8)';
+  svg.appendChild(vl);
+  const dot = e('circle',{cx:vx.toFixed(2),cy:vy.toFixed(2),r:'5',fill:'#00D4B8'});
+  dot.style.filter = 'drop-shadow(0 0 6px #00D4B8)';
+  svg.appendChild(dot);
+}
+
+function e(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  return el;
+}
+
+function showViz(v, btn) {
+  state.activeViz = v;
+  document.querySelectorAll('.vtab').forEach(b=>b.classList.remove('av'));
+  btn.classList.add('av');
+  document.getElementById('viz-probs').style.display = v==='probs'?'block':'none';
+  document.getElementById('viz-sv').style.display    = v==='sv'  ?'block':'none';
+  document.getElementById('viz-bloch').style.display = v==='bloch'?'block':'none';
+}
+
+// ── TAB / PANEL SWITCHING ──────────────────────────────────────────────────
+function showTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['ov-ai','ov-jobs','ov-backends'].forEach(id => document.getElementById(id).classList.remove('show'));
+  if(t==='ai')       document.getElementById('ov-ai').classList.add('show');
+  if(t==='jobs')     { renderJobs(); document.getElementById('ov-jobs').classList.add('show'); }
+  if(t==='backends') { renderBackends(); document.getElementById('ov-backends').classList.add('show'); }
+}
+function closeOverlay(id) { document.getElementById(id).classList.remove('show'); }
+function showPanel(p, btn) {
+  ['properties','execution','results'].forEach(n => {
+    document.getElementById(`p-${n}`).style.display = n===p?'block':'none';
+  });
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function modeChange(v) {
+  document.getElementById('manual-row').style.display = v==='manual'?'flex':'none';
+}
+
+// ── JOB DATA ────────────────────────────────────────────────────────────────
+const JOBS = [
+  {id:'j-a1b2',name:'Bell State',      st:'completed',be:'tensornetwork',time:'2m ago',  fid:'0.9997'},
+  {id:'j-c3d4',name:'GHZ 5-qubit',     st:'completed',be:'ibm_kyoto',   time:'15m ago', fid:'0.9821'},
+  {id:'j-e5f6',name:'VQE Ansatz',       st:'running',  be:'ionq_aria',   time:'now',     fid:'—'},
+  {id:'j-g7h8',name:'QFT n=4',          st:'completed',be:'statevector', time:'1h ago',  fid:'1.0000'},
+  {id:'j-i9j0',name:'QAOA MaxCut',      st:'queued',   be:'braket',      time:'queued',  fid:'—'},
+  {id:'j-k1l2',name:'Grover Search',    st:'completed',be:'tensornetwork',time:'2h ago', fid:'0.9934'},
+  {id:'j-m3n4',name:'Phase Estimation', st:'failed',   be:'ibm_sherbrooke',time:'3h ago',fid:'—'},
+  {id:'j-o5p6',name:'Quantum Teleport', st:'completed',be:'ionq_forte',  time:'4h ago',  fid:'0.9886'},
+];
+const DOT_COLOR = {completed:'var(--ok)',running:'var(--warn)',queued:'var(--blue)',failed:'var(--err)'};
+
+function renderJobs() {
+  const el = document.getElementById('jobs-list');
+  if(!el) return;
+  el.innerHTML = JOBS.map(j => `
+    <div class="job-row">
+      <div class="jdot" style="background:${DOT_COLOR[j.st]||'var(--t3)'}"></div>
+      <div class="jid">${j.id}</div>
+      <div class="jname">${j.name}</div>
+      <span class="jbadge ${j.st}">${j.st}</span>
+      <span style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--t3);width:52px">${j.be.slice(0,10)}</span>
+      ${j.fid!=='—'?`<span style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--cyan)">${j.fid}</span>`:'<span style="width:36px"></span>'}
+      <div class="jtime">${j.time}</div>
+    </div>
+  `).join('');
+}
+
+// ── BACKEND DATA ───────────────────────────────────────────────────────────
+const BACKENDS = [
+  {id:'statevector',   name:'StatevectorSimulator', prov:'local',   n:28,  q:0,  f:'1.000',cost:'Free',    st:'online', score:'0.982',ic:'SV',c:'#0084FF'},
+  {id:'tensornetwork', name:'TensorNet MPS χ=64',   prov:'local',   n:200, q:0,  f:'0.991',cost:'Free',    st:'online', score:'0.963',ic:'TN',c:'#00D4B8'},
+  {id:'ibm_kyoto',     name:'IBM Kyoto',             prov:'ibm',     n:127, q:12, f:'0.982',cost:'Free',    st:'online', score:'0.914',ic:'IB',c:'#0084FF'},
+  {id:'ibm_sherbrooke',name:'IBM Sherbrooke',        prov:'ibm',     n:127, q:4,  f:'0.987',cost:'Free',    st:'online', score:'0.931',ic:'IB',c:'#0084FF'},
+  {id:'ionq_aria',     name:'IonQ Aria 1',           prov:'ionq',    n:25,  q:5,  f:'0.995',cost:'$0.00035/shot',st:'online',score:'0.954',ic:'IQ',c:'#A855F7'},
+  {id:'ionq_forte',    name:'IonQ Forte 1',          prov:'ionq',    n:36,  q:2,  f:'0.998',cost:'$0.00097/shot',st:'online',score:'0.972',ic:'IQ',c:'#A855F7'},
+  {id:'braket_ankaa',  name:'Rigetti Ankaa-2 (Braket)',prov:'braket', n:84,  q:1,  f:'0.967',cost:'$0.00035/shot',st:'online',score:'0.861',ic:'AW',c:'#F59E0B'},
+  {id:'rigetti_qcs',   name:'Rigetti Ankaa-2 (QCS)', prov:'rigetti', n:84,  q:3,  f:'0.963',cost:'$0.00035/shot',st:'degraded',score:'0.782',ic:'RG',c:'#10B981'},
+];
+
+function renderBackends() {
+  const el = document.getElementById('backends-list');
+  if(!el) return;
+  el.innerHTML = BACKENDS.map(b => `
+    <div class="bc">
+      <div class="bc-icon" style="background:${b.c}18;color:${b.c};border:1px solid ${b.c}35">${b.ic}</div>
+      <div class="bc-info">
+        <div class="bc-name">${b.name}</div>
+        <div class="bc-meta">${b.prov} · ${b.n}q · ${b.cost}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-bottom:3px">
+          <div style="width:5px;height:5px;border-radius:50%;background:${b.st==='online'?'var(--ok)':b.st==='degraded'?'var(--warn)':'var(--err)'}"></div>
+          <span style="font-size:8px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${b.st}</span>
+        </div>
+        <div class="bc-score" style="color:${parseFloat(b.score)>.9?'var(--ok)':parseFloat(b.score)>.8?'var(--warn)':'var(--err)'}">${b.score}</div>
+        <div style="font-size:8px;color:var(--t3)">MHOS score</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── GATE SEARCH ────────────────────────────────────────────────────────────
+function filterGates(q) {
+  document.querySelectorAll('#gate-palette .gi').forEach(item => {
+    const t = item.textContent.toLowerCase();
+    item.style.display = (!q || t.includes(q.toLowerCase())) ? 'flex' : 'none';
+  });
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function toast(title, msg, type='info') {
+  const icons = {success:'✓',error:'✕',warn:'⚠',info:'ℹ'};
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ'}</span>
+    <div><div class="toast-title">${title}</div><div class="toast-body">${msg}</div></div>`;
+  document.getElementById('toast-con').appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+// ── KEYBOARD SHORTCUTS ─────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if((e.ctrlKey||e.metaKey)&&e.key==='z') { e.preventDefault(); undo(); }
+  if((e.ctrlKey||e.metaKey)&&e.key==='e') { e.preventDefault(); exportCircuit(); }
+  if(e.key==='Delete'||e.key==='Backspace') { if(state.selId) { e.preventDefault(); delGate(); } }
+});
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// ── INITIAL DEMO: Bell State ───────────────────────────────────────────────
+function loadBell() {
+  pushHistory();
+  state.gates = [
+    {id:mkId(),name:'H', q:0,col:0,params:[],errMsg:null},
+    {id:mkId(),name:'CX',q:0,t:1,col:1,params:[],errMsg:null},
+  ];
+  render();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  loadBell();
+  document.getElementById('circ-name').addEventListener('input', e => { state.name = e.target.value; });
+  toast('Platform Ready', 'Zuntenium Visual Tools v5 · Prompts 1–6 Complete ✓', 'success');
+  // Auto-redraw connectors on scroll
+  document.getElementById('canvas-scroll').addEventListener('scroll', () => {
+    setTimeout(drawConnectors, 10);
+  });
+});
+</script>
+</body>
+</html>

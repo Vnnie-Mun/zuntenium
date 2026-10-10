@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    image: zuntenium:dev
+    container_name: zuntenium-dev
+    volumes:
+      - ..:/app:cached
+      - /app/.venv          # anonymous volume to isolate venv
+    environment:
+      - ZUNTENIUM_BACKEND=auto
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    working_dir: /app
+    command: bash
+    stdin_open: true
+    tty: true
+
+  test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    image: zuntenium:dev
+    container_name: zuntenium-test
+    volumes:
+      - ..:/app:cached
+    environment:
+      - ZUNTENIUM_BACKEND=auto
+      - PYTHONUNBUFFERED=1
+    working_dir: /app
+    command: ["pytest", "tests/", "-v", "--tb=short", "--cov=zuntenium"]
+
+  bench:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    image: zuntenium:dev
+    container_name: zuntenium-bench
+    volumes:
+      - ..:/app:cached
+      - ./benchmark_results:/results
+    environment:
+      - ZUNTENIUM_BACKEND=auto
+    working_dir: /app
+    command: ["python", "scripts/benchmark_runner.py", "--output", "/results/bench.json"]

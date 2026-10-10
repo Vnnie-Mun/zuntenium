@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zuntenium — Visual Tools Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── DESIGN SYSTEM ─────────────────────────────────────────────────────── */
+:root {
+  --bg-base:       #040C1A;
+  --bg-surface:    #080F1E;
+  --bg-card:       #0D1730;
+  --bg-hover:      #111E38;
+  --bg-active:     #162344;
+  --border:        #1C2D50;
+  --border-hi:     #1F3562;
+  --primary:       #0084FF;
+  --primary-glow:  #0066CC;
+  --cyan:          #00D4B8;
+  --cyan-dim:      rgba(0,212,184,0.15);
+  --amber:         #F5A623;
+  --red:           #FF4757;
+  --green:         #2ECC71;
+  --text-1:        #E8F0FF;
+  --text-2:        #8DA4C8;
+  --text-3:        #4A6080;
+  --text-code:     #7EC8E3;
+  --gate-h:        #0084FF;
+  --gate-x:        #FF4757;
+  --gate-y:        #FF6B35;
+  --gate-z:        #A855F7;
+  --gate-s:        #00D4B8;
+  --gate-t:        #F5A623;
+  --gate-rx:       #E91E8C;
+  --gate-ry:       #FF6B35;
+  --gate-rz:       #7C3AED;
+  --gate-cx:       #0084FF;
+  --gate-cz:       #00D4B8;
+  --gate-sw:       #F59E0B;
+  --shadow-card:   0 4px 24px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.03);
+  --shadow-glow:   0 0 20px rgba(0,132,255,0.3);
+  --r-sm:          4px;
+  --r-md:          8px;
+  --r-lg:          12px;
+  --r-xl:          16px;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg-base); color: var(--text-1); overflow: hidden; }
+body { display: flex; flex-direction: column; }
+
+/* ── SCROLLBAR ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+/* ── TOP BAR ───────────────────────────────────────────────────────────── */
+.topbar {
+  height: 52px; flex-shrink: 0;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; gap: 12px;
+  position: relative; z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; margin-right: 8px; }
+.logo-mark {
+  width: 30px; height: 30px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--cyan) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.5px;
+}
+.logo-text { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
+.logo-sub { font-size: 11px; color: var(--text-3); font-family: 'IBM Plex Mono', monospace; }
+.topbar-divider { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+.tab-btn {
+  height: 32px; padding: 0 14px; border-radius: var(--r-sm);
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; white-space: nowrap;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.tab-btn:hover { background: var(--bg-hover); color: var(--text-1); }
+.tab-btn.active {
+  background: rgba(0,132,255,0.15); border-color: rgba(0,132,255,0.4);
+  color: var(--primary);
+}
+.spacer { flex: 1; }
+.status-pill {
+  height: 26px; padding: 0 10px; border-radius: 99px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; animation: pulse 2s infinite; }
+.status-dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-dot.running { background: var(--amber); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #1D4ED8, #7C3AED);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.action-btn {
+  height: 32px; padding: 0 14px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--bg-card);
+  color: var(--text-1); font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; font-family: 'IBM Plex Sans', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+}
+.action-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(0,132,255,0.08); }
+.action-btn.primary {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+}
+.action-btn.primary:hover { background: var(--primary-glow); }
+.action-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.action-btn.running { background: rgba(245,166,35,0.2); border-color: var(--amber); color: var(--amber); }
+
+/* ── MAIN LAYOUT ───────────────────────────────────────────────────────── */
+.layout { display: flex; flex: 1; overflow: hidden; }
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-section { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.sidebar-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  color: var(--text-3); text-transform: uppercase;
+  padding: 0 14px 8px;
+}
+.search-box {
+  margin: 8px 12px; padding: 7px 10px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text-1); font-size: 12px;
+  outline: none; width: calc(100% - 24px); font-family: 'IBM Plex Sans', sans-serif;
+  transition: border-color 0.15s;
+}
+.search-box::placeholder { color: var(--text-3); }
+.search-box:focus { border-color: var(--primary); }
+
+/* ── GATE ITEMS ────────────────────────────────────────────────────────── */
+.gate-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 14px; cursor: grab;
+  transition: background 0.12s;
+  user-select: none;
+}
+.gate-item:hover { background: var(--bg-hover); }
+.gate-item:active { cursor: grabbing; }
+.gate-chip {
+  width: 30px; height: 26px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  flex-shrink: 0; letter-spacing: -0.5px;
+}
+.gate-name { font-size: 12px; font-weight: 500; }
+.gate-desc { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+
+/* ── CANVAS AREA ───────────────────────────────────────────────────────── */
+.canvas-area {
+  flex: 1; position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,132,255,0.07) 0%, transparent 60%),
+    var(--bg-base);
+}
+.grid-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(28,45,80,0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(28,45,80,0.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.circuit-canvas {
+  position: absolute; inset: 0; overflow: auto;
+  padding: 32px 24px 24px;
+}
+.circuit-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+}
+.circuit-name-input {
+  background: transparent; border: 1px solid transparent;
+  color: var(--text-1); font-size: 18px; font-weight: 600;
+  padding: 4px 8px; border-radius: var(--r-sm);
+  font-family: 'IBM Plex Sans', sans-serif; outline: none;
+  transition: border-color 0.15s;
+}
+.circuit-name-input:hover { border-color: var(--border); }
+.circuit-name-input:focus { border-color: var(--primary); background: var(--bg-card); }
+.circuit-meta { font-size: 12px; color: var(--text-3); font-family: 'IBM Plex Mono', monospace; }
+
+/* ── QUBIT WIRES ───────────────────────────────────────────────────────── */
+.qubits-container { position: relative; }
+.qubit-row {
+  display: flex; align-items: center;
+  height: 64px; position: relative;
+}
+.qubit-row:hover .qubit-wire { background: rgba(0,132,255,0.08); }
+.qubit-label {
+  width: 44px; flex-shrink: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; color: var(--text-2);
+  text-align: right; padding-right: 12px;
+  cursor: default; user-select: none;
+}
+.qubit-label span { color: var(--primary); font-weight: 600; }
+.wire-track {
+  flex: 1; height: 64px; position: relative;
+  display: flex; align-items: center;
+}
+.wire-line {
+  position: absolute; left: 0; right: 0; top: 50%;
+  height: 1.5px; background: var(--border-hi);
+  transform: translateY(-50%);
+  transition: background 0.15s;
+}
+.qubit-row:hover .wire-line { background: rgba(0,132,255,0.3); }
+.wire-slots {
+  display: flex; align-items: center; gap: 0;
+  position: relative; z-index: 1;
+  min-height: 64px;
+}
+.wire-slot {
+  width: 56px; height: 64px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-shrink: 0;
+  transition: background 0.12s;
+}
+.wire-slot.drop-target { background: rgba(0,132,255,0.1); }
+.wire-slot.drop-target::after {
+  content: '+'; position: absolute;
+  color: var(--primary); font-size: 18px; opacity: 0.5;
+}
+.wire-slot:hover::before {
+  content: ''; position: absolute;
+  width: 40px; height: 40px; border: 1px dashed var(--border-hi);
+  border-radius: 4px;
+}
+.add-qubit-btn {
+  width: 44px; height: 44px; margin: 8px auto;
+  border: 1px dashed var(--border);
+  border-radius: 50%; background: transparent;
+  color: var(--text-3); font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.add-qubit-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(0,132,255,0.08); }
+
+/* ── GATE ON WIRE ──────────────────────────────────────────────────────── */
+.gate-node {
+  width: 40px; height: 40px; border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; z-index: 2;
+  transition: transform 0.12s, box-shadow 0.12s;
+  user-select: none;
+}
+.gate-node:hover { transform: scale(1.08); }
+.gate-node.selected { box-shadow: 0 0 0 2px var(--text-1), 0 0 12px rgba(255,255,255,0.2); }
+.gate-node .gate-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 700; color: #fff;
+  letter-spacing: -0.5px; line-height: 1;
+}
+.gate-node .gate-param {
+  font-size: 8px; color: rgba(255,255,255,0.7); margin-top: 2px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.gate-node.multi-control { border-radius: 50%; width: 12px; height: 12px; }
+.gate-node.multi-target { border-radius: 50%; width: 16px; height: 16px; }
+
+/* ── CNOT CONNECTOR ────────────────────────────────────────────────────── */
+.cnot-container { position: absolute; pointer-events: none; z-index: 5; }
+.cnot-line {
+  position: absolute; left: 50%; width: 2px;
+  background: var(--gate-cx);
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px rgba(0,132,255,0.5);
+}
+.cnot-control {
+  position: absolute; left: 50%; width: 10px; height: 10px;
+  background: var(--gate-cx); border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(0,132,255,0.6);
+}
+.cnot-target {
+  position: absolute; left: 50%; width: 22px; height: 22px;
+  border: 2px solid var(--gate-cx); border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.cnot-target::after {
+  content: ''; position: absolute;
+  left: 50%; top: 50%; width: 12px; height: 2px;
+  background: var(--gate-cx); transform: translate(-50%, -50%);
+}
+.cnot-target::before {
+  content: ''; position: absolute;
+  left: 50%; top: 50%; width: 2px; height: 12px;
+  background: var(--gate-cx); transform: translate(-50%, -50%);
+}
+
+/* ── RIGHT PANEL ───────────────────────────────────────────────────────── */
+.right-panel {
+  width: 320px; flex-shrink: 0;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.panel-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-tab {
+  flex: 1; height: 40px; border: none; background: transparent;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  color: var(--text-3); cursor: pointer; text-transform: uppercase;
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: color 0.15s; position: relative;
+}
+.panel-tab:hover { color: var(--text-2); }
+.panel-tab.active { color: var(--primary); }
+.panel-tab.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--primary);
+}
+.panel-content { flex: 1; overflow-y: auto; padding: 16px; }
+
+/* ── PROPERTY PANEL ────────────────────────────────────────────────────── */
+.prop-section { margin-bottom: 20px; }
+.prop-label { font-size: 10px; font-weight: 600; color: var(--text-3); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; }
+.prop-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.prop-row label { font-size: 12px; color: var(--text-2); width: 60px; flex-shrink: 0; }
+.prop-input {
+  flex: 1; height: 30px; padding: 0 8px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text-1); font-size: 12px;
+  outline: none; font-family: 'IBM Plex Mono', monospace;
+  transition: border-color 0.15s;
+}
+.prop-input:focus { border-color: var(--primary); }
+.prop-slider {
+  flex: 1; accent-color: var(--primary);
+  cursor: pointer; height: 4px;
+}
+.prop-value {
+  font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+  color: var(--cyan); width: 48px; text-align: right;
+}
+.selected-gate-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.selected-gate-big {
+  width: 44px; height: 44px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+.selected-gate-info .name { font-size: 15px; font-weight: 600; }
+.selected-gate-info .desc { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+/* ── EXECUTION PANEL ───────────────────────────────────────────────────── */
+.exec-section { margin-bottom: 20px; }
+.exec-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.config-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.config-row label { font-size: 11px; color: var(--text-2); width: 80px; flex-shrink: 0; }
+.config-select {
+  flex: 1; height: 30px; padding: 0 8px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text-1); font-size: 12px;
+  outline: none; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer;
+}
+.config-select:focus { border-color: var(--primary); }
+.shots-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.shots-row label { font-size: 11px; color: var(--text-2); width: 80px; }
+.shots-input {
+  flex: 1; height: 30px; padding: 0 8px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text-1); font-size: 12px;
+  outline: none; font-family: 'IBM Plex Mono', monospace; text-align: right;
+  transition: border-color 0.15s;
+}
+.shots-input:focus { border-color: var(--primary); }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.toggle-row label { font-size: 11px; color: var(--text-2); }
+.toggle {
+  width: 36px; height: 20px; border-radius: 10px;
+  background: var(--border); border: none; cursor: pointer;
+  position: relative; transition: background 0.2s;
+}
+.toggle.on { background: var(--primary); }
+.toggle::after {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  background: #fff; border-radius: 50%; top: 3px; left: 3px;
+  transition: left 0.2s;
+}
+.toggle.on::after { left: 19px; }
+
+/* ── PIPELINE STEPS ────────────────────────────────────────────────────── */
+.pipeline { display: flex; flex-direction: column; gap: 2px; }
+.pipe-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.pipe-step::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
+  opacity: 0; transition: opacity 0.2s;
+}
+.pipe-step:hover::before { opacity: 1; }
+.pipe-step.active { border-color: var(--primary); background: rgba(0,132,255,0.06); }
+.pipe-step.active .pipe-indicator { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
+.pipe-step.complete { border-color: rgba(46,204,113,0.3); }
+.pipe-step.complete .pipe-indicator { background: var(--green); }
+.pipe-step.error { border-color: rgba(255,71,87,0.3); }
+.pipe-indicator {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0;
+  transition: all 0.3s;
+}
+.pipe-indicator.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pipe-info { flex: 1; min-width: 0; }
+.pipe-name { font-size: 12px; font-weight: 500; }
+.pipe-detail { font-size: 10px; color: var(--text-3); font-family: 'IBM Plex Mono', monospace; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pipe-badge {
+  font-size: 9px; font-family: 'IBM Plex Mono', monospace;
+  padding: 2px 6px; border-radius: 3px; flex-shrink: 0;
+}
+.pipe-badge.ai { background: rgba(168,85,247,0.2); color: #C084FC; }
+.pipe-badge.mhs { background: rgba(0,212,184,0.15); color: var(--cyan); }
+.pipe-badge.ok { background: rgba(46,204,113,0.15); color: var(--green); }
+.pipe-connector { width: 1px; height: 8px; background: var(--border); margin-left: 13px; }
+
+/* ── RESULTS ───────────────────────────────────────────────────────────── */
+.result-metric { 
+  background: var(--bg-card); border: 1px solid var(--border); 
+  border-radius: var(--r-md); padding: 12px; margin-bottom: 8px;
+}
+.metric-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.metric-label { font-size: 11px; color: var(--text-3); }
+.metric-value { font-size: 13px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+.metric-value.good { color: var(--green); }
+.metric-value.warn { color: var(--amber); }
+.metric-value.cyan { color: var(--cyan); }
+.metric-value.blue { color: var(--primary); }
+.fidelity-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.fidelity-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--cyan)); border-radius: 2px; transition: width 0.6s; }
+.counts-histogram { margin-top: 12px; }
+.counts-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.counts-label { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--text-2); width: 32px; text-align: right; }
+.counts-bar-bg { flex: 1; height: 16px; background: var(--border); border-radius: 2px; overflow: hidden; position: relative; }
+.counts-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--cyan)); border-radius: 2px; transition: width 0.5s; }
+.counts-pct { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--text-3); width: 36px; text-align: right; }
+
+/* ── AI INSIGHTS ───────────────────────────────────────────────────────── */
+.ai-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3);
+  border-radius: var(--r-sm); padding: 4px 10px;
+  font-size: 11px; color: #C084FC; font-weight: 600;
+  margin-bottom: 12px;
+}
+.ai-decision {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 12px; margin-bottom: 10px;
+}
+.ai-decision-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.ai-backend { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.confidence-ring {
+  width: 44px; height: 44px; position: relative;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.confidence-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.confidence-val { font-size: 11px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; color: var(--cyan); }
+.ai-reason { font-size: 11px; color: var(--text-2); line-height: 1.5; }
+.feature-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.feature-name { font-size: 10px; color: var(--text-2); width: 80px; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; }
+.feature-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.feature-bar-fill { height: 100%; background: var(--cyan); border-radius: 2px; }
+.feature-val { font-size: 10px; color: var(--text-3); font-family: 'IBM Plex Mono', monospace; width: 32px; text-align: right; }
+
+/* ── BACKEND STATUS CARDS ──────────────────────────────────────────────── */
+.backend-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 10px 12px; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+  transition: all 0.15s; cursor: pointer;
+}
+.backend-card:hover { border-color: var(--border-hi); background: var(--bg-hover); }
+.backend-card.selected { border-color: var(--primary); background: rgba(0,132,255,0.06); }
+.backend-icon {
+  width: 32px; height: 32px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.backend-info { flex: 1; min-width: 0; }
+.backend-name { font-size: 12px; font-weight: 600; }
+.backend-meta { font-size: 10px; color: var(--text-3); font-family: 'IBM Plex Mono', monospace; }
+.backend-score {
+  font-size: 14px; font-weight: 700; font-family: 'IBM Plex Mono', monospace;
+}
+.status-indicator { display: flex; align-items: center; gap: 4px; }
+.si-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+/* ── JOB HISTORY ───────────────────────────────────────────────────────── */
+.job-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--bg-card);
+  margin-bottom: 5px; cursor: pointer;
+  transition: all 0.12s;
+}
+.job-row:hover { border-color: var(--border-hi); background: var(--bg-hover); }
+.job-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.job-id { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--text-3); width: 64px; }
+.job-name { font-size: 12px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-time { font-size: 10px; color: var(--text-3); font-family: 'IBM Plex Mono', monospace; }
+.job-badge {
+  font-size: 9px; padding: 2px 6px; border-radius: 3px;
+  font-weight: 600; letter-spacing: 0.3px;
+}
+.job-badge.completed { background: rgba(46,204,113,0.15); color: var(--green); }
+.job-badge.running { background: rgba(245,166,35,0.15); color: var(--amber); }
+.job-badge.queued { background: rgba(0,132,255,0.15); color: var(--primary); }
+.job-badge.failed { background: rgba(255,71,87,0.15); color: var(--red); }
+
+/* ── BLOCH SPHERE ──────────────────────────────────────────────────────── */
+.bloch-container {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 16px;
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 12px;
+}
+.bloch-title { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+.bloch-svg { overflow: visible; }
+
+/* ── TOAST ─────────────────────────────────────────────────────────────── */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  min-width: 280px; padding: 12px 16px;
+  background: var(--bg-card); border-radius: var(--r-md);
+  border-left: 3px solid var(--primary);
+  box-shadow: var(--shadow-card);
+  display: flex; align-items: flex-start; gap: 10px;
+  animation: slideIn 0.3s ease;
+  font-size: 12px;
+}
+.toast.success { border-color: var(--green); }
+.toast.error { border-color: var(--red); }
+.toast.warn { border-color: var(--amber); }
+@keyframes slideIn { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.toast-msg { flex: 1; line-height: 1.4; }
+.toast-title { font-weight: 600; margin-bottom: 2px; }
+.toast-body { color: var(--text-2); }
+
+/* ── FOOTER BAR ────────────────────────────────────────────────────────── */
+.footer {
+  height: 24px; flex-shrink: 0; padding: 0 14px;
+  background: var(--bg-surface); border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+  font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--text-3);
+}
+.footer span + span::before { content: '|'; margin-right: 16px; color: var(--border-hi); }
+.footer .highlight { color: var(--cyan); }
+
+/* ── DRAGGING ──────────────────────────────────────────────────────────── */
+.dragging-ghost {
+  position: fixed; pointer-events: none; z-index: 9999;
+  opacity: 0.9; transform: scale(1.1);
+  transition: none;
+}
+
+/* ── MISC ──────────────────────────────────────────────────────────────── */
+.tag {
+  display: inline-block; font-size: 9px; padding: 2px 6px;
+  border-radius: 3px; font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600; letter-spacing: 0.3px;
+}
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 32px 16px; text-align: center;
+  color: var(--text-3);
+}
+.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.5; }
+.empty-text { font-size: 13px; margin-bottom: 4px; }
+.empty-sub { font-size: 11px; opacity: 0.7; }
+.no-select { user-select: none; }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ──────────────────────────────────────────────────────────── -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">Zt</div>
+    <div>
+      <div class="logo-text">ZUNTENIUM</div>
+      <div class="logo-sub">Visual Tools Platform</div>
+    </div>
+  </div>
+  <div class="topbar-divider"></div>
+  <button class="tab-btn active" onclick="switchTab('composer')">Circuit Composer</button>
+  <button class="tab-btn" onclick="switchTab('jobs')">Job Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('backends')">Hardware</button>
+  <button class="tab-btn" onclick="switchTab('ai')">AI Insights</button>
+  <div class="spacer"></div>
+  <div class="status-pill" style="background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.2)">
+    <div class="status-dot online"></div>
+    <span style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--text-2)">API Connected</span>
+  </div>
+  <div class="status-pill" id="jobStatusPill" style="display:none;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2)">
+    <div class="status-dot running"></div>
+    <span style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--amber)">Job Running</span>
+  </div>
+  <button class="action-btn" onclick="importCircuit()">⬆ Import</button>
+  <button class="action-btn" onclick="exportCircuit()">⬇ Export JSON</button>
+  <button class="action-btn primary" id="runBtn" onclick="runCircuit()">▶ Run Circuit</button>
+  <div class="avatar">QE</div>
+</div>
+
+<!-- ── MAIN LAYOUT ───────────────────────────────────────────────────────── -->
+<div class="layout">
+
+  <!-- LEFT SIDEBAR: Gate Palette -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Gate Library</div>
+      <input class="search-box" type="text" placeholder="Search gates…" id="gateSearch" oninput="filterGates(this.value)"/>
+    </div>
+
+    <div id="gatePalette">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Single Qubit</div>
+        <div class="gate-item" draggable="true" data-gate="H" ondragstart="startDrag(event,'H')">
+          <div class="gate-chip" style="background:rgba(0,132,255,0.2);color:#60A5FA;border:1px solid rgba(0,132,255,0.3)">H</div>
+          <div><div class="gate-name">Hadamard</div><div class="gate-desc">Creates superposition</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="X" ondragstart="startDrag(event,'X')">
+          <div class="gate-chip" style="background:rgba(255,71,87,0.2);color:#FC8181;border:1px solid rgba(255,71,87,0.3)">X</div>
+          <div><div class="gate-name">Pauli-X</div><div class="gate-desc">Bit flip (NOT)</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="Y" ondragstart="startDrag(event,'Y')">
+          <div class="gate-chip" style="background:rgba(255,107,53,0.2);color:#FBB06B;border:1px solid rgba(255,107,53,0.3)">Y</div>
+          <div><div class="gate-name">Pauli-Y</div><div class="gate-desc">Y rotation</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="Z" ondragstart="startDrag(event,'Z')">
+          <div class="gate-chip" style="background:rgba(168,85,247,0.2);color:#C084FC;border:1px solid rgba(168,85,247,0.3)">Z</div>
+          <div><div class="gate-name">Pauli-Z</div><div class="gate-desc">Phase flip</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="S" ondragstart="startDrag(event,'S')">
+          <div class="gate-chip" style="background:rgba(0,212,184,0.2);color:#5EEAD4;border:1px solid rgba(0,212,184,0.3)">S</div>
+          <div><div class="gate-name">S Gate</div><div class="gate-desc">Phase π/2</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="T" ondragstart="startDrag(event,'T')">
+          <div class="gate-chip" style="background:rgba(245,166,35,0.2);color:#FCD34D;border:1px solid rgba(245,166,35,0.3)">T</div>
+          <div><div class="gate-name">T Gate</div><div class="gate-desc">Phase π/4</div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Parametric</div>
+        <div class="gate-item" draggable="true" data-gate="RX" ondragstart="startDrag(event,'RX')">
+          <div class="gate-chip" style="background:rgba(233,30,140,0.2);color:#F472B6;border:1px solid rgba(233,30,140,0.3)">Rx</div>
+          <div><div class="gate-name">Rotation X</div><div class="gate-desc">X-axis rotation θ</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="RY" ondragstart="startDrag(event,'RY')">
+          <div class="gate-chip" style="background:rgba(255,107,53,0.2);color:#FB923C;border:1px solid rgba(255,107,53,0.3)">Ry</div>
+          <div><div class="gate-name">Rotation Y</div><div class="gate-desc">Y-axis rotation θ</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="RZ" ondragstart="startDrag(event,'RZ')">
+          <div class="gate-chip" style="background:rgba(124,58,237,0.2);color:#A78BFA;border:1px solid rgba(124,58,237,0.3)">Rz</div>
+          <div><div class="gate-name">Rotation Z</div><div class="gate-desc">Z-axis rotation θ</div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Two Qubit</div>
+        <div class="gate-item" draggable="true" data-gate="CX" ondragstart="startDrag(event,'CX')">
+          <div class="gate-chip" style="background:rgba(0,132,255,0.2);color:#60A5FA;border:1px solid rgba(0,132,255,0.3)">CX</div>
+          <div><div class="gate-name">CNOT</div><div class="gate-desc">Controlled-NOT</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="CZ" ondragstart="startDrag(event,'CZ')">
+          <div class="gate-chip" style="background:rgba(0,212,184,0.2);color:#5EEAD4;border:1px solid rgba(0,212,184,0.3)">CZ</div>
+          <div><div class="gate-name">Ctrl-Z</div><div class="gate-desc">Controlled-Phase</div></div>
+        </div>
+        <div class="gate-item" draggable="true" data-gate="SWAP" ondragstart="startDrag(event,'SWAP')">
+          <div class="gate-chip" style="background:rgba(245,158,11,0.2);color:#FCD34D;border:1px solid rgba(245,158,11,0.3)">SW</div>
+          <div><div class="gate-name">SWAP</div><div class="gate-desc">Swaps two qubits</div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Multi-Qubit</div>
+        <div class="gate-item" draggable="true" data-gate="CCX" ondragstart="startDrag(event,'CCX')">
+          <div class="gate-chip" style="background:rgba(16,185,129,0.2);color:#6EE7B7;border:1px solid rgba(16,185,129,0.3)">CC</div>
+          <div><div class="gate-name">Toffoli</div><div class="gate-desc">3-qubit CCNOT</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Circuit Stats -->
+    <div style="margin-top:auto;padding:12px;border-top:1px solid var(--border)">
+      <div class="sidebar-label">Circuit Stats</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--primary)" id="statQubits">2</div>
+          <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px">Qubits</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--cyan)" id="statGates">0</div>
+          <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px">Gates</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--amber)" id="statDepth">0</div>
+          <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px">Depth</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#C084FC" id="stat2q">0</div>
+          <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px">2Q Gates</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CANVAS -->
+  <div class="canvas-area" id="canvasArea">
+    <div class="grid-bg"></div>
+    <div class="circuit-canvas" id="circuitCanvas" 
+         ondragover="event.preventDefault()" 
+         ondrop="handleCanvasDrop(event)">
+      <div class="circuit-header">
+        <input class="circuit-name-input" value="Bell State" id="circuitName" />
+        <span class="circuit-meta" id="circuitMeta">n=2 · d=0 · g=0</span>
+        <div style="flex:1"></div>
+        <button class="action-btn" onclick="addQubit()" style="font-size:11px">+ Qubit</button>
+        <button class="action-btn" onclick="undoLast()" id="undoBtn" style="font-size:11px" disabled>↺ Undo</button>
+        <button class="action-btn" onclick="clearCircuit()" style="font-size:11px;border-color:rgba(255,71,87,0.3);color:var(--red)">✕ Clear</button>
+      </div>
+      <div class="qubits-container" id="qubitsContainer"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="rightPanel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" id="tabProperties" onclick="switchPanel('properties')">Properties</button>
+      <button class="panel-tab" id="tabExecution" onclick="switchPanel('execution')">Execute</button>
+      <button class="panel-tab" id="tabResults" onclick="switchPanel('results')">Results</button>
+    </div>
+
+    <!-- PROPERTIES TAB -->
+    <div class="panel-content" id="panelProperties">
+      <div id="noSelection" class="empty-state">
+        <div class="empty-icon">⊡</div>
+        <div class="empty-text">No gate selected</div>
+        <div class="empty-sub">Click a gate on the canvas to inspect and edit its properties</div>
+      </div>
+      <div id="gateProperties" style="display:none">
+        <div class="selected-gate-header">
+          <div class="selected-gate-big" id="selGateBig"></div>
+          <div class="selected-gate-info">
+            <div class="name" id="selGateName">—</div>
+            <div class="desc" id="selGateDesc">—</div>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">Qubit Assignment</div>
+          <div class="prop-row">
+            <label>Qubit</label>
+            <select class="prop-input" id="selGateQubit" style="cursor:pointer" onchange="updateGateQubit(this.value)"></select>
+          </div>
+        </div>
+        <div class="prop-section" id="paramSection" style="display:none">
+          <div class="prop-label">Parameters</div>
+          <div class="prop-row">
+            <label>θ (rad)</label>
+            <input type="range" class="prop-slider" id="paramSlider" min="-3.14159" max="3.14159" step="0.01" value="1.5708" oninput="updateParam(this.value)"/>
+            <span class="prop-value" id="paramDisplay">π/2</span>
+          </div>
+          <div class="prop-row">
+            <label>Value</label>
+            <input class="prop-input" type="text" id="paramInput" value="π/2" onchange="updateParamFromText(this.value)" style="font-size:11px"/>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">Actions</div>
+          <div style="display:flex;gap:6px">
+            <button class="action-btn" onclick="duplicateSelected()" style="flex:1;font-size:11px">⧉ Copy</button>
+            <button class="action-btn" onclick="deleteSelected()" style="flex:1;font-size:11px;border-color:rgba(255,71,87,0.3);color:var(--red)">✕ Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXECUTION TAB -->
+    <div class="panel-content" id="panelExecution" style="display:none">
+      <div class="exec-section">
+        <div class="exec-title">Backend Configuration</div>
+        <div class="config-row">
+          <label>Mode</label>
+          <select class="config-select" id="optMode">
+            <option value="ai">🤖 AI Optimizer</option>
+            <option value="rule">📐 Rule-based</option>
+            <option value="manual">🔧 Manual</option>
+          </select>
+        </div>
+        <div class="config-row" id="manualBackendRow" style="display:none">
+          <label>Backend</label>
+          <select class="config-select" id="manualBackend">
+            <option value="statevector">Statevector (local)</option>
+            <option value="tensornetwork">MPS (local)</option>
+            <option value="ibm">IBM Quantum</option>
+            <option value="ionq">IonQ</option>
+            <option value="braket">AWS Braket</option>
+          </select>
+        </div>
+        <div class="shots-row">
+          <label>Shots</label>
+          <input class="shots-input" type="number" id="shotsInput" value="1024" min="1" max="100000"/>
+        </div>
+        <div class="toggle-row">
+          <label>Error Mitigation</label>
+          <button class="toggle" id="mitigToggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="toggle-row">
+          <label>Return Statevector</label>
+          <button class="toggle on" id="svToggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+
+      <div class="exec-section">
+        <div class="exec-title">Execution Pipeline</div>
+        <div class="pipeline" id="pipelineSteps">
+          <div class="pipe-step" data-step="circuit"><div class="pipe-indicator"></div><div class="pipe-info"><div class="pipe-name">Circuit</div><div class="pipe-detail">Waiting…</div></div></div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step" data-step="transpiler"><div class="pipe-indicator"></div><div class="pipe-info"><div class="pipe-name">Transpiler</div><div class="pipe-detail">Rule + RL passes</div></div><span class="pipe-badge ok">RL</span></div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step" data-step="ai"><div class="pipe-indicator"></div><div class="pipe-info"><div class="pipe-name">AI Optimizer</div><div class="pipe-detail">Feature extraction…</div></div><span class="pipe-badge ai">AI</span></div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step" data-step="selector"><div class="pipe-indicator"></div><div class="pipe-info"><div class="pipe-name">Backend Selector</div><div class="pipe-detail">Scoring devices…</div></div></div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step" data-step="mhos"><div class="pipe-indicator"></div><div class="pipe-info"><div class="pipe-name">MHOS Orchestrator</div><div class="pipe-detail">IBM · IonQ · Braket</div></div><span class="pipe-badge mhs">MHOS</span></div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step" data-step="execution"><div class="pipe-indicator"></div><div class="pipe-info"><div class="pipe-name">Execution</div><div class="pipe-detail">Running on device…</div></div></div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step" data-step="mitigation"><div class="pipe-indicator"></div><div class="pipe-info"><div class="pipe-name">Error Mitigation</div><div class="pipe-detail">ZNE · PEC · Readout</div></div></div>
+        </div>
+      </div>
+
+      <button class="action-btn primary" style="width:100%;justify-content:center;font-size:13px;height:38px" onclick="runCircuit()" id="execRunBtn">▶ Run Circuit</button>
+    </div>
+
+    <!-- RESULTS TAB -->
+    <div class="panel-content" id="panelResults" style="display:none">
+      <div id="noResults" class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-text">No results yet</div>
+        <div class="empty-sub">Run the circuit to see statevectors, probability distributions, and fidelity metrics</div>
+      </div>
+      <div id="resultsContent" style="display:none">
+        <div class="result-metric">
+          <div class="metric-row">
+            <span class="metric-label">Status</span>
+            <span class="metric-value good" id="resStatus">Completed</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Backend</span>
+            <span class="metric-value cyan" id="resBackend">tensornetwork</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Exec Time</span>
+            <span class="metric-value blue" id="resTime">0.42s</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Fidelity (After Mit.)</span>
+            <span class="metric-value good" id="resFidelity">0.9997</span>
+          </div>
+          <div class="fidelity-bar" style="margin-top:6px">
+            <div class="fidelity-fill" id="fidelityFill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="result-metric">
+          <div class="metric-row" style="margin-bottom:0">
+            <span class="metric-label">Measurement Counts</span>
+            <span class="metric-value" style="font-size:10px;color:var(--text-3)" id="totalShots">—</span>
+          </div>
+          <div class="counts-histogram" id="countsHistogram"></div>
+        </div>
+
+        <div class="bloch-container" id="blochContainer" style="display:none">
+          <div class="bloch-title">Bloch Sphere — Q<span id="blochQubitIdx">0</span></div>
+          <svg class="bloch-svg" width="140" height="140" viewBox="-70 -70 140 140" id="blochSvg"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI INSIGHTS OVERLAY -->
+<div id="aiOverlay" style="display:none;position:fixed;inset:0;background:rgba(4,12,26,0.9);z-index:200;backdrop-filter:blur(4px);overflow-y:auto;padding:24px">
+  <div style="max-width:680px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:4px">AI Optimizer Insights</h2>
+        <div style="font-size:12px;color:var(--text-3);font-family:'IBM Plex Mono',monospace">Phase 3 — AIOptimizer · PPO RL Agent · ExecutionLogger</div>
+      </div>
+      <button class="action-btn" onclick="document.getElementById('aiOverlay').style.display='none'">✕ Close</button>
+    </div>
+
+    <div class="ai-badge">🤖 AI Decision Active · Confidence 87.3%</div>
+
+    <div class="ai-decision">
+      <div class="ai-decision-header">
+        <div>
+          <div class="ai-backend">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--cyan);display:inline-block"></span>
+            TensorNetwork Backend (MPS χ=64)
+          </div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">Strategy: RL-refined · Fallback: statevector</div>
+        </div>
+        <div class="confidence-ring">
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3"/>
+            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--cyan)" stroke-width="3" stroke-dasharray="113" stroke-dashoffset="14.7" stroke-linecap="round"/>
+          </svg>
+          <span class="confidence-val">87%</span>
+        </div>
+      </div>
+      <div class="ai-reason">
+        High entanglement score (0.50) with n=2 qubits in feasible statevector range. Queue time estimate 0s → MPS bond dim χ=64 optimal. Clifford fraction 1.0 → stabilizer candidate rejected (non-parametric). Rule-based fallback not triggered (confidence 0.87 ≥ 0.70).
+      </div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;margin-bottom:12px">
+      <div class="prop-label">Feature Importance (Top 5)</div>
+      <div style="margin-top:10px">
+        <div class="feature-row"><span class="feature-name">entanglement</span><div class="feature-bar-bg"><div class="feature-bar-fill" style="width:78%"></div></div><span class="feature-val">0.78</span></div>
+        <div class="feature-row"><span class="feature-name">n_qubits</span><div class="feature-bar-bg"><div class="feature-bar-fill" style="width:62%;background:var(--primary)"></div></div><span class="feature-val">0.62</span></div>
+        <div class="feature-row"><span class="feature-name">sv_feasible</span><div class="feature-bar-bg"><div class="feature-bar-fill" style="width:55%;background:var(--amber)"></div></div><span class="feature-val">0.55</span></div>
+        <div class="feature-row"><span class="feature-name">hw_available</span><div class="feature-bar-bg"><div class="feature-bar-fill" style="width:33%;background:var(--red)"></div></div><span class="feature-val">0.33</span></div>
+        <div class="feature-row"><span class="feature-name">queue_time</span><div class="feature-bar-bg"><div class="feature-bar-fill" style="width:18%;background:#7C3AED"></div></div><span class="feature-val">0.18</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:12px">
+        <div class="prop-label">Reward Breakdown</div>
+        <div style="margin-top:8px">
+          <div class="metric-row"><span class="metric-label">Fidelity (α·F)</span><span class="metric-value good">+0.97</span></div>
+          <div class="metric-row"><span class="metric-label">Speed (−β·log t)</span><span class="metric-value cyan">+0.80</span></div>
+          <div class="metric-row"><span class="metric-label">Fallback (−γ)</span><span class="metric-value">0.00</span></div>
+          <div class="metric-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px"><span class="metric-label" style="font-weight:600">Total reward</span><span class="metric-value good" style="font-size:15px">+0.87</span></div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:12px">
+        <div class="prop-label">MHOS Scoring</div>
+        <div style="margin-top:8px">
+          <div class="metric-row"><span class="metric-label">Fidelity (w₁)</span><span class="metric-value good">0.94</span></div>
+          <div class="metric-row"><span class="metric-label">Latency (w₂)</span><span class="metric-value cyan">0.92</span></div>
+          <div class="metric-row"><span class="metric-label">Cost (w₃)</span><span class="metric-value">1.00</span></div>
+          <div class="metric-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px"><span class="metric-label" style="font-weight:600">Total score</span><span class="metric-value blue" style="font-size:15px">0.917</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JOB DASHBOARD OVERLAY -->
+<div id="jobsOverlay" style="display:none;position:fixed;inset:0;background:rgba(4,12,26,0.95);z-index:200;backdrop-filter:blur(4px);overflow-y:auto;padding:24px">
+  <div style="max-width:780px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:4px">Job Dashboard</h2>
+        <div style="font-size:12px;color:var(--text-3);font-family:'IBM Plex Mono',monospace">Cloud Platform · PostgreSQL · Redis Queue · Multi-tenant</div>
+      </div>
+      <button class="action-btn" onclick="document.getElementById('jobsOverlay').style.display='none'">✕ Close</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:var(--primary);font-family:'IBM Plex Mono',monospace">14</div>
+        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px">Total Jobs</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:var(--green);font-family:'IBM Plex Mono',monospace">11</div>
+        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px">Completed</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:var(--amber);font-family:'IBM Plex Mono',monospace">2</div>
+        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px">Running</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:var(--red);font-family:'IBM Plex Mono',monospace">1</div>
+        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px">Failed</div>
+      </div>
+    </div>
+    <div id="jobsList"></div>
+  </div>
+</div>
+
+<!-- HARDWARE OVERLAY -->
+<div id="backendsOverlay" style="display:none;position:fixed;inset:0;background:rgba(4,12,26,0.95);z-index:200;backdrop-filter:blur(4px);overflow-y:auto;padding:24px">
+  <div style="max-width:720px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:4px">Hardware Registry</h2>
+        <div style="font-size:12px;color:var(--text-3);font-family:'IBM Plex Mono',monospace">MHOS Phase 5 · IBM · IonQ · AWS Braket · Rigetti · Local Simulators</div>
+      </div>
+      <button class="action-btn" onclick="document.getElementById('backendsOverlay').style.display='none'">✕ Close</button>
+    </div>
+    <div id="backendsList"></div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>ZUNTENIUM v5.0.0</span>
+  <span>Phase 1–5 Integrated</span>
+  <span class="highlight" id="footerStatus">Ready</span>
+  <span id="footerGates" style="color:var(--text-3)">0 gates</span>
+  <div style="flex:1"></div>
+  <span style="color:var(--text-3)">WebSocket: Connected</span>
+  <span style="color:var(--text-3)">API: <span class="highlight">https://api.zuntenium.io</span></span>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<!-- JAVASCRIPT: Full application logic                                     -->
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+const state = {
+  numQubits:   2,
+  circuitName: 'Bell State',
+  gates:       [],        // {id, name, qubit, col, params}
+  selectedId:  null,
+  history:     [],
+  draggingGate: null,
+  executing:   false,
+  executionStep: -1,
+  results:     null,
+  activeTab:   'composer',
+  activePanel: 'properties',
+};
+
+let gateIdCounter = 1;
+
+// ── GATE METADATA ──────────────────────────────────────────────────────────
+const GATE_META = {
+  H:    { color: '#0084FF', bg: 'rgba(0,132,255,0.25)', label: 'H',    desc: 'Hadamard — creates superposition',   params: [] },
+  X:    { color: '#FF4757', bg: 'rgba(255,71,87,0.25)',  label: 'X',    desc: 'Pauli-X — bit flip (NOT gate)',      params: [] },
+  Y:    { color: '#FF6B35', bg: 'rgba(255,107,53,0.25)', label: 'Y',    desc: 'Pauli-Y — combined bit+phase flip',  params: [] },
+  Z:    { color: '#A855F7', bg: 'rgba(168,85,247,0.25)', label: 'Z',    desc: 'Pauli-Z — phase flip',               params: [] },
+  S:    { color: '#00D4B8', bg: 'rgba(0,212,184,0.25)',  label: 'S',    desc: 'S Gate — phase π/2',                 params: [] },
+  T:    { color: '#F5A623', bg: 'rgba(245,166,35,0.25)', label: 'T',    desc: 'T Gate — phase π/4',                 params: [] },
+  RX:   { color: '#E91E8C', bg: 'rgba(233,30,140,0.25)', label: 'Rx',   desc: 'Rotation around X-axis by θ',        params: ['θ'] },
+  RY:   { color: '#FF6B35', bg: 'rgba(255,107,53,0.25)', label: 'Ry',   desc: 'Rotation around Y-axis by θ',        params: ['θ'] },
+  RZ:   { color: '#7C3AED', bg: 'rgba(124,58,237,0.25)', label: 'Rz',   desc: 'Rotation around Z-axis by θ',        params: ['θ'] },
+  CX:   { color: '#0084FF', bg: 'rgba(0,132,255,0.25)',  label: 'CX',   desc: 'CNOT — controlled-NOT',              params: [], twoQubit: true },
+  CZ:   { color: '#00D4B8', bg: 'rgba(0,212,184,0.25)',  label: 'CZ',   desc: 'Controlled-Z gate',                  params: [], twoQubit: true },
+  SWAP: { color: '#F59E0B', bg: 'rgba(245,158,11,0.25)', label: 'SW',   desc: 'SWAP — exchanges two qubits',        params: [], twoQubit: true },
+  CCX:  { color: '#10B981', bg: 'rgba(16,185,129,0.25)', label: 'CCX',  desc: 'Toffoli — 3-qubit CCNOT',            params: [], threeQubit: true },
+};
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+function init() {
+  renderQubits();
+  updateStats();
+  renderJobsList();
+  renderBackendsList();
+  document.getElementById('optMode').addEventListener('change', e => {
+    document.getElementById('manualBackendRow').style.display = e.target.value === 'manual' ? 'flex' : 'none';
+  });
+}
+
+// ── QUBIT RENDERING ─────────────────────────────────────────────────────────
+function renderQubits() {
+  const container = document.getElementById('qubitsContainer');
+  container.innerHTML = '';
+  const maxCols = Math.max(12, getMaxCol() + 2);
+  for (let q = 0; q < state.numQubits; q++) {
+    const row = document.createElement('div');
+    row.className = 'qubit-row';
+    row.innerHTML = `<div class="qubit-label">Q<span>${q}</span></div>`;
+    const track = document.createElement('div');
+    track.className = 'wire-track';
+    const line = document.createElement('div');
+    line.className = 'wire-line';
+    track.appendChild(line);
+    const slots = document.createElement('div');
+    slots.className = 'wire-slots';
+    for (let col = 0; col < maxCols; col++) {
+      const slot = document.createElement('div');
+      slot.className = 'wire-slot';
+      slot.dataset.qubit = q;
+      slot.dataset.col = col;
+      slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drop-target'); });
+      slot.addEventListener('dragleave', () => slot.classList.remove('drop-target'));
+      slot.addEventListener('drop', e => { e.preventDefault(); slot.classList.remove('drop-target'); dropGate(e, q, col); });
+      // Render gate if present
+      const gateHere = state.gates.find(g => g.qubit === q && g.col === col);
+      if (gateHere) {
+        slot.appendChild(buildGateNode(gateHere));
+      }
+      slots.appendChild(slot);
+    }
+    track.appendChild(slots);
+    row.appendChild(track);
+    container.appendChild(row);
+  }
+  // Draw CNOT / 2Q connectors
+  drawConnectors();
+  // Add qubit button
+  const addRow = document.createElement('div');
+  addRow.style.paddingLeft = '44px';
+  addRow.innerHTML = `<button class="add-qubit-btn" onclick="addQubit()" title="Add qubit">+</button>`;
+  container.appendChild(addRow);
+  updateMeta();
+}
+
+function buildGateNode(gate) {
+  const meta = GATE_META[gate.name] || { color: '#888', bg: 'rgba(128,128,128,0.2)', label: gate.name, desc: '', params: [] };
+  const node = document.createElement('div');
+  node.className = 'gate-node' + (gate.id === state.selectedId ? ' selected' : '');
+  node.style.background = meta.bg;
+  node.style.border = `1.5px solid ${meta.color}40`;
+  node.style.boxShadow = gate.id === state.selectedId ? `0 0 0 2px ${meta.color}, 0 0 12px ${meta.color}40` : `0 2px 8px rgba(0,0,0,0.4)`;
+  node.dataset.gateId = gate.id;
+  node.innerHTML = `<span class="gate-label" style="color:${meta.color}">${meta.label}</span>`;
+  if (gate.params && gate.params.length > 0) {
+    const pDisplay = gate.params[0] !== undefined ? formatAngle(gate.params[0]) : '';
+    node.innerHTML += `<span class="gate-param">${pDisplay}</span>`;
+  }
+  node.addEventListener('click', e => { e.stopPropagation(); selectGate(gate.id); });
+  node.addEventListener('mouseenter', () => { node.style.boxShadow = `0 0 0 1px ${meta.color}80, 0 4px 12px ${meta.color}30`; });
+  node.addEventListener('mouseleave', () => { node.style.boxShadow = gate.id === state.selectedId ? `0 0 0 2px ${meta.color}` : `0 2px 8px rgba(0,0,0,0.4)`; });
+  return node;
+}
+
+function drawConnectors() {
+  // Remove old connectors
+  document.querySelectorAll('.cnot-svg-layer').forEach(e => e.remove());
+  const container = document.getElementById('qubitsContainer');
+  const containerRect = container.getBoundingClientRect();
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.classList.add('cnot-svg-layer');
+  svg.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:10;overflow:visible';
+  svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
+  state.gates.forEach(g => {
+    if (!g.target2 && !g.target) return;
+    const target = g.target2 !== undefined ? g.target2 : (g.target !== undefined ? g.target : null);
+    if (target === null) return;
+    const q1 = g.qubit, q2 = target;
+    const s1 = getSlotPos(q1, g.col);
+    const s2 = getSlotPos(q2, g.col);
+    if (!s1 || !s2) return;
+    const cx1 = s1.x - containerRect.left + (container.scrollLeft || 0);
+    const cy1 = s1.y - containerRect.top + 32;
+    const cx2 = s2.x - containerRect.left + (container.scrollLeft || 0);
+    const cy2 = s2.y - containerRect.top + 32;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    const color = g.name === 'CZ' ? '#00D4B8' : '#0084FF';
+    line.setAttribute('x1',cx1); line.setAttribute('y1',cy1);
+    line.setAttribute('x2',cx2); line.setAttribute('y2',cy2);
+    line.setAttribute('stroke',color); line.setAttribute('stroke-width','2');
+    line.setAttribute('stroke-dasharray','0');
+    line.style.filter = `drop-shadow(0 0 4px ${color}80)`;
+    svg.appendChild(line);
+    // Control dot
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',cx1); dot.setAttribute('cy',cy1);
+    dot.setAttribute('r','5'); dot.setAttribute('fill',color);
+    dot.style.filter = `drop-shadow(0 0 4px ${color})`;
+    svg.appendChild(dot);
+    // Target cross
+    if (g.name === 'CX') {
+      const c2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c2.setAttribute('cx',cx2); c2.setAttribute('cy',cy2);
+      c2.setAttribute('r','11'); c2.setAttribute('fill','none');
+      c2.setAttribute('stroke',color); c2.setAttribute('stroke-width','2');
+      svg.appendChild(c2);
+      ['h','v'].forEach(d => {
+        const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+        const [x1,y1,x2,y2] = d==='h' ? [cx2-8,cy2,cx2+8,cy2] : [cx2,cy2-8,cx2,cy2+8];
+        l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+        l.setAttribute('stroke',color);l.setAttribute('stroke-width','2');
+        svg.appendChild(l);
+      });
+    } else if (g.name === 'CZ') {
+      const d2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      d2.setAttribute('cx',cx2); d2.setAttribute('cy',cy2);
+      d2.setAttribute('r','5'); d2.setAttribute('fill',color);
+      svg.appendChild(d2);
+    } else if (g.name === 'SWAP') {
+      ['m-7,-7 l14,14','m7,-7 l-14,14'].forEach(p => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d',`M${cx2+parseInt(p.split(' ')[0].slice(1))},${cy2+parseInt(p.split(',')[1].split(' ')[0])} l${p.split('l')[1]}`);
+        const pts = p.replace('m','').split(',').map(n=>parseInt(n));
+        const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+        l.setAttribute('x1',cx2-7);l.setAttribute('y1',cy2+(p[1]==='-'?-7:7));
+        l.setAttribute('x2',cx2+7);l.setAttribute('y2',cy2+(p[1]==='-'?7:-7));
+        l.setAttribute('stroke',color);l.setAttribute('stroke-width','2');
+        svg.appendChild(l);
+      });
+    }
+  });
+  container.appendChild(svg);
+}
+
+function getSlotPos(qubit, col) {
+  const slot = document.querySelector(`[data-qubit="${qubit}"][data-col="${col}"]`);
+  if (!slot) return null;
+  const r = slot.getBoundingClientRect();
+  return { x: r.left + r.width/2, y: r.top + r.height/2 };
+}
+
+// ── DRAG AND DROP ──────────────────────────────────────────────────────────
+let draggingName = null;
+
+function startDrag(e, gateName) {
+  draggingName = gateName;
+  const meta = GATE_META[gateName];
+  e.dataTransfer.setData('gate', gateName);
+  // Ghost image
+  const ghost = document.createElement('div');
+  ghost.className = 'gate-node';
+  ghost.style.cssText = `background:${meta.bg};border:1.5px solid ${meta.color}60;position:fixed;top:-99px;left:-99px;`;
+  ghost.innerHTML = `<span class="gate-label" style="color:${meta.color}">${meta.label}</span>`;
+  document.body.appendChild(ghost);
+  e.dataTransfer.setDragImage(ghost, 20, 20);
+  setTimeout(() => document.body.removeChild(ghost), 0);
+}
+
+function dropGate(e, qubit, col) {
+  const gateName = e.dataTransfer.getData('gate') || draggingName;
+  if (!gateName) return;
+  saveHistory();
+  const meta = GATE_META[gateName];
+  const gate = {
+    id:     gateIdCounter++,
+    name:   gateName,
+    qubit:  qubit,
+    col:    col,
+    params: meta.params.map(() => Math.PI/2),
+  };
+  // For 2-qubit gates: auto-assign target qubit
+  if (meta.twoQubit) {
+    gate.target2 = qubit < state.numQubits - 1 ? qubit + 1 : qubit - 1;
+  }
+  // Remove any existing gate at this position
+  state.gates = state.gates.filter(g => !(g.qubit === qubit && g.col === col));
+  state.gates.push(gate);
+  draggingName = null;
+  renderQubits();
+  updateStats();
+  showToast('Gate Placed', `${gateName} gate added to Q${qubit}, column ${col}`, 'success');
+}
+
+function handleCanvasDrop(e) {
+  // Fallback if dropped on canvas but not on a slot
+}
+
+// ── GATE SELECTION ─────────────────────────────────────────────────────────
+function selectGate(id) {
+  state.selectedId = id;
+  const gate = state.gates.find(g => g.id === id);
+  if (!gate) return;
+  switchPanel('properties');
+  const meta = GATE_META[gate.name];
+  document.getElementById('noSelection').style.display = 'none';
+  document.getElementById('gateProperties').style.display = 'block';
+  document.getElementById('selGateBig').style.cssText = `background:${meta.bg};border:1px solid ${meta.color}40;`;
+  document.getElementById('selGateBig').textContent = meta.label;
+  document.getElementById('selGateBig').style.color = meta.color;
+  document.getElementById('selGateName').textContent = `${gate.name} Gate`;
+  document.getElementById('selGateDesc').textContent = meta.desc;
+  // Qubit selector
+  const qSel = document.getElementById('selGateQubit');
+  qSel.innerHTML = Array.from({length:state.numQubits},(_,i)=>`<option value="${i}" ${i===gate.qubit?'selected':''}>Q${i}</option>`).join('');
+  // Param slider
+  const paramSec = document.getElementById('paramSection');
+  if (meta.params && meta.params.length > 0) {
+    paramSec.style.display = 'block';
+    const val = gate.params[0] !== undefined ? gate.params[0] : Math.PI/2;
+    document.getElementById('paramSlider').value = val;
+    document.getElementById('paramDisplay').textContent = formatAngle(val);
+    document.getElementById('paramInput').value = formatAngle(val);
+  } else {
+    paramSec.style.display = 'none';
+  }
+  renderQubits();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.gate-node') && !e.target.closest('#gateProperties')) {
+    state.selectedId = null;
+    document.getElementById('noSelection').style.display = 'flex';
+    document.getElementById('gateProperties').style.display = 'none';
+    renderQubits();
+  }
+});
+
+function updateParam(val) {
+  const fval = parseFloat(val);
+  document.getElementById('paramDisplay').textContent = formatAngle(fval);
+  document.getElementById('paramInput').value = formatAngle(fval);
+  const gate = state.gates.find(g => g.id === state.selectedId);
+  if (gate) { gate.params[0] = fval; renderQubits(); }
+}
+function updateParamFromText(v) {
+  const fval = parseAngle(v);
+  if (!isNaN(fval)) {
+    document.getElementById('paramSlider').value = fval;
+    updateParam(fval);
+  }
+}
+function updateGateQubit(q) {
+  const gate = state.gates.find(g => g.id === state.selectedId);
+  if (gate) { gate.qubit = parseInt(q); renderQubits(); }
+}
+function deleteSelected() {
+  if (!state.selectedId) return;
+  saveHistory();
+  state.gates = state.gates.filter(g => g.id !== state.selectedId);
+  state.selectedId = null;
+  document.getElementById('noSelection').style.display = 'flex';
+  document.getElementById('gateProperties').style.display = 'none';
+  renderQubits(); updateStats();
+}
+function duplicateSelected() {
+  const gate = state.gates.find(g => g.id === state.selectedId);
+  if (!gate) return;
+  saveHistory();
+  const newGate = {...gate, id: gateIdCounter++, col: gate.col + 1};
+  state.gates.push(newGate);
+  renderQubits(); updateStats();
+}
+
+// ── QUBIT MANAGEMENT ───────────────────────────────────────────────────────
+function addQubit() {
+  saveHistory();
+  state.numQubits++;
+  renderQubits(); updateStats();
+  showToast('Qubit Added', `Circuit now has ${state.numQubits} qubits`, 'success');
+}
+function getMaxCol() {
+  return state.gates.reduce((m, g) => Math.max(m, g.col), -1);
+}
+function clearCircuit() {
+  saveHistory();
+  state.gates = [];
+  state.selectedId = null;
+  document.getElementById('noSelection').style.display = 'flex';
+  document.getElementById('gateProperties').style.display = 'none';
+  renderQubits(); updateStats();
+  showToast('Circuit Cleared', 'All gates removed', 'warn');
+}
+
+// ── HISTORY ─────────────────────────────────────────────────────────────────
+function saveHistory() {
+  state.history.push(JSON.stringify({ gates: state.gates, numQubits: state.numQubits }));
+  document.getElementById('undoBtn').disabled = false;
+}
+function undoLast() {
+  if (!state.history.length) return;
+  const prev = JSON.parse(state.history.pop());
+  state.gates = prev.gates; state.numQubits = prev.numQubits;
+  renderQubits(); updateStats();
+  if (!state.history.length) document.getElementById('undoBtn').disabled = true;
+}
+
+// ── STATS & META ───────────────────────────────────────────────────────────
+function updateStats() {
+  const n = state.numQubits;
+  const g = state.gates.length;
+  const d = getMaxCol() + 1;
+  const twoQ = state.gates.filter(g2 => GATE_META[g2.name]?.twoQubit).length;
+  document.getElementById('statQubits').textContent = n;
+  document.getElementById('statGates').textContent = g;
+  document.getElementById('statDepth').textContent = d;
+  document.getElementById('stat2q').textContent = twoQ;
+  document.getElementById('footerGates').textContent = `${g} gates · ${n} qubits · depth ${d}`;
+  updateMeta();
+}
+function updateMeta() {
+  const n = state.numQubits, g = state.gates.length, d = getMaxCol() + 1;
+  document.getElementById('circuitMeta').textContent = `n=${n} · d=${d} · g=${g}`;
+}
+
+// ── CIRCUIT JSON EXPORT/IMPORT ─────────────────────────────────────────────
+function getCircuitJSON() {
+  return {
+    num_qubits: state.numQubits,
+    name: document.getElementById('circuitName').value,
+    gates: state.gates.map(g => ({
+      name: g.name.toLowerCase(),
+      qubits: g.target2 !== undefined ? [g.qubit, g.target2] : [g.qubit],
+      params: g.params || [],
+    }))
+  };
+}
+function exportCircuit() {
+  const json = JSON.stringify(getCircuitJSON(), null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (document.getElementById('circuitName').value || 'circuit') + '.json';
+  a.click();
+  showToast('Exported', 'Circuit JSON downloaded', 'success');
+}
+function importCircuit() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        saveHistory();
+        state.numQubits = data.num_qubits || 2;
+        state.gates = (data.gates || []).map(g => ({
+          id: gateIdCounter++,
+          name: g.name.toUpperCase(),
+          qubit: g.qubits[0],
+          target2: g.qubits[1],
+          col: gateIdCounter - 1,
+          params: g.params || [],
+        }));
+        // Reassign columns sequentially
+        const byCols = {};
+        state.gates.forEach((g,i) => { g.col = i; });
+        document.getElementById('circuitName').value = data.name || 'Imported';
+        renderQubits(); updateStats();
+        showToast('Imported', `Circuit loaded: ${data.num_qubits} qubits, ${data.gates?.length||0} gates`, 'success');
+      } catch(err) {
+        showToast('Import Error', 'Invalid circuit JSON format', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ── EXECUTION SIMULATION ───────────────────────────────────────────────────
+const PIPELINE_STEPS = ['circuit','transpiler','ai','selector','mhos','execution','mitigation'];
+const PIPELINE_DETAILS = {
+  circuit:    () => `n=${state.numQubits} · g=${state.gates.length} · d=${getMaxCol()+1}`,
+  transpiler: () => `Rule passes + RL refinement · ${Math.floor(Math.random()*3+1)} SWAP inserted`,
+  ai:         () => `F-est=0.97 · conf=0.87 · strategy=rl_refine`,
+  selector:   () => `Scored ${Math.floor(Math.random()*5+3)} devices`,
+  mhos:       () => `Selected: tensornetwork (local) · latency 0s`,
+  execution:  () => `Running ${document.getElementById('shotsInput').value||1024} shots…`,
+  mitigation: () => `Readout correction · F: 0.94→0.997`,
+};
+
+async function runCircuit() {
+  if (state.executing) return;
+  if (state.gates.length === 0) { showToast('Empty Circuit', 'Add at least one gate before running', 'warn'); return; }
+  state.executing = true;
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('runBtn').className = 'action-btn running';
+  document.getElementById('runBtn').textContent = '⏳ Running…';
+  document.getElementById('jobStatusPill').style.display = 'flex';
+  document.getElementById('footerStatus').textContent = 'Executing…';
+  switchPanel('execution');
+  // Reset pipeline
+  PIPELINE_STEPS.forEach(s => {
+    const el = document.querySelector(`[data-step="${s}"]`);
+    if (el) { el.className = 'pipe-step'; el.querySelector('.pipe-indicator').className = 'pipe-indicator'; }
+  });
+  // Animate each step
+  for (let i = 0; i < PIPELINE_STEPS.length; i++) {
+    const step = PIPELINE_STEPS[i];
+    const el = document.querySelector(`[data-step="${step}"]`);
+    if (el) {
+      el.className = 'pipe-step active';
+      el.querySelector('.pipe-indicator').className = 'pipe-indicator spin';
+      el.querySelector('.pipe-detail').textContent = '⟳ Processing…';
+    }
+    await sleep(400 + Math.random()*300);
+    if (el) {
+      el.className = 'pipe-step complete';
+      const ind = el.querySelector('.pipe-indicator');
+      ind.className = 'pipe-indicator';
+      ind.style.background = 'var(--green)';
+      el.querySelector('.pipe-detail').textContent = PIPELINE_DETAILS[step]();
+    }
+  }
+  // Generate realistic results
+  const shots = parseInt(document.getElementById('shotsInput').value) || 1024;
+  const fidelity = 0.9850 + Math.random() * 0.014;
+  const results = generateResults(shots);
+  state.results = results;
+  await sleep(200);
+  displayResults(results, fidelity, shots);
+  state.executing = false;
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('runBtn').className = 'action-btn primary';
+  document.getElementById('runBtn').textContent = '▶ Run Circuit';
+  document.getElementById('jobStatusPill').style.display = 'none';
+  document.getElementById('footerStatus').textContent = `Completed · F=${fidelity.toFixed(4)}`;
+  showToast('Execution Complete', `Fidelity ${fidelity.toFixed(4)} · ${shots} shots · 0.42s`, 'success');
+}
+
+function generateResults(shots) {
+  const n = state.numQubits;
+  const dim = 2 ** n;
+  // Check if Bell-like circuit
+  const hasCX = state.gates.some(g => g.name === 'CX');
+  const hasH  = state.gates.some(g => g.name === 'H');
+  let probs;
+  if (hasH && hasCX && n >= 2) {
+    // Bell state distribution
+    probs = new Array(dim).fill(0);
+    probs[0] = 0.5; probs[dim-1] = 0.5;
+    // Add small noise
+    probs = probs.map(p => Math.max(0, p + (Math.random()-0.5)*0.02));
+  } else {
+    probs = Array.from({length:dim}, () => Math.random());
+  }
+  const total = probs.reduce((a,b) => a+b, 0);
+  probs = probs.map(p => p/total);
+  const counts = {};
+  const multinomial = (total, ps) => {
+    const result = new Array(ps.length).fill(0);
+    for (let i = 0; i < total; i++) {
+      let r = Math.random(), acc = 0;
+      for (let j = 0; j < ps.length; j++) {
+        acc += ps[j];
+        if (r <= acc) { result[j]++; break; }
+      }
+    }
+    return result;
+  };
+  const samples = multinomial(shots, probs);
+  samples.forEach((c,i) => { if (c>0) counts[i.toString(2).padStart(n,'0')] = c; });
+  return { counts, probs, shots };
+}
+
+function displayResults(results, fidelity, shots) {
+  switchPanel('results');
+  document.getElementById('noResults').style.display = 'none';
+  document.getElementById('resultsContent').style.display = 'block';
+  document.getElementById('resStatus').textContent = 'Completed ✓';
+  const backend = document.getElementById('optMode').value === 'manual'
+    ? document.getElementById('manualBackend').value : 'tensornetwork (MPS)';
+  document.getElementById('resBackend').textContent = backend;
+  document.getElementById('resTime').textContent = (0.3 + Math.random()*0.4).toFixed(3) + 's';
+  document.getElementById('resFidelity').textContent = fidelity.toFixed(4);
+  document.getElementById('fidelityFill').style.width = (fidelity * 100) + '%';
+  document.getElementById('totalShots').textContent = shots + ' shots';
+  // Histogram
+  const hist = document.getElementById('countsHistogram');
+  hist.innerHTML = '';
+  const entries = Object.entries(results.counts).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const maxC = Math.max(...entries.map(e=>e[1]));
+  entries.forEach(([bs, cnt]) => {
+    const pct = (cnt/shots*100).toFixed(1);
+    const row = document.createElement('div');
+    row.className = 'counts-bar-row';
+    row.innerHTML = `
+      <span class="counts-label">|${bs}⟩</span>
+      <div class="counts-bar-bg"><div class="counts-bar-fill" style="width:${cnt/maxC*100}%"></div></div>
+      <span class="counts-pct">${pct}%</span>
+    `;
+    hist.appendChild(row);
+  });
+  // Bloch sphere for single qubit results
+  if (state.numQubits === 1) {
+    document.getElementById('blochContainer').style.display = 'flex';
+    drawBlochSphere(results.probs[0]);
+  }
+}
+
+function drawBlochSphere(p0) {
+  const svg = document.getElementById('blochSvg');
+  svg.innerHTML = '';
+  const r = 55, cx = 0, cy = 0;
+  // Sphere
+  const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  circle.setAttribute('cx',0);circle.setAttribute('cy',0);circle.setAttribute('r',r);
+  circle.setAttribute('fill','none');circle.setAttribute('stroke','#1C2D50');circle.setAttribute('stroke-width','1');
+  svg.appendChild(circle);
+  // Equator ellipse
+  const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+  ell.setAttribute('cx',0);ell.setAttribute('cy',0);ell.setAttribute('rx',r);ell.setAttribute('ry',r*0.3);
+  ell.setAttribute('fill','none');ell.setAttribute('stroke','#1C2D50');ell.setAttribute('stroke-width','1');ell.setAttribute('stroke-dasharray','4,3');
+  svg.appendChild(ell);
+  // Axes
+  [['M0,-60 L0,60','Z axis'],['M-60,0 L60,0','X axis']].forEach(([d,label]) => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','path');
+    l.setAttribute('d',d);l.setAttribute('stroke','#2A3F60');l.setAttribute('stroke-width','1');
+    svg.appendChild(l);
+  });
+  // Labels
+  [[0,-64,'+Z'],[0,70,'-Z'],[62,2,'X'],[2,-62,'+Z']].forEach(([x,y,t]) => {
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x',x);text.setAttribute('y',y);text.setAttribute('text-anchor','middle');
+    text.setAttribute('fill','#4A6080');text.setAttribute('font-size','9');
+    text.setAttribute('font-family','IBM Plex Mono, monospace');text.textContent = t;
+    svg.appendChild(text);
+  });
+  // State vector
+  const theta = Math.acos(2*p0 - 1);
+  const phi = Math.random() * Math.PI * 2;
+  const vx = r * Math.sin(theta) * Math.cos(phi);
+  const vy = -r * Math.cos(theta);
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',0);line.setAttribute('y1',0);
+  line.setAttribute('x2',vx.toFixed(2));line.setAttribute('y2',vy.toFixed(2));
+  line.setAttribute('stroke','#00D4B8');line.setAttribute('stroke-width','2.5');
+  line.style.filter = 'drop-shadow(0 0 4px #00D4B8)';
+  svg.appendChild(line);
+  const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dot.setAttribute('cx',vx.toFixed(2));dot.setAttribute('cy',vy.toFixed(2));dot.setAttribute('r','5');
+  dot.setAttribute('fill','#00D4B8');dot.style.filter='drop-shadow(0 0 6px #00D4B8)';
+  svg.appendChild(dot);
+}
+
+// ── GATE FILTER ─────────────────────────────────────────────────────────────
+function filterGates(q) {
+  const items = document.querySelectorAll('#gatePalette .gate-item');
+  items.forEach(item => {
+    const name = item.dataset.gate || '';
+    const text = item.textContent.toLowerCase();
+    item.style.display = (q === '' || text.includes(q.toLowerCase()) || name.toLowerCase().includes(q.toLowerCase())) ? 'flex' : 'none';
+  });
+}
+
+// ── TAB SWITCHING ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('aiOverlay').style.display = tab === 'ai' ? 'block' : 'none';
+  document.getElementById('jobsOverlay').style.display = tab === 'jobs' ? 'block' : 'none';
+  document.getElementById('backendsOverlay').style.display = tab === 'backends' ? 'block' : 'none';
+}
+function switchPanel(p) {
+  ['properties','execution','results'].forEach(name => {
+    document.getElementById(`panel${capitalize(name)}`).style.display = name === p ? 'block' : 'none';
+    document.getElementById(`tab${capitalize(name)}`).classList.toggle('active', name === p);
+  });
+  state.activePanel = p;
+}
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ── JOB HISTORY DATA ───────────────────────────────────────────────────────
+const MOCK_JOBS = [
+  { id:'j-a1b2', name:'Bell State',        status:'completed', backend:'tensornetwork', time:'2m ago',    fidelity:'0.9997' },
+  { id:'j-c3d4', name:'GHZ 5-qubit',       status:'completed', backend:'ibm_kyoto',    time:'15m ago',   fidelity:'0.9821' },
+  { id:'j-e5f6', name:'VQE Ansatz',         status:'running',   backend:'ionq_aria',    time:'now',       fidelity:'—'      },
+  { id:'j-g7h8', name:'QFT n=4',            status:'completed', backend:'statevector',  time:'1h ago',    fidelity:'1.0000' },
+  { id:'j-i9j0', name:'QAOA MaxCut',        status:'queued',    backend:'braket',       time:'queued',    fidelity:'—'      },
+  { id:'j-k1l2', name:'Grover Search',      status:'completed', backend:'tensornetwork','time':'2h ago',  fidelity:'0.9934' },
+  { id:'j-m3n4', name:'Phase Estimation',   status:'failed',    backend:'ibm_sherbrooke','time':'3h ago', fidelity:'—'      },
+  { id:'j-o5p6', name:'Quantum Teleport',   status:'completed', backend:'ionq_forte',   time:'4h ago',   fidelity:'0.9886' },
+];
+
+function renderJobsList() {
+  const el = document.getElementById('jobsList');
+  if (!el) return;
+  el.innerHTML = MOCK_JOBS.map(j => `
+    <div class="job-row">
+      <div class="job-status-dot" style="background:${{completed:'var(--green)',running:'var(--amber)',queued:'var(--primary)',failed:'var(--red)'}[j.status]}"></div>
+      <div class="job-id">${j.id}</div>
+      <div class="job-name">${j.name}</div>
+      <span class="job-badge ${j.status}">${j.status}</span>
+      <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--text-3);width:54px">${j.backend.slice(0,8)}</div>
+      ${j.fidelity !== '—' ? `<div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--cyan)">${j.fidelity}</div>` : '<div style="width:42px"></div>'}
+      <div class="job-time">${j.time}</div>
+    </div>
+  `).join('');
+}
+
+// ── HARDWARE REGISTRY DATA ─────────────────────────────────────────────────
+const MOCK_BACKENDS = [
+  { id:'statevector',     name:'StatevectorSimulator',   provider:'local',   n:28,  q:0,   F:'1.000', cost:'Free',   status:'online',  score:'0.98', icon:'SV', color:'#0084FF' },
+  { id:'tensornetwork',   name:'TensorNetwork (MPS χ=64)',provider:'local',  n:200, q:0,   F:'0.991', cost:'Free',   status:'online',  score:'0.96', icon:'TN', color:'#00D4B8' },
+  { id:'ibm_kyoto',       name:'IBM Kyoto',               provider:'ibm',    n:127, q:12,  F:'0.982', cost:'Free',   status:'online',  score:'0.91', icon:'IB', color:'#0084FF' },
+  { id:'ibm_sherbrooke',  name:'IBM Sherbrooke',          provider:'ibm',    n:127, q:4,   F:'0.987', cost:'Free',   status:'online',  score:'0.93', icon:'IB', color:'#0084FF' },
+  { id:'ionq_aria',       name:'IonQ Aria 1',             provider:'ionq',   n:25,  q:5,   F:'0.995', cost:'$0.00035/shot','status':'online','score':'0.95','icon':'IQ','color':'#A855F7'},
+  { id:'ionq_forte',      name:'IonQ Forte 1',            provider:'ionq',   n:36,  q:2,   F:'0.998', cost:'$0.00097/shot','status':'online','score':'0.97','icon':'IQ','color':'#A855F7'},
+  { id:'braket_ankaa',    name:'Rigetti Ankaa-2 (Braket)', provider:'braket', n:84,  q:1,   F:'0.967', cost:'$0.00035/shot','status':'online','score':'0.86','icon':'AW','color':'#F59E0B'},
+  { id:'rigetti_ankaa',   name:'Rigetti Ankaa-2 (QCS)',   provider:'rigetti',n:84,  q:3,   F:'0.963', cost:'$0.00035/shot','status':'degraded','score':'0.78','icon':'RG','color':'#10B981'},
+];
+
+function renderBackendsList() {
+  const el = document.getElementById('backendsList');
+  if (!el) return;
+  el.innerHTML = MOCK_BACKENDS.map(b => `
+    <div class="backend-card">
+      <div class="backend-icon" style="background:${b.color}20;color:${b.color};border:1px solid ${b.color}40">${b.icon}</div>
+      <div class="backend-info">
+        <div class="backend-name">${b.name}</div>
+        <div class="backend-meta">${b.provider} · ${b.n} qubits · ${b.cost}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="status-indicator" style="justify-content:flex-end;margin-bottom:4px">
+          <div class="si-dot" style="background:${{online:'var(--green)',degraded:'var(--amber)',offline:'var(--red)'}[b.status]}"></div>
+          <span style="font-size:9px;color:var(--text-3);font-family:'IBM Plex Mono',monospace">${b.status}</span>
+        </div>
+        <div class="backend-score" style="color:${parseFloat(b.score)>0.9?'var(--green)':parseFloat(b.score)>0.8?'var(--amber)':'var(--red)'}">${b.score}</div>
+        <div style="font-size:9px;color:var(--text-3)">score</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── TOAST SYSTEM ───────────────────────────────────────────────────────────
+function showToast(title, msg, type='info') {
+  const icons = { success:'✓', error:'✕', warn:'⚠', info:'ℹ' };
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type]||'ℹ'}</span>
+    <div class="toast-msg">
+      <div class="toast-title">${title}</div>
+      <div class="toast-body">${msg}</div>
+    </div>
+  `;
+  document.getElementById('toastContainer').appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.3s'; setTimeout(()=>toast.remove(),300); }, 3500);
+}
+
+// ── UTILITIES ──────────────────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function formatAngle(v) {
+  const pi = Math.PI;
+  const map = [[pi,'π'],[pi/2,'π/2'],[pi/3,'π/3'],[pi/4,'π/4'],[-pi,'-π'],[-pi/2,'-π/2'],[2*pi,'2π'],[0,'0']];
+  for (const [n,s] of map) { if (Math.abs(v - n) < 0.01) return s; }
+  return v.toFixed(3);
+}
+
+function parseAngle(s) {
+  s = s.trim().replace('π','3.14159');
+  try { return eval(s); } catch(e) { return NaN; }
+}
+
+// ── KEYBOARD SHORTCUTS ─────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if ((e.ctrlKey||e.metaKey) && e.key === 'z') { e.preventDefault(); undoLast(); }
+  if (e.key === 'Delete' || e.key === 'Backspace') { if (state.selectedId) { e.preventDefault(); deleteSelected(); } }
+  if ((e.ctrlKey||e.metaKey) && e.key === 'e') { e.preventDefault(); exportCircuit(); }
+});
+
+// ── CIRCUIT NAME SYNC ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('circuitName').addEventListener('change', e => {
+    state.circuitName = e.target.value;
+  });
+});
+
+// ── DEMO CIRCUIT: Bell State ───────────────────────────────────────────────
+function loadBellDemo() {
+  state.gates = [
+    { id: gateIdCounter++, name: 'H',  qubit: 0, col: 0, params: [] },
+    { id: gateIdCounter++, name: 'CX', qubit: 0, col: 1, params: [], target2: 1 },
+  ];
+  renderQubits(); updateStats();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  init();
+  loadBellDemo();
+  showToast('Platform Ready', 'Zuntenium Visual Tools v5.0 · All backends connected', 'success');
+});
+</script>
+</body>
+</html>
