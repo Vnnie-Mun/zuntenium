@@ -18,26 +18,26 @@
 
 ZUNTENIUM converges advanced circuit compilation, simulation engines, multi-hardware orchestration, and self-hosted cloud microservices into a unified, production-ready ecosystem:
 
-- ⚡ **Multi-Engine Quantum Simulation**:
+- 1. **Multi-Engine Quantum Simulation**:
   - **Aaronson-Gottesman Stabilizer Tableau**: Simulates Clifford circuits up to **10,000+ qubits** in $O(n^2)$ time with phase tracking.
   - **CuPy GPU Statevector Backend**: High-throughput GPU tensor contraction for dense unitary execution.
   - **Matrix Product State (MPS) Tensor Network**: Simulates 50–100+ weakly entangled qubits with SVD bond-dimension truncation.
   - **Exact Statevector Simulator**: Big-endian pure-state evolution with full Pauli expectation value contraction $\langle \psi | P | \psi \rangle$.
-- 🔄 **Transpiler Engine v2**:
+- 2. **Transpiler Engine v2**:
   - **`TranspilerCache`**: Structural template hashing with **$O(1)$ parameter rebinding**, cutting 95%+ transpilation latency in VQE and QAOA variational loops.
   - **SABRE Qubit Routing**: Lookahead distance heuristics, extended successor sets, and decay penalties for heavy-hex and grid topologies.
   - **Cartan KAK Lie Algebra Decomposition**: Canonical $SU(4)$ two-qubit decomposition minimizing two-qubit gate counts.
   - **Solovay-Kitaev $\epsilon$-Net Approximation**: Recursive group commutator approximation for arbitrary single-qubit rotations.
   - **Circuit Fingerprinting**: Parameter-invariant topological and DAG similarity hashing.
-- 🌐 **Multi-Hardware Orchestration System (MHOS)**:
+- 3. **Multi-Hardware Orchestration System (MHOS)**:
   - Unified adapter interface for physical execution on **IBM Quantum (Runtime)**, **IonQ Cloud**, **Amazon Braket**, and **Rigetti (QCS)** with automatic simulator fallback.
-- 🛡️ **Zero-Noise Extrapolation (ZNE) & Error Mitigation**:
+- 4. **Zero-Noise Extrapolation (ZNE) & Error Mitigation**:
   - Richardson, polynomial, and exponential noise scaling with randomized Pauli / readout mitigation.
-- ☁️ **Self-Hostable Cloud Platform & Microservices**:
+- 5. **Self-Hostable Cloud Platform & Microservices**:
   - **FastAPI REST API**: Authentication, JWT tokens, API keys, quota management, and public backend discovery.
   - **RQ Distributed Worker Cluster**: High, default, low, and hardware queues with graceful job execution.
   - **Full Observability**: PostgreSQL 15 (UUID typed), Redis 7, Prometheus metrics, and Grafana dashboard provisioning.
-- 🎨 **Next.js 15 Visual QCanvas Workspace**:
+- 6. **Next.js 15 Visual QCanvas Workspace**:
   - Standalone web interface with interactive quantum circuit builder, Bloch sphere visualizer, and live cloud job telemetry.
 
 ---
