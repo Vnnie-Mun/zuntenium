@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "zuntenium"
 dynamic = ["version"]
-description = "AI-Native Hybrid Quantum Simulation Framework"
+description = "Enterprise-Grade Hybrid Quantum Computing SDK, Transpiler & Cloud Platform"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "Apache-2.0"
 requires-python = ">=3.10"
 authors = [
-    { name = "ZUNTENIUM Project", email = "dev@zuntenium.io" },
+    { name = "Vnnie-Mun", email = "vinimun01@gmail.com" },
 ]
 keywords = [
     "quantum computing",
@@ -19,11 +19,15 @@ keywords = [
     "variational quantum eigensolver",
     "QAOA",
     "transpiler",
+    "stabilizer",
+    "matrix product state",
+    "gpu quantum",
+    "quantum cloud",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -85,11 +89,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://zuntenium.io"
-Documentation = "https://docs.zuntenium.io"
-Repository = "https://github.com/zuntenium/zuntenium"
-"Bug Tracker" = "https://github.com/zuntenium/zuntenium/issues"
-Changelog = "https://github.com/zuntenium/zuntenium/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Vnnie-Mun/zuntenium"
+Documentation = "https://github.com/Vnnie-Mun/zuntenium#readme"
+Repository = "https://github.com/Vnnie-Mun/zuntenium"
+"Bug Tracker" = "https://github.com/Vnnie-Mun/zuntenium/issues"
+Changelog = "https://github.com/Vnnie-Mun/zuntenium/releases"
 
 [project.scripts]
 zuntenium = "zuntenium.cli:main"
@@ -99,7 +103,8 @@ version = { attr = "zuntenium.version.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["zuntenium*"]
+include = ["zuntenium", "zuntenium.*", "zuntenium_cloud", "zuntenium_cloud.*"]
+exclude = ["zuntenium-ui*", "zuntenium-health*", "zuntenium-qos*", "tests*"]
 
 [tool.ruff]
 line-length = 100
