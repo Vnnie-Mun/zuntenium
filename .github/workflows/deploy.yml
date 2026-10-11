@@ -20,6 +20,10 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
+
 jobs:
   verify:
     name: Pre-Flight Verification
@@ -71,6 +75,8 @@ jobs:
 
       - name: Deploy via SSH to DigitalOcean
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USER || 'root' }}
@@ -78,19 +84,29 @@ jobs:
           passphrase: ${{ secrets.DO_SSH_PASSPHRASE }}
           port: ${{ secrets.DO_SSH_PORT || 22 }}
           script_stop: true
-          envs: GITHUB_SHA
+          envs: GITHUB_SHA,DEPLOY_TOKEN
           script: |
             set -euo pipefail
             APP_DIR="/opt/zuntenium"
+            AUTH_REPO="https://x-access-token:${DEPLOY_TOKEN}@github.com/Vnnie-Mun/zuntenium.git"
+
+            echo "=== [0/5] Ensuring Docker Engine & Compose are Ready ==="
+            if ! command -v docker &> /dev/null || ! docker compose version &> /dev/null; then
+              echo "Installing Docker Engine..."
+              curl -fsSL https://get.docker.com | sh
+              systemctl enable --now docker || true
+            fi
 
             echo "=== [1/5] Synchronizing Repository Code ==="
             if [ ! -d "$APP_DIR/.git" ]; then
               mkdir -p "$APP_DIR"
-              git clone https://github.com/Vnnie-Mun/zuntenium.git "$APP_DIR"
+              git clone "$AUTH_REPO" "$APP_DIR"
             fi
             cd "$APP_DIR"
+            git remote set-url origin "$AUTH_REPO"
             git fetch origin main
             git reset --hard origin/main
+            git remote set-url origin https://github.com/Vnnie-Mun/zuntenium.git
 
             echo "=== [2/5] Verifying Production Environment Configuration ==="
             if [ ! -f "$APP_DIR/.env" ]; then
@@ -107,12 +123,21 @@ jobs:
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
             echo "=== [4/5] Awaiting Service Health Verification ==="
-            for i in $(seq 1 12); do
-              if curl -s -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
-                echo "FastAPI REST API is healthy!"
+            for i in $(seq 1 18); do
+              if curl -s -f http://127.0.0.1/health > /dev/null 2>&1; then
+                echo "FastAPI REST API is healthy via reverse proxy!"
                 break
               fi
-              echo "Waiting for API service readiness (attempt $i/12)..."
+              echo "Waiting for API service readiness (attempt $i/18)..."
+              sleep 5
+            done
+
+            for i in $(seq 1 18); do
+              if curl -s -f http://127.0.0.1/ > /dev/null 2>&1; then
+                echo "Next.js 15 UI Workspace is healthy via reverse proxy!"
+                break
+              fi
+              echo "Waiting for UI service readiness (attempt $i/18)..."
               sleep 5
             done
 
