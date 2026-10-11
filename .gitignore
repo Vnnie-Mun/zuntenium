@@ -15,6 +15,7 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+benchmark_*.json
 
 # Frontend & doc builds & caches
 .next/
