@@ -60,12 +60,9 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
-      api:
-        condition: service_healthy
-      ui:
-        condition: service_healthy
-      collab-server:
-        condition: service_healthy
+      - api
+      - ui
+      - collab-server
     networks:
       - zuntenium-prod-net
 
@@ -82,13 +79,13 @@ services:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
       NEXT_PUBLIC_WS_URL:  ${NEXT_PUBLIC_WS_URL:-}
     depends_on:
-      api:
-        condition: service_healthy
+      - api
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 60s
     networks:
       - zuntenium-prod-net
 
@@ -101,9 +98,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3001/health || exit 1"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 30s
     networks:
       - zuntenium-prod-net
 
@@ -124,9 +122,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 60s
     networks:
       - zuntenium-prod-net
 

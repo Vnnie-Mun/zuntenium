@@ -91,6 +91,7 @@ jobs:
             set -euo pipefail
             APP_DIR="/opt/zuntenium"
             AUTH_REPO="https://x-access-token:${DEPLOY_TOKEN}@github.com/Vnnie-Mun/zuntenium.git"
+            trap 'echo "=== DEPLOYMENT FAILED: DIAGNOSTIC CONTAINER LOGS ==="; cd "$APP_DIR" && docker compose -f docker-compose.prod.yml ps && docker compose -f docker-compose.prod.yml logs --tail 100' ERR
 
             echo "=== [0/5] Ensuring Docker Engine & Compose are Ready ==="
             if ! command -v docker &> /dev/null || ! docker compose version &> /dev/null; then
@@ -121,29 +122,32 @@ jobs:
               chmod 600 "$APP_DIR/.env"
             fi
 
+            echo "=== [2.5/5] Gracefully Stopping Old Containers ==="
+            docker compose -f docker-compose.prod.yml down --remove-orphans || true
+
             echo "=== [3/5] Building & Launching Production Containers ==="
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
             echo "=== [4/5] Awaiting Service Health Verification ==="
             API_OK=false
-            for i in $(seq 1 30); do
+            for i in $(seq 1 36); do
               if curl -s -f http://127.0.0.1/health > /dev/null 2>&1; then
                 echo "FastAPI REST API is healthy via reverse proxy!"
                 API_OK=true
                 break
               fi
-              echo "Waiting for API service readiness (attempt $i/30)..."
+              echo "Waiting for API service readiness (attempt $i/36)..."
               sleep 5
             done
 
             UI_OK=false
-            for i in $(seq 1 30); do
+            for i in $(seq 1 36); do
               if curl -s -f http://127.0.0.1/ > /dev/null 2>&1; then
                 echo "Next.js 15 UI Workspace is healthy via reverse proxy!"
                 UI_OK=true
                 break
               fi
-              echo "Waiting for UI service readiness (attempt $i/30)..."
+              echo "Waiting for UI service readiness (attempt $i/36)..."
               sleep 5
             done
 
