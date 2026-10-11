@@ -26,5 +26,4 @@ USER zuntenium
 STOPSIGNAL SIGTERM
 
 # Default command (overridden in docker-compose per queue)
-CMD ["python", "-m", "rq", "worker", "default", \
-     "--with-scheduler", "--sentry-dsn", ""]
+CMD ["rq", "worker", "default", "--with-scheduler"]

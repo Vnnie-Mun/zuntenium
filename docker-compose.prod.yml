@@ -133,7 +133,7 @@ services:
   worker-high:
     <<: *worker-base
     container_name: zuntenium-worker-high
-    command: ["python", "-m", "rq", "worker", "high", "--with-scheduler", "--url", "redis://redis:6379/0"]
+    command: ["rq", "worker", "high", "--with-scheduler", "--url", "redis://redis:6379/0"]
     environment:
       <<: *common-env
       ZUNTENIUM_WORKER_ID: worker-high-prod
@@ -141,7 +141,7 @@ services:
   worker-std:
     <<: *worker-base
     container_name: zuntenium-worker-std
-    command: ["python", "-m", "rq", "worker", "default", "--with-scheduler", "--url", "redis://redis:6379/0"]
+    command: ["rq", "worker", "default", "--with-scheduler", "--url", "redis://redis:6379/0"]
     environment:
       <<: *common-env
       ZUNTENIUM_WORKER_ID: worker-std-prod
@@ -149,7 +149,7 @@ services:
   worker-low:
     <<: *worker-base
     container_name: zuntenium-worker-low
-    command: ["python", "-m", "rq", "worker", "low", "--url", "redis://redis:6379/0"]
+    command: ["rq", "worker", "low", "--url", "redis://redis:6379/0"]
     environment:
       <<: *common-env
       ZUNTENIUM_WORKER_ID: worker-low-prod
@@ -157,7 +157,7 @@ services:
   worker-hw:
     <<: *worker-base
     container_name: zuntenium-worker-hw
-    command: ["python", "-m", "rq", "worker", "hardware", "--with-scheduler", "--url", "redis://redis:6379/0"]
+    command: ["rq", "worker", "hardware", "--with-scheduler", "--url", "redis://redis:6379/0"]
     environment:
       <<: *common-env
       ZUNTENIUM_WORKER_ID: worker-hw-prod
