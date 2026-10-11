@@ -1,0 +1,247 @@
+# docker-compose.prod.yml — Zuntenium Full Stack Production Deployment
+# Services:
+#   caddy        — Auto-SSL Reverse Proxy (ports 80, 443)
+#   ui           — Next.js 15 QCanvas Visual IDE (port 3000)
+#   api          — FastAPI REST Gateway (port 8000)
+#   worker-high  — High priority RQ quantum task worker
+#   worker-std   — Default priority RQ quantum task worker
+#   worker-low   — Batch priority RQ quantum task worker
+#   worker-hw    — Multi-Hardware Orchestration (MHOS) physical QPU worker
+#   collab       — Real-time CRDT WebSocket collaboration server (port 3001)
+#   postgres     — PostgreSQL 15 persistent database
+#   redis        — Redis 7 task queue & cache
+
+version: "3.9"
+
+x-worker-base: &worker-base
+  build:
+    context: .
+    dockerfile: zuntenium_cloud/Dockerfile.worker
+  environment: &common-env
+    ZUNTENIUM_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-zuntenium}:${POSTGRES_PASSWORD:-zuntenium_secure_pass}@postgres:5432/${POSTGRES_DB:-zuntenium}
+    ZUNTENIUM_REDIS_URL:    redis://redis:6379/0
+    REDIS_URL:              redis://redis:6379/0
+    ZUNTENIUM_JWT_SECRET:   ${ZUNTENIUM_JWT_SECRET:-production-secret-change-me}
+    ALLOWED_ORIGINS:        ${ALLOWED_ORIGINS:-*}
+    ZUNTENIUM_LOG_LEVEL:    ${ZUNTENIUM_LOG_LEVEL:-INFO}
+    IBM_QUANTUM_TOKEN:      ${IBM_QUANTUM_TOKEN:-}
+    ZUNTENIUM_IBM_TOKEN:    ${ZUNTENIUM_IBM_TOKEN:-${IBM_QUANTUM_TOKEN:-}}
+    IONQ_API_KEY:           ${IONQ_API_KEY:-}
+    ZUNTENIUM_IONQ_API_KEY: ${ZUNTENIUM_IONQ_API_KEY:-${IONQ_API_KEY:-}}
+    ZUNTENIUM_AWS_ACCESS_KEY_ID: ${ZUNTENIUM_AWS_ACCESS_KEY_ID:-}
+    ZUNTENIUM_AWS_SECRET:   ${ZUNTENIUM_AWS_SECRET:-}
+    ZUNTENIUM_AWS_REGION:   ${ZUNTENIUM_AWS_REGION:-us-east-1}
+    ZUNTENIUM_AWS_S3_BUCKET: ${ZUNTENIUM_AWS_S3_BUCKET:-}
+    ZUNTENIUM_RIGETTI_USER_ID: ${ZUNTENIUM_RIGETTI_USER_ID:-}
+    PYTHONUNBUFFERED:       "1"
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+  networks:
+    - zuntenium-prod-net
+
+services:
+  # ── Reverse Proxy & SSL ──────────────────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: zuntenium-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:-:80}
+    volumes:
+      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+      ui:
+        condition: service_healthy
+      collab-server:
+        condition: service_healthy
+    networks:
+      - zuntenium-prod-net
+
+  # ── Next.js 15 Visual Workspace Frontend ─────────────────────────────────
+  ui:
+    build:
+      context: ./zuntenium-ui
+      dockerfile: Dockerfile
+    container_name: zuntenium-ui
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+      NEXT_PUBLIC_WS_URL:  ${NEXT_PUBLIC_WS_URL:-}
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuntenium-prod-net
+
+  # ── Real-Time Collaboration Server ────────────────────────────────────────
+  collab-server:
+    build:
+      context: ./zuntenium-collab-server
+      dockerfile: Dockerfile
+    container_name: zuntenium-collab
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuntenium-prod-net
+
+  # ── FastAPI REST API Gateway ──────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: zuntenium_cloud/Dockerfile.api
+    container_name: zuntenium-api
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      ZUNTENIUM_WORKER_ID: api-gateway
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuntenium-prod-net
+
+  # ── RQ Quantum Execution Workers ──────────────────────────────────────────
+  worker-high:
+    <<: *worker-base
+    container_name: zuntenium-worker-high
+    command: ["python", "-m", "rq", "worker", "high", "--with-scheduler", "--url", "redis://redis:6379/0"]
+    environment:
+      <<: *common-env
+      ZUNTENIUM_WORKER_ID: worker-high-prod
+
+  worker-std:
+    <<: *worker-base
+    container_name: zuntenium-worker-std
+    command: ["python", "-m", "rq", "worker", "default", "--with-scheduler", "--url", "redis://redis:6379/0"]
+    environment:
+      <<: *common-env
+      ZUNTENIUM_WORKER_ID: worker-std-prod
+
+  worker-low:
+    <<: *worker-base
+    container_name: zuntenium-worker-low
+    command: ["python", "-m", "rq", "worker", "low", "--url", "redis://redis:6379/0"]
+    environment:
+      <<: *common-env
+      ZUNTENIUM_WORKER_ID: worker-low-prod
+
+  worker-hw:
+    <<: *worker-base
+    container_name: zuntenium-worker-hw
+    command: ["python", "-m", "rq", "worker", "hardware", "--with-scheduler", "--url", "redis://redis:6379/0"]
+    environment:
+      <<: *common-env
+      ZUNTENIUM_WORKER_ID: worker-hw-prod
+
+  # ── Persistent Storage: PostgreSQL ────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: zuntenium-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-zuntenium}
+      POSTGRES_USER:     ${POSTGRES_USER:-zuntenium}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zuntenium_secure_pass}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zuntenium} -d ${POSTGRES_DB:-zuntenium}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zuntenium-prod-net
+
+  # ── Cache & Message Broker: Redis ─────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: zuntenium-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - zuntenium-prod-net
+
+  # ── Optional Monitoring Profiles ─────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: zuntenium-prometheus
+    profiles: ["monitoring"]
+    volumes:
+      - ./zuntenium_cloud/infra/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    networks:
+      - zuntenium-prod-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: zuntenium-grafana
+    profiles: ["monitoring"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin_change_me}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./zuntenium_cloud/infra/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./zuntenium_cloud/infra/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - zuntenium-prod-net
+
+  rq-dashboard:
+    image: eoranged/rq-dashboard:latest
+    container_name: zuntenium-rq-dashboard
+    profiles: ["monitoring"]
+    environment:
+      RQ_DASHBOARD_REDIS_URL: redis://redis:6379/0
+    networks:
+      - zuntenium-prod-net
+
+volumes:
+  postgres-data:
+  redis-data:
+  caddy-data:
+  caddy-config:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  zuntenium-prod-net:
+    driver: bridge

@@ -3,7 +3,16 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { WSMessage } from "@/types";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000/ws";
+const getWsBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_WS_URL !== undefined && process.env.NEXT_PUBLIC_WS_URL !== "") {
+    return process.env.NEXT_PUBLIC_WS_URL;
+  }
+  if (typeof window !== "undefined") {
+    const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return `${proto}//${window.location.host}/ws`;
+  }
+  return "ws://127.0.0.1:8000/ws";
+};
 
 interface WSOptions {
   onMessage:    (msg: WSMessage) => void;
@@ -21,7 +30,8 @@ export function useWebSocket({ onMessage, onConnect, onDisconnect, jobId }: WSOp
 
   const connect = useCallback(() => {
     if (!mountedRef.current) return;
-    const url = jobId ? `${WS_URL}/jobs/${jobId}` : `${WS_URL}/platform`;
+    const wsBase = getWsBaseUrl();
+    const url = jobId ? `${wsBase}/jobs/${jobId}` : `${wsBase}/platform`;
     try {
       const ws = new WebSocket(url);
       wsRef.current = ws;

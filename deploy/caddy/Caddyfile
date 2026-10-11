@@ -1,0 +1,34 @@
+{
+    admin off
+}
+
+{$DOMAIN::80} {
+    encode gzip zstd
+
+    # Logging
+    log {
+        output stdout
+        format console
+    }
+
+    # API and System Endpoints -> FastAPI backend
+    @api_paths {
+        path /health* /metrics* /docs* /redoc* /openapi.json* /auth/* /jobs/* /backends* /admin/*
+    }
+    handle @api_paths {
+        reverse_proxy api:8000
+    }
+
+    # Real-Time Collaboration & WebSockets -> Collab Server
+    @ws_paths {
+        path /ws* /collab*
+    }
+    handle @ws_paths {
+        reverse_proxy collab-server:3001
+    }
+
+    # Everything else -> Next.js 15 UI Frontend
+    handle {
+        reverse_proxy ui:3000
+    }
+}

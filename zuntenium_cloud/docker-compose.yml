@@ -21,6 +21,7 @@ x-worker-common: &worker-common
   environment: &worker-env
     ZUNTENIUM_DATABASE_URL: postgresql+asyncpg://zuntenium:zuntenium@postgres:5432/zuntenium
     ZUNTENIUM_REDIS_URL:    redis://redis:6379/0
+    REDIS_URL:              redis://redis:6379/0
     ZUNTENIUM_JWT_SECRET:   ${ZUNTENIUM_JWT_SECRET:-dev-secret-change-in-prod}
     ZUNTENIUM_IBM_TOKEN:    ${ZUNTENIUM_IBM_TOKEN:-}
     ZUNTENIUM_IBM_INSTANCE: ${ZUNTENIUM_IBM_INSTANCE:-}
