@@ -80,9 +80,17 @@ cloud = [
     "fastapi>=0.100.0",
     "uvicorn>=0.23.0",
     "pydantic>=2.0",
+    "pydantic-settings>=2.0",
     "sqlalchemy>=2.0",
+    "asyncpg>=0.28",
+    "psycopg2-binary>=2.9",
+    "bcrypt>=4.0",
+    "PyJWT>=2.8",
+    "python-multipart>=0.0.9",
     "redis>=5.0",
     "rq>=1.15",
+    "slowapi>=0.1.9",
+    "httpx>=0.25",
 ]
 all = [
     "zuntenium[dev,ai,viz,hardware,gpu,cloud]",

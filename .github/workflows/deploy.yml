@@ -39,6 +39,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -e ".[dev,cloud]"
+          pip install -r zuntenium_cloud/requirements.txt
 
       - name: Syntax & bytecode check
         run: python -m compileall -q zuntenium zuntenium_cloud
