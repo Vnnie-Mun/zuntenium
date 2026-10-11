@@ -74,7 +74,7 @@ hardware = [
     "qcs-sdk-python>=0.27",
 ]
 gpu = [
-    "cupy-cuda12x>=12.0",
+    "cupy-cuda12x>=12.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
 cloud = [
     "fastapi>=0.100.0",
@@ -93,6 +93,9 @@ cloud = [
     "httpx>=0.25",
 ]
 all = [
+    "zuntenium[dev,ai,viz,cloud]",
+]
+full = [
     "zuntenium[dev,ai,viz,hardware,gpu,cloud]",
 ]
 

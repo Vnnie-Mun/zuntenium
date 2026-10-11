@@ -1,7 +1,23 @@
 {
-    "cmake.sourceDirectory": "/home/vincent/zuntenium/bindings",
-    "github-actions.workflows.pinned.refresh.enabled": false,
-    "github-actions.org.features.actions": false,
-    "github-actions.remote-action-resolution.enabled": false,
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/zuntenium",
+        "${workspaceFolder}/zuntenium_cloud"
+    ],
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/zuntenium",
+        "${workspaceFolder}/zuntenium_cloud"
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${workspaceFolder}"
+    },
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${workspaceFolder}"
+    },
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${workspaceFolder}"
+    }
 }
