@@ -51,6 +51,7 @@ jobs:
       - name: Run Cloud Platform & Worker Tests
         run: |
           pytest tests/unit/test_cloud_worker.py -v
+          python -c "from zuntenium_cloud.api import app; print('✓ FastAPI App initialized:', app.title)"
           python debug_all.py
 
   deploy:
