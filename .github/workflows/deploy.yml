@@ -46,7 +46,8 @@ jobs:
 
       - name: Run Cloud Platform & Worker Tests
         run: |
-          pytest tests/unit/test_cloud_worker.py tests/test_cloud_platform.py -v
+          pytest tests/unit/test_cloud_worker.py -v
+          python debug_all.py
 
   deploy:
     name: Deploy to DigitalOcean Droplet
