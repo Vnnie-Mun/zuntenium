@@ -54,7 +54,7 @@ graph TD
 ### Phase 1: Onboarding, Core Architecture & Workspace
 * **[ZQL-00 | Start Here: Hello World](ZQL-00-start-here.md)**: Install Zuntenium, build your first Bell state via fluent builder, execute against local statevector engines, and inspect shot statistics.
 * **[ZQL-02 | SDK Core Reference](ZQL-02-sdk-core-reference.md)**: Internal representations (IR), transpilation optimization pipeline, and Multi-Hardware Orchestration System (MHOS).
-* **[ZQL-14 | Quantum Workspace Guide](ZQL-14-workspace-guide.md)**: Interactive QCanvas circuit designer, FastAPI workspace server, and VS Code extension integration.
+* **[ZQL-14 | Developer Operations & Live Platform Ecosystem](ZQL-14-workspace-guide.md)**: Live QCanvas visual IDE (http://104.236.218.164/), REST API docs & JWT authentication, backend discovery (/backends), health probes (/health), Prometheus telemetry (/metrics), and real-time CRDT WebSocket collaboration (ws://104.236.218.164/ws).
 
 ### Phase 2: Quantum Foundations & Reversible Logic
 * **[ZQL-01 | Quantum Foundations & Mathematics](ZQL-01-quantum-foundations.md)**: Hilbert space, Dirac notation, matrix mechanics of single and two-qubit unitary operators, and projection measurement.

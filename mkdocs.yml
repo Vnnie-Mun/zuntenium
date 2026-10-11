@@ -46,7 +46,7 @@ nav:
   - Phase 1:
       - ZQL-00 | Start Here: ZQL-00-start-here.md
       - ZQL-02 | SDK Core Reference: ZQL-02-sdk-core-reference.md
-      - ZQL-14 | Workspace Guide: ZQL-14-workspace-guide.md
+      - ZQL-14 | Developer Operations & Live Platform: ZQL-14-workspace-guide.md
   - Phase 2:
       - ZQL-01 | Quantum Foundations: ZQL-01-quantum-foundations.md
       - ZQL-03 | Quantum Arithmetic: ZQL-03-quantum-arithmetic.md
@@ -63,3 +63,5 @@ nav:
       - ZQL-11 | Error Mitigation & Correction: ZQL-11-error-mitigation.md
       - ZQL-12 | Real Hardware Integration: ZQL-12-real-hardware.md
       - ZQL-13 | Research Track: ZQL-13-research-track.md
+  - Deployment & Production:
+      - DigitalOcean Deployment Guide: DIGITALOCEAN_DEPLOYMENT.md
