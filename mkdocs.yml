@@ -63,5 +63,6 @@ nav:
       - ZQL-11 | Error Mitigation & Correction: ZQL-11-error-mitigation.md
       - ZQL-12 | Real Hardware Integration: ZQL-12-real-hardware.md
       - ZQL-13 | Research Track: ZQL-13-research-track.md
+      - ZQL-15 | Top-Tier Benchmark & Accuracy Audit: ZQL-15-top-tier-benchmark-audit.md
   - Deployment & Production:
       - DigitalOcean Deployment Guide: DIGITALOCEAN_DEPLOYMENT.md

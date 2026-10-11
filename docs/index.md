@@ -38,13 +38,14 @@ graph TD
         Z11["ZQL-11: Error Mitigation & PEC"]
         Z12["ZQL-12: Real Hardware & Multi-Vendor Racing"]
         Z13["ZQL-13: Research Track & Parametric Caching"]
+        Z15["ZQL-15: Top-Tier Benchmark & Accuracy Audit"]
     end
 
     Z00 --> Z02 --> Z14
     Z14 --> Z01 --> Z03 --> Z04
     Z04 --> Z05 --> Z06 --> Z07
     Z07 --> Z08 --> Z09 --> Z10
-    Z10 --> Z11 --> Z12 --> Z13
+    Z10 --> Z11 --> Z12 --> Z13 --> Z15
 ```
 
 ---
@@ -75,6 +76,7 @@ graph TD
 * **[ZQL-11 | Error Mitigation & Resilience](ZQL-11-error-mitigation.md)**: Noise modeling, Zero-Noise Extrapolation (ZNE), and Probabilistic Error Cancellation (PEC).
 * **[ZQL-12 | Real Hardware Integration](ZQL-12-real-hardware.md)**: `HardwareOrchestrator`, multi-provider execution strategies (RACING, FALLBACK), and physical calibration.
 * **[ZQL-13 | Research Track & Deep Internals](ZQL-13-research-track.md)**: Transpiler AST analysis, structural template hashing, and $O(1)$ parameter rebinding.
+* **[ZQL-15 | Top-Tier Benchmark Audit & 8-Layer Accuracy Scorecard](ZQL-15-top-tier-benchmark-audit.md)**: Cross-IDE surface audit, empirical compiler benchmarks, simulation throughput, and verified 8-Layer Accuracy Stack.
 
 ---
 
