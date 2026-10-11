@@ -1,0 +1,65 @@
+site_name: Zuntenium Quantum Learning (ZQL)
+site_description: Complete documentation and course ecosystem for Zuntenium Hybrid Quantum SDK and Workspace
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - admonition
+  - pymdownx.details
+
+nav:
+  - Overview: index.md
+  - Phase 1:
+      - ZQL-00 | Start Here: ZQL-00-start-here.md
+      - ZQL-02 | SDK Core Reference: ZQL-02-sdk-core-reference.md
+      - ZQL-14 | Workspace Guide: ZQL-14-workspace-guide.md
+  - Phase 2:
+      - ZQL-01 | Quantum Foundations: ZQL-01-quantum-foundations.md
+      - ZQL-03 | Quantum Arithmetic: ZQL-03-quantum-arithmetic.md
+      - ZQL-04 | Core Algorithms: ZQL-04-core-algorithms.md
+  - Phase 3:
+      - ZQL-05 | Variational and Hybrid: ZQL-05-variational-hybrid.md
+      - ZQL-06 | Quantum AI and Machine Learning: ZQL-06-quantum-ai-ml.md
+      - ZQL-07 | Chemistry, Materials, and Physics: ZQL-07-chemistry-physics.md
+  - Phase 4:
+      - ZQL-08 | Optimization, Finance, and Logistics: ZQL-08-optimization-finance.md
+      - ZQL-09 | Cryptography and Security: ZQL-09-crypto-security.md
+      - ZQL-10 | Sensing, Networking, and Comm: ZQL-10-sensing-network.md
+  - Phase 5:
+      - ZQL-11 | Error Mitigation & Correction: ZQL-11-error-mitigation.md
+      - ZQL-12 | Real Hardware Integration: ZQL-12-real-hardware.md
+      - ZQL-13 | Research Track: ZQL-13-research-track.md

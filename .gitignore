@@ -16,10 +16,14 @@ build/
 dist/
 *.egg-info/
 
-# Frontend builds & caches
+# Frontend & doc builds & caches
 .next/
 *.tsbuildinfo
+out/
+site/
+*.vsix
 
 # Secrets & environment
 .env
 !.env.example
+
