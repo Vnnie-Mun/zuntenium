@@ -21,5 +21,6 @@ class StatevectorSimulator:
         opts = {**self.config, **kwargs}
         return self.backend.run(circuit, shots=shots, **opts)
 
+from zuntenium.api.visualization_api import plot_histogram
 
-__all__ = ["StatevectorSimulator"]
+__all__ = ["StatevectorSimulator", "plot_histogram"]

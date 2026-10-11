@@ -9,6 +9,7 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docker Ready](https://img.shields.io/badge/docker-compose%20%26%20k8s-informational.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium_cloud)
 [![Next.js Standalone](https://img.shields.io/badge/UI-Next.js%2015%20Standalone-black.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium-ui)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Vnnie-Mun/zuntenium/blob/main/notebooks/zuntenium_colab_quickstart.ipynb)
 
 ---
 

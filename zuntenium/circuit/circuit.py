@@ -308,6 +308,16 @@ class QuantumCircuit:
     def __str__(self) -> str:
         return self.draw()
 
+    def _repr_html_(self) -> str:
+        """Rich HTML display for Jupyter Notebook and Google Colab."""
+        text = self.draw()
+        return (
+            f"<div style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; "
+            f"background-color: #0d1117; color: #58a6ff; padding: 14px; border-radius: 8px; "
+            f"border: 1px solid #30363d; overflow-x: auto; white-space: pre; line-height: 1.3;'>"
+            f"{text}</div>"
+        )
+
     # ── Properties ────────────────────────────────────────────────────────
 
     @property
