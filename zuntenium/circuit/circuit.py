@@ -298,6 +298,43 @@ class QuantumCircuit:
             metadata={"name": self._name},
         )
 
+    # ── Inversion & Mirror Circuits ────────────────────────────────────────
+
+    def inverse(self) -> QuantumCircuit:
+        """
+        Return the inverse (Hermitian conjugate C†) of this circuit.
+        Reverses instruction order and conjugates each gate.
+        """
+        inv_qc = QuantumCircuit(
+            self._qreg.size, self._creg.size, name=f"{self._name}_dg"
+        )
+        for inst in reversed(self._instructions):
+            if inst.operation == "gate" and inst.gate is not None:
+                inv_qc._add_gate(inst.gate.dagger(), inst.qubits)
+            elif inst.operation == "barrier":
+                inv_qc.barrier(*inst.qubits)
+        return inv_qc
+
+    def mirror(self) -> QuantumCircuit:
+        """
+        Create a self-verifying mirror circuit: C followed by C†.
+        On a noiseless simulator, always recovers |0...0⟩ with 100% fidelity.
+        """
+        mirror_qc = QuantumCircuit(
+            self._qreg.size, self._creg.size, name=f"{self._name}_mirror"
+        )
+        for inst in self._instructions:
+            if inst.operation == "gate" and inst.gate is not None:
+                mirror_qc._add_gate(inst.gate, inst.qubits)
+            elif inst.operation == "barrier":
+                mirror_qc.barrier(*inst.qubits)
+        for inst in reversed(self._instructions):
+            if inst.operation == "gate" and inst.gate is not None:
+                mirror_qc._add_gate(inst.gate.dagger(), inst.qubits)
+            elif inst.operation == "barrier":
+                mirror_qc.barrier(*inst.qubits)
+        return mirror_qc
+
     # ── Visualization ──────────────────────────────────────────────────────
 
     def draw(self, style: str = "text") -> str:

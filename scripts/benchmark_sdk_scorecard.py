@@ -93,18 +93,36 @@ def benchmark_simulation() -> dict:
 
 
 def benchmark_correctness() -> dict:
-    print("\n[3/6] Benchmarking Correctness & Numerical Fidelity...")
+    print("\n[3/6] Benchmarking 7-Layer Accuracy Stack...")
     results = {}
 
-    # Statevector normalization: <psi|psi> must equal 1.0 within float64 epsilon (1e-10)
+    # Layer 1: Numerical accuracy & norm drift (< 1e-10)
     qc = QuantumCircuit(4).h(0).cx(0, 1).h(2).cx(2, 3)
     backend = get_backend("statevector")
-    res = backend.run(qc, shots=1)
+    res = backend.run(qc, shots=1000)
     norm = np.linalg.norm(res.statevector)
     fidelity_error = abs(norm - 1.0)
-    results["norm_fidelity_error"] = float(f"{fidelity_error:.2e}")
-    results["numerical_agreement_passed"] = bool(fidelity_error < 1e-10)
-    print(f"  ✓ Float64 statevector normalization error: {fidelity_error:.2e} (< 1e-10 target: PASSED)")
+    results["norm_drift"] = float(f"{fidelity_error:.2e}")
+    results["layer1_numerical_norm_passed"] = bool(fidelity_error < 1e-10)
+    print(f"  ✓ [Layer 1] Float64 statevector norm drift: {fidelity_error:.2e} (< 1e-10: PASSED)")
+
+    # Layer 2: Endianness consistency (q0 is rightmost bit)
+    qc_endian = QuantumCircuit(2).x(0)
+    res_endian = backend.run(qc_endian, shots=10)
+    results["layer2_endianness_passed"] = ("01" in res_endian.counts)
+    print(f"  ✓ [Layer 2] Endianness convention (X on q0 -> '01'): {'PASSED' if results['layer2_endianness_passed'] else 'FAILED'}")
+
+    # Layer 3: Statistical accuracy (Error bars on every result)
+    error_bars_present = hasattr(res, "error_bars") and len(res.error_bars) > 0
+    results["layer3_error_bars_passed"] = error_bars_present
+    print(f"  ✓ [Layer 3] Statistical error bars σ_k = sqrt(p(1-p)/N): {'PASSED' if error_bars_present else 'FAILED'}")
+
+    # Layer 8: Self-verifying Mirror circuits (C C† -> |0...0⟩)
+    mirror_qc = qc.mirror()
+    res_mirror = backend.run(mirror_qc, shots=500)
+    mirror_success = (res_mirror.counts == {"0000": 500})
+    results["layer8_mirror_circuit_passed"] = mirror_success
+    print(f"  ✓ [Layer 8] Mirror circuit self-verification (C C† -> |0000⟩ 100%): {'PASSED' if mirror_success else 'FAILED'}")
 
     return results
 

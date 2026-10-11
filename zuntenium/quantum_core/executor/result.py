@@ -94,6 +94,35 @@ class ExecutionResult:
         """Return the most frequent measurement outcome."""
         return max(self.counts, key=lambda k: self.counts[k])
 
+    @property
+    def endianness(self) -> str:
+        """Bitstring ordering convention (little-endian: q0 is rightmost bit)."""
+        return "little-endian (q0 is rightmost bit)"
+
+    @property
+    def standard_errors(self) -> dict[str, float]:
+        """
+        Statistical standard error bars: σ_k = sqrt(p_k * (1 - p_k) / N).
+        """
+        total = self.shots if self.shots > 0 else (sum(self.counts.values()) or 1)
+        probs = self.probabilities
+        return {
+            k: float(np.sqrt(max(0.0, p * (1.0 - p)) / total))
+            for k, p in probs.items()
+        }
+
+    @property
+    def error_bars(self) -> dict[str, float]:
+        """Statistical error bars for measurement outcomes."""
+        return self.standard_errors
+
+    @property
+    def norm_drift(self) -> float | None:
+        """Norm drift |‖ψ‖ - 1| for statevector simulations."""
+        if self.statevector is None:
+            return None
+        return float(abs(np.linalg.norm(self.statevector) - 1.0))
+
     def expectation_value(self, observable: np.ndarray) -> float:
         """
         Compute ⟨ψ|O|ψ⟩ for a Hermitian observable matrix.
@@ -107,6 +136,18 @@ class ExecutionResult:
             )
         psi = self.statevector
         return float(np.real(psi.conj() @ observable @ psi))
+
+    def expectation_value_with_error(
+        self, observable: np.ndarray
+    ) -> tuple[float, float]:
+        """
+        Compute expectation value ⟨ψ|O|ψ⟩ and statistical standard error bar.
+        Returns:
+            (expectation_value, standard_error)
+        """
+        mean = self.expectation_value(observable)
+        std_err = float(1.0 / np.sqrt(max(1, self.shots)))
+        return mean, std_err
 
     def plot_histogram(self, **kwargs: Any) -> None:
         """Plot a bar chart of measurement counts (requires matplotlib)."""
