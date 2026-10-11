@@ -83,6 +83,8 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           passphrase: ${{ secrets.DO_SSH_PASSPHRASE }}
           port: ${{ secrets.DO_SSH_PORT || 22 }}
+          timeout: 60s
+          command_timeout: 30m
           script_stop: true
           envs: GITHUB_SHA,DEPLOY_TOKEN
           script: |
@@ -123,23 +125,39 @@ jobs:
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 
             echo "=== [4/5] Awaiting Service Health Verification ==="
-            for i in $(seq 1 18); do
+            API_OK=false
+            for i in $(seq 1 30); do
               if curl -s -f http://127.0.0.1/health > /dev/null 2>&1; then
                 echo "FastAPI REST API is healthy via reverse proxy!"
+                API_OK=true
                 break
               fi
-              echo "Waiting for API service readiness (attempt $i/18)..."
+              echo "Waiting for API service readiness (attempt $i/30)..."
               sleep 5
             done
 
-            for i in $(seq 1 18); do
+            UI_OK=false
+            for i in $(seq 1 30); do
               if curl -s -f http://127.0.0.1/ > /dev/null 2>&1; then
                 echo "Next.js 15 UI Workspace is healthy via reverse proxy!"
+                UI_OK=true
                 break
               fi
-              echo "Waiting for UI service readiness (attempt $i/18)..."
+              echo "Waiting for UI service readiness (attempt $i/30)..."
               sleep 5
             done
+
+            if [ "$API_OK" != "true" ]; then
+              echo "API health check failed! Container logs:"
+              docker compose -f docker-compose.prod.yml logs --tail 50 api
+              exit 1
+            fi
+
+            if [ "$UI_OK" != "true" ]; then
+              echo "UI health check failed! Container logs:"
+              docker compose -f docker-compose.prod.yml logs --tail 50 ui
+              exit 1
+            fi
 
             echo "=== [5/5] Deployment Complete — Container Status ==="
             docker compose -f docker-compose.prod.yml ps
