@@ -9,7 +9,12 @@ from __future__ import annotations
 from zuntenium.api.quantum_api import execute, get_backend
 from zuntenium.backend.provider import BackendProvider
 from zuntenium.circuit.circuit import QuantumCircuit
+from zuntenium.simulators import StatevectorSimulator, plot_histogram
 from zuntenium.version import __version__
+
+# Canonical alias: Circuit -> QuantumCircuit
+Circuit = QuantumCircuit
+
 from zuntenium.execution import (
     AdaptiveQuantumExecutor,
     BackendSelector,
@@ -24,9 +29,12 @@ from zuntenium.ai_engine import AIOptimizer, AIDecision
 __all__ = [
     "__version__",
     "QuantumCircuit",
+    "Circuit",
     "execute",
     "get_backend",
     "BackendProvider",
+    "StatevectorSimulator",
+    "plot_histogram",
     "AdaptiveQuantumExecutor",
     "BackendSelector",
     "HybridExecutor",
