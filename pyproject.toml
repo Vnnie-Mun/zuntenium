@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "pybind11>=2.11"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -40,6 +40,8 @@ classifiers = [
 dependencies = [
     "numpy>=1.24",
     "scipy>=1.11",
+    "networkx>=3.0",
+    "requests>=2.28",
     "typing-extensions>=4.8",
     "dataclasses-json>=0.6",
 ]
@@ -115,7 +117,7 @@ version = { attr = "zuntenium.version.__version__" }
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["zuntenium", "zuntenium.*", "zuntenium_cloud", "zuntenium_cloud.*"]
-exclude = ["zuntenium-ui*", "zuntenium-health*", "zuntenium-qos*", "tests*"]
+exclude = ["zuntenium-*", "tests*"]
 
 [tool.ruff]
 line-length = 100

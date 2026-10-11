@@ -1,0 +1,20 @@
+{
+  "name": "zuntenium-workspace",
+  "version": "1.0.0",
+  "description": "Zuntenium Quantum Platform — Monorepo Root",
+  "private": true,
+  "workspaces": [
+    "zuntenium-ui",
+    "zuntenium-collab-server",
+    "zuntenium-vscode",
+    "zuntenium-marketplace"
+  ],
+  "scripts": {
+    "dev": "npm --workspace=zuntenium-ui run dev",
+    "build": "npm --workspace=zuntenium-ui run build",
+    "start": "npm --workspace=zuntenium-ui run start",
+    "collab": "npm --workspace=zuntenium-collab-server start",
+    "vscode:compile": "npm --workspace=zuntenium-vscode run compile",
+    "test:ui": "npm --workspace=zuntenium-ui run test"
+  }
+}

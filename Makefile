@@ -28,11 +28,12 @@ help:
 
 # ── Install ─────────────────────────────────────────────────────────────────
 install:
-	$(PIP) install .
+	$(PIP) install -r requirements.txt
 
 dev-install:
-	$(PIP) install -e ".[dev]"
-	pre-commit install
+	$(PIP) install -r requirements.txt
+	$(PIP) install -e ".[dev,cloud]"
+	command -v pre-commit >/dev/null 2>&1 && pre-commit install || true
 
 # ── C++ Bindings ─────────────────────────────────────────────────────────────
 build-bindings:

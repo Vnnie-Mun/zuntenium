@@ -12,11 +12,39 @@ fi
 python3 -c "import sys; assert sys.version_info >= (3, 10), f'Python 3.10+ required, found {sys.version}'"
 
 echo "=== [2/4] Initializing Local Virtual Environment (.venv) ==="
-if [ ! -d ".venv" ]; then
-    python3 -m venv .venv
-    echo "  ✓ Created .venv virtual environment."
+# Check if existing .venv is functional or corrupted (e.g. copied/moved folder)
+RECREATE_VENV=false
+if [ -d ".venv" ]; then
+    VENV_PY=""
+    if [ -x ".venv/bin/python" ]; then
+        VENV_PY=".venv/bin/python"
+    elif [ -x ".venv/Scripts/python.exe" ]; then
+        VENV_PY=".venv/Scripts/python.exe"
+    fi
+    if [ -z "$VENV_PY" ] || ! "$VENV_PY" -c "import sys" &> /dev/null; then
+        echo "  ⚠ Existing .venv is broken (invalid interpreter or moved path). Recreating..."
+        rm -rf .venv
+        RECREATE_VENV=true
+    else
+        echo "  ✓ Existing working .venv found."
+    fi
 else
-    echo "  ✓ Existing .venv found."
+    RECREATE_VENV=true
+fi
+
+if [ "$RECREATE_VENV" = true ]; then
+    if python3 -m venv .venv 2>/dev/null; then
+        echo "  ✓ Created .venv via python3 -m venv."
+    elif command -v virtualenv &>/dev/null && virtualenv .venv; then
+        echo "  ✓ Created .venv via virtualenv."
+    elif [ -x "$HOME/.local/bin/virtualenv" ] && "$HOME/.local/bin/virtualenv" .venv; then
+        echo "  ✓ Created .venv via ~/.local/bin/virtualenv."
+    else
+        echo "  Installing virtualenv..."
+        python3 -m pip install --user virtualenv || pip3 install --user virtualenv
+        "$HOME/.local/bin/virtualenv" .venv
+        echo "  ✓ Created .venv via user virtualenv."
+    fi
 fi
 
 # Source virtual environment
@@ -34,15 +62,13 @@ pip install -e ".[dev,cloud]"
 echo "=== [4/4] Verifying Zuntenium Installation ==="
 python -c "
 import zuntenium
+from zuntenium import QuantumCircuit, get_backend
 print('  ✓ zuntenium version:', zuntenium.__version__)
-from zuntenium.core import Circuit
-from zuntenium.simulators import StatevectorSimulator
-circ = Circuit(2)
-circ.h(0)
-circ.cx(0, 1)
-sim = StatevectorSimulator()
-res = sim.run(circ, shots=100)
-print('  ✓ Local Quantum Simulator test passed! Counts:', res.counts)
+qc = QuantumCircuit(2, name='bell_verification')
+qc.h(0).cx(0, 1).measure_all()
+backend = get_backend('statevector')
+res = backend.run(qc, shots=100)
+print('  ✓ Quantum Statevector Simulator passed! Counts:', res.counts)
 "
 
 echo ""
