@@ -90,6 +90,116 @@ def cmd_backends(args: argparse.Namespace) -> None:  # noqa: ARG001
         print(f"  • {name}")
 
 
+def cmd_doctor(args: argparse.Namespace) -> None:
+    """Run full environment, IDE interpreter, native binary, and GPU diagnostics."""
+    import os
+    import platform
+    import sys
+    from pathlib import Path
+
+    import zuntenium
+    from zuntenium.bindings.binding_loader import is_cpp_available
+    from zuntenium.version import __version__
+
+    in_venv = sys.prefix != getattr(sys, "base_prefix", sys.prefix)
+    conda_env = os.environ.get("CONDA_DEFAULT_ENV", "")
+    pkg_dir = Path(zuntenium.__file__).parent
+    py_typed_exists = (pkg_dir / "py.typed").exists()
+    stubs_exist = (pkg_dir / "_zuntenium_core.pyi").exists()
+    cpp_ok = is_cpp_available()
+
+    # GPU Check
+    gpu_found = False
+    gpu_info = "None detected (CPU fallback active)"
+    try:
+        import cupy as cp
+        cp.cuda.Device(0).compute_capability
+        gpu_found = True
+        gpu_info = f"CuPy (CUDA {cp.cuda.runtime.runtimeGetVersion()})"
+    except Exception:
+        try:
+            import torch
+            if torch.cuda.is_available():
+                gpu_found = True
+                gpu_info = f"PyTorch CUDA ({torch.cuda.get_device_name(0)})"
+        except Exception:
+            pass
+
+    # Core dependencies
+    deps: dict[str, str] = {}
+    for mod_name in ["numpy", "scipy", "networkx", "requests"]:
+        try:
+            mod = __import__(mod_name)
+            deps[mod_name] = getattr(mod, "__version__", "installed")
+        except ImportError:
+            deps[mod_name] = "MISSING"
+
+    # IDE detection
+    detected_ide = "Unknown / Terminal"
+    if "VSCODE_PID" in os.environ or "VSCODE_GIT_ASKPASS_NODE" in os.environ:
+        detected_ide = "VS Code / Cursor"
+    elif "PYCHARM_HOSTED" in os.environ:
+        detected_ide = "PyCharm"
+    elif "JPY_PARENT_PID" in os.environ or "COLAB_GPU" in os.environ:
+        detected_ide = "Jupyter / Colab"
+
+    report = {
+        "version": __version__,
+        "python": {
+            "version": platform.python_version(),
+            "executable": sys.executable,
+            "is_virtualenv": in_venv,
+            "conda_env": conda_env or None,
+        },
+        "package": {
+            "location": str(pkg_dir),
+            "py_typed": py_typed_exists,
+            "cpp_stubs": stubs_exist,
+        },
+        "native_acceleration": {
+            "cpp_available": cpp_ok,
+            "gpu_detected": gpu_found,
+            "gpu_details": gpu_info,
+        },
+        "dependencies": deps,
+        "environment": {
+            "detected_ide": detected_ide,
+            "os": f"{platform.system()} {platform.release()} ({platform.machine()})",
+        },
+    }
+
+    if getattr(args, "json", False):
+        print(json.dumps(report, indent=2))
+        return
+
+    print("═" * 60)
+    print("  ZUNTENIUM Environment & IDE Health Check (zqc doctor)")
+    print("═" * 60)
+    print(f"  SDK Version        : v{__version__}")
+    print(f"  Python Interpreter : {sys.executable}")
+    print(f"  Python Version     : {platform.python_version()} ({platform.machine()})")
+    print(f"  Virtual Environment: {'✓ Active' if in_venv else '✗ System Python (recommend venv)'}")
+    if conda_env:
+        print(f"  Conda Environment  : {conda_env}")
+    print(f"  Package Location   : {pkg_dir}")
+    print(f"  Type Marker        : {'✓ py.typed present' if py_typed_exists else '✗ py.typed missing'}")
+    print(f"  Native Type Stubs  : {'✓ _zuntenium_core.pyi present' if stubs_exist else '✗ stubs missing'}")
+    print(f"  C++ Acceleration   : {'✓ Active (_zuntenium_core)' if cpp_ok else '✗ Pure Python fallback'}")
+    print(f"  GPU Acceleration   : {'✓ ' + gpu_info if gpu_found else '• ' + gpu_info}")
+    print(f"  Active IDE Context : {detected_ide}")
+    print("\nCore Dependencies:")
+    for dep, ver in deps.items():
+        status = "✓" if ver != "MISSING" else "✗"
+        print(f"  [{status}] {dep:10s} : {ver}")
+
+    print("\nIDE Quick Configuration:")
+    print(f"  • VS Code / Cursor : Command Palette -> 'Python: Select Interpreter'")
+    print(f"                       Enter: {sys.executable}")
+    print(f"  • PyCharm          : Settings -> Project -> Python Interpreter -> Add Existing")
+    print(f"  • Jupyter / Colab  : python -m ipykernel install --user --name zuntenium-env")
+    print("═" * 60)
+
+
 def main() -> None:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -98,6 +208,8 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  zuntenium doctor
+  zuntenium doctor --json
   zuntenium version
   zuntenium info
   zuntenium backends
@@ -105,6 +217,10 @@ Examples:
         """,
     )
     sub = parser.add_subparsers(dest="command", required=True)
+
+    # doctor
+    doc_p = sub.add_parser("doctor", help="Run environment, IDE interpreter, and native diagnostics")
+    doc_p.add_argument("--json", action="store_true", help="Output diagnostics in JSON format")
 
     # version
     sub.add_parser("version", help="Print ZUNTENIUM version")
@@ -126,6 +242,7 @@ Examples:
 
     args = parser.parse_args()
     dispatch = {
+        "doctor": cmd_doctor,
         "version": cmd_version,
         "info": cmd_info,
         "backends": cmd_backends,

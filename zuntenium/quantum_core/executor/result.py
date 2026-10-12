@@ -172,3 +172,44 @@ class ExecutionResult:
             f"num_qubits={self.num_qubits}, "
             f"top_counts={dict(top)})"
         )
+
+    def _repr_html_(self) -> str:
+        """Rich HTML display for Jupyter Notebook and Colab."""
+        total = self.shots if self.shots > 0 else (sum(self.counts.values()) or 1)
+        sorted_counts = sorted(self.counts.items(), key=lambda x: -x[1])[:10]
+        rows = []
+        for state, cnt in sorted_counts:
+            prob = cnt / total
+            err = self.standard_errors.get(state, 0.0)
+            pct = prob * 100
+            bar_w = min(100.0, max(2.0, pct))
+            rows.append(
+                f"<tr>"
+                f"<td style='padding:6px 12px;font-family:monospace;font-weight:600;'>|{state}⟩</td>"
+                f"<td style='padding:6px 12px;text-align:right;'>{cnt}</td>"
+                f"<td style='padding:6px 12px;text-align:right;'>{prob:.4f} <span style='font-size:11px;opacity:0.7;'>±{err:.4f}</span></td>"
+                f"<td style='padding:6px 12px;width:160px;'>"
+                f"<div style='background-color:#6366f1;width:{bar_w}%;height:14px;border-radius:3px;'></div>"
+                f"</td>"
+                f"</tr>"
+            )
+        rows_html = "".join(rows)
+        return (
+            "<div style='border:1px solid var(--jp-border-color1, #e1e4e8);border-radius:8px;"
+            "padding:16px;margin:8px 0;background-color:var(--jp-cell-editor-background, transparent);'>"
+            "<div style='font-size:14px;font-weight:bold;margin-bottom:8px;'>"
+            f"⚡ ExecutionResult — {self.num_qubits} Qubits, {self.shots} Shots"
+            f"<span style='font-size:12px;font-weight:normal;margin-left:12px;opacity:0.8;'>"
+            f"Most Probable: <strong>|{self.most_probable}⟩</strong></span>"
+            "</div>"
+            "<table style='border-collapse:collapse;width:100%;font-size:13px;'>"
+            "<thead><tr style='border-bottom:1px solid var(--jp-border-color1, #e1e4e8);text-align:left;'>"
+            "<th style='padding:6px 12px;'>State</th>"
+            "<th style='padding:6px 12px;text-align:right;'>Counts</th>"
+            "<th style='padding:6px 12px;text-align:right;'>Probability</th>"
+            "<th style='padding:6px 12px;'>Distribution</th>"
+            "</tr></thead>"
+            f"<tbody>{rows_html}</tbody>"
+            "</table>"
+            "</div>"
+        )

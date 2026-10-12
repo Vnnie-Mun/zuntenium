@@ -6,7 +6,19 @@ Public API surface. All symbols exported here are stable under SemVer.
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from zuntenium.ai_engine import AIDecision, AIOptimizer
+    from zuntenium.backends import IBMBackend, TensorNetworkBackend
+    from zuntenium.execution import (
+        AdaptiveQuantumExecutor,
+        BackendSelector,
+        HybridExecutor,
+        Preferences,
+        QuantumExecutor,
+    )
+    from zuntenium.transpiler import HardwareAwareTranspiler
 
 from zuntenium.api.quantum_api import execute, get_backend
 from zuntenium.backend.provider import BackendProvider

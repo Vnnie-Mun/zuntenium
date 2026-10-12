@@ -111,6 +111,7 @@ Changelog = "https://github.com/Vnnie-Mun/zuntenium/releases"
 
 [project.scripts]
 zuntenium = "zuntenium.cli:main"
+zqc = "zuntenium.cli:main"
 
 [tool.setuptools.dynamic]
 version = { attr = "zuntenium.version.__version__" }

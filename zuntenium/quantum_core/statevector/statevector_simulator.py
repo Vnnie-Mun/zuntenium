@@ -273,6 +273,21 @@ class StatevectorState:
                 f"num_qubits must be a positive integer ≥ {StatevectorState.MIN_QUBITS}; "
                 f"got {n!r}"
             )
+        # Pre-flight memory validation (F1, F9)
+        bytes_needed = (1 << n) * 16  # complex128
+        try:
+            import psutil
+            available_bytes = psutil.virtual_memory().available
+            if bytes_needed > available_bytes:
+                raise MemoryError(
+                    f"Statevector allocation requires {bytes_needed / (1024**3):.2f} GiB ({n} qubits), "
+                    f"which exceeds available system memory of {available_bytes / (1024**3):.2f} GiB. "
+                    f"Pre-flight guard prevented an out-of-memory crash. "
+                    f"Consider using TensorNetworkEngine or StabilizerSimulator."
+                )
+        except ImportError:
+            pass
+
         if n > StatevectorState.MAX_QUBITS:
             raise ValueError(
                 f"num_qubits={n} exceeds v0.1 limit of {StatevectorState.MAX_QUBITS}. "

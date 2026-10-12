@@ -15,9 +15,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-from zuntenium.execution.quantum_executor import (
-    ExecutionResult, _apply_circuit_to_simulator, validate_circuit_compatibility,
-)
 from zuntenium.quantum_core.statevector import StatevectorSimulator
 from zuntenium.transpiler.hardware_transpiler import (
     HardwareAwareTranspiler, _IBM_QX5, _IBM_QX7,
@@ -477,6 +474,11 @@ def run_demo():
     print(f"  GHZ(3): {r.num_qubits}q, {r.num_gates_executed} gates, "
           f"P[000]={r.probabilities[0]:.3f}, P[111]={r.probabilities[7]:.3f}")
     print("\n" + "═" * 70 + "\n")
+
+
+from zuntenium.execution.quantum_executor import (
+    ExecutionResult, _apply_circuit_to_simulator, validate_circuit_compatibility,
+)
 
 
 __all__ = [

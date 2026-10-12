@@ -346,13 +346,32 @@ class QuantumCircuit:
         return self.draw()
 
     def _repr_html_(self) -> str:
-        """Rich HTML display for Jupyter Notebook and Google Colab."""
-        text = self.draw()
+        """Theme-adaptive rich HTML display for Jupyter Notebook, JupyterLab, and Google Colab."""
+        import html
+        escaped_text = html.escape(self.draw())
         return (
-            f"<div style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; "
-            f"background-color: #0d1117; color: #58a6ff; padding: 14px; border-radius: 8px; "
-            f"border: 1px solid #30363d; overflow-x: auto; white-space: pre; line-height: 1.3;'>"
-            f"{text}</div>"
+            "<style>"
+            ".zqc-circuit-box {"
+            "  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;"
+            "  padding: 14px;"
+            "  border-radius: 8px;"
+            "  overflow-x: auto;"
+            "  white-space: pre;"
+            "  line-height: 1.3;"
+            "  font-size: 13px;"
+            "  background-color: var(--jp-cell-editor-background, #f6f8fa);"
+            "  color: var(--jp-content-font-color, #24292f);"
+            "  border: 1px solid var(--jp-border-color1, #d0d7de);"
+            "}"
+            "@media (prefers-color-scheme: dark) {"
+            "  .zqc-circuit-box {"
+            "    background-color: var(--jp-cell-editor-background, #0d1117);"
+            "    color: var(--jp-content-font-color, #58a6ff);"
+            "    border: 1px solid var(--jp-border-color1, #30363d);"
+            "  }"
+            "}"
+            "</style>"
+            f"<div class='zqc-circuit-box'>{escaped_text}</div>"
         )
 
     # ── Properties ────────────────────────────────────────────────────────

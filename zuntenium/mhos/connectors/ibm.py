@@ -40,6 +40,13 @@ _IBM_GATE_MAP = {
 }
 
 
+def _get_loop() -> asyncio.AbstractEventLoop:
+    try:
+        return asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.get_event_loop()
+
+
 class IBMConnector(BaseConnector):
     """
     IBM Quantum Runtime V2 connector.
@@ -62,7 +69,7 @@ class IBMConnector(BaseConnector):
             return
         try:
             from qiskit_ibm_runtime import QiskitRuntimeService
-            loop = asyncio.get_event_loop()
+            loop = _get_loop()
             self._service = await loop.run_in_executor(
                 None,
                 lambda: QiskitRuntimeService(
@@ -100,7 +107,7 @@ class IBMConnector(BaseConnector):
                     "cost_per_shot": 0.0,              "native_gates": ["cx","id","rz","sx","x"],
                 },
             ]
-        loop    = asyncio.get_event_loop()
+        loop    = _get_loop()
         backends = await loop.run_in_executor(None, self._service.backends)
         return [self._backend_to_dict(b) for b in backends]
 
@@ -133,7 +140,7 @@ class IBMConnector(BaseConnector):
         if self._use_stub:
             return self._stub_submit(circuit, device_id, shots)
 
-        loop     = asyncio.get_event_loop()
+        loop     = _get_loop()
         native   = self.circuit_to_native(circuit)
         try:
             from qiskit_ibm_runtime import SamplerV2 as Sampler, Session
@@ -157,7 +164,7 @@ class IBMConnector(BaseConnector):
     async def poll_status(self, handle: JobHandle) -> JobState:
         if self._use_stub:
             return self._stub_poll(handle)
-        loop = asyncio.get_event_loop()
+        loop = _get_loop()
         try:
             job   = await loop.run_in_executor(
                 None, lambda: self._service.job(handle.native_id)
@@ -171,7 +178,7 @@ class IBMConnector(BaseConnector):
     async def fetch_result(self, handle: JobHandle) -> ProviderResult:
         if self._use_stub:
             return self._stub_result(handle)
-        loop = asyncio.get_event_loop()
+        loop = _get_loop()
         try:
             job    = await loop.run_in_executor(
                 None, lambda: self._service.job(handle.native_id)
@@ -192,7 +199,7 @@ class IBMConnector(BaseConnector):
     async def cancel(self, handle: JobHandle) -> bool:
         if self._use_stub:
             return True
-        loop = asyncio.get_event_loop()
+        loop = _get_loop()
         try:
             job = await loop.run_in_executor(
                 None, lambda: self._service.job(handle.native_id)
