@@ -1,6 +1,6 @@
 # CHANGELOG
 
-All notable changes to ZUNTENIUM are documented here.
+All notable changes to **QuFlow** (package: `zuntenium`) are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
@@ -8,8 +8,28 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
-- Full architecture scaffolding for v0.2 hardware backends (IBM, IonQ)
-- SABRE routing pass stub for v0.2
+- Full architecture scaffolding for v0.3 hardware backends (IBM, IonQ)
+- SABRE routing pass stub for v0.3
+
+---
+
+## [0.2.0] — 2026-10-13
+
+### Changed
+- **Rebranded from ZUNTENIUM to QuFlow** across all user-facing surfaces
+- QCanvas Workspace renamed to QuFlow Workspace
+- QuFlow logo integrated into docs, README, and web UI
+- Version bumped to 0.2.0 (beta)
+
+### Added
+- OOP architecture decomposition (7 focused modules in statevector core)
+- Extended simulator backends: DensityMatrix, Stabilizer, TensorNetwork, GPU
+- `BackendProvider` auto-registration with string-alias dispatch
+- `to_v2_circuit()` bridge for cross-version circuit execution
+- `plot_histogram()` accepts raw `dict[str, int]` inputs
+- SDK Data Structures guide (`ZQL-02B`)
+- OOP Operations guide (`ZQL-02A`)
+- External SDK usage integration tests (549 total tests passing)
 
 ---
 

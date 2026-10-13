@@ -1,23 +1,31 @@
-# ZUNTENIUM
+<p align="center">
+  <img src="docs/assets/quflow-logo.png" alt="QuFlow Logo" width="480" />
+</p>
 
-**Enterprise-Grade Hybrid Quantum Computing SDK, Transpiler & Cloud Platform**
+<h1 align="center">QuFlow</h1>
 
-[![PyPI version](https://img.shields.io/pypi/v/zuntenium.svg?color=blue)](https://pypi.org/project/zuntenium/)
-[![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://pypi.org/project/zuntenium/)
-[![Tests Passing](https://img.shields.io/badge/tests-534%2F534%20passed-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium/actions)
+<p align="center"><strong>Enterprise-Grade Hybrid Quantum Computing SDK, Transpiler & Cloud Platform</strong></p>
+
+<p align="center">
+
+[![PyPI version](https://img.shields.io/pypi/v/zuntenium.svg?color=7C3AED)](https://pypi.org/project/zuntenium/)
+[![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-7C3AED.svg)](https://pypi.org/project/zuntenium/)
+[![Tests Passing](https://img.shields.io/badge/tests-549%2F549%20passed-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium/actions)
 [![Code Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-7C3AED.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docker Ready](https://img.shields.io/badge/docker-compose%20%26%20k8s-informational.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium_cloud)
 [![Next.js Standalone](https://img.shields.io/badge/UI-Next.js%2015%20Standalone-black.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium-ui)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Vnnie-Mun/zuntenium/blob/main/notebooks/zuntenium_colab_quickstart.ipynb)
+
+</p>
 
 ---
 
 ## Overview
 
-**ZUNTENIUM** is a high-performance, full-stack quantum computing platform designed to scale seamlessly from interactive circuit design on laptops to distributed GPU simulation and physical Quantum Processing Unit (QPU) orchestration.
+**QuFlow** (package: `zuntenium`) is a high-performance, full-stack quantum computing platform designed to scale seamlessly from interactive circuit design on laptops to distributed GPU simulation and physical Quantum Processing Unit (QPU) orchestration.
 
-ZUNTENIUM converges advanced circuit compilation, simulation engines, multi-hardware orchestration, and self-hosted cloud microservices into a unified, production-ready ecosystem:
+QuFlow converges advanced circuit compilation, simulation engines, multi-hardware orchestration, and self-hosted cloud microservices into a unified, production-ready ecosystem:
 
 - 1. **Multi-Engine Quantum Simulation**:
   - **Aaronson-Gottesman Stabilizer Tableau**: Simulates Clifford circuits up to **10,000+ qubits** in $O(n^2)$ time with phase tracking.
@@ -38,7 +46,7 @@ ZUNTENIUM converges advanced circuit compilation, simulation engines, multi-hard
   - **FastAPI REST API**: Authentication, JWT tokens, API keys, quota management, and public backend discovery.
   - **RQ Distributed Worker Cluster**: High, default, low, and hardware queues with graceful job execution.
   - **Full Observability**: PostgreSQL 15 (UUID typed), Redis 7, Prometheus metrics, and Grafana dashboard provisioning.
-- 6. **Next.js 15 Visual QCanvas Workspace**:
+- 6. **Next.js 15 Visual QuFlow Workspace**:
   - Standalone web interface with interactive quantum circuit builder, Bloch sphere visualizer, and live cloud job telemetry.
 
 ---
@@ -46,7 +54,7 @@ ZUNTENIUM converges advanced circuit compilation, simulation engines, multi-hard
 ## Architecture
 
 ```
-User Code / QCanvas UI  ───►  FastAPI Gateway (Port 8000)
+User Code / QuFlow UI  ───►  FastAPI Gateway (Port 8000)
                                      │
                   ┌──────────────────┴──────────────────┐
                   ▼                                     ▼
@@ -73,9 +81,9 @@ User Code / QCanvas UI  ───►  FastAPI Gateway (Port 8000)
 
 ## Competitive Capability Matrix
 
-How ZUNTENIUM compares with established quantum frameworks:
+How QuFlow compares with established quantum frameworks:
 
-| Capability Domain | Qiskit | PennyLane | TKET | CUDA-Q | **ZUNTENIUM** |
+| Capability Domain | Qiskit | PennyLane | TKET | CUDA-Q | **QuFlow** |
 |---|---|---|---|---|---|
 | **Primary Focus** | IBM ecosystem & general SDK | QML & hybrid gradients | High-performance routing | GPU-accelerated C++ | **Full-Stack Quantum SDK + Cloud + UI** |
 | **Simulation Diversity** | High (Aer) | Via plugins | Via backends | CuQuantum | **High** (Statevector, Stabilizer $10^4$q, GPU, MPS) |
@@ -83,8 +91,8 @@ How ZUNTENIUM compares with established quantum frameworks:
 | **Transpiler Caching** | Basic pass manager | Tape caching | Structural passes | Compile-time | **Top-Tier** ($O(1)$ Template Rebinding) |
 | **Multi-Hardware Portability** | IBM-centric | Provider plugins | Provider plugins | NVIDIA targets | **Native MHOS** (IBM, IonQ, Braket, Rigetti) |
 | **Self-Hosted Cloud Stack** | Proprietary | None | None | None | **Built-in** (FastAPI, RQ, Postgres, Redis, Prometheus) |
-| **Visual Canvas Web UI** | Web Composer | None | None | None | **Built-in** (Next.js 15 Standalone QCanvas) |
-| **Test Verification** | Extensive | Extensive | Extensive | Extensive | **534 / 534 passing (100%)** |
+| **Visual Canvas Web UI** | Web Composer | None | None | None | **Built-in** (Next.js 15 Standalone QuFlow Workspace) |
+| **Test Verification** | Extensive | Extensive | Extensive | Extensive | **549 / 549 passing (100%)** |
 
 ---
 
@@ -105,7 +113,7 @@ for i in range(9999):
 qc.measure_all()
 
 # Execute on the stabilizer simulator
-result = zn.execute(qc, backend="stabilizer", shots=1000)
+result = zn.execute(qc, backend="stabilizer", shots=1000)  # QuFlow auto-dispatches
 print(result.counts)
 # Output: {'00...0': 503, '11...1': 497}
 ```
@@ -160,14 +168,14 @@ print(f"Inserted SWAPs: {stats['swaps_added']}, Final Depth: {routed_circuit.dep
 
 ### 4. Self-Hosted Cloud Client Execution
 
-Submit circuits to your private Zuntenium Cloud cluster:
+Submit circuits to your private QuFlow Cloud cluster:
 
 ```python
 from zuntenium.api.cloud import CloudClient
 from zuntenium import QuantumCircuit
 
 # Initialize client with API key
-client = CloudClient(base_url="http://localhost:8000", api_key="zn_live_...")
+client = CloudClient(base_url="http://localhost:8000", api_key="qf_live_...")
 
 # Discover available hardware and simulators
 backends = client.list_backends()
@@ -219,7 +227,7 @@ pip install -e ".[dev,cloud,gpu]"
 
 ---
 
-## Deploying Zuntenium Cloud
+## Deploying QuFlow Cloud
 
 Launch the full cloud infrastructure (API, multi-priority RQ workers, PostgreSQL, Redis, Prometheus, and Grafana):
 
@@ -233,7 +241,7 @@ docker compose up -d
 - **Grafana Dashboard**: `http://localhost:3000`
 - **RQ Worker Dashboard**: `http://localhost:9181`
 
-### Running the QCanvas Web Workspace
+### Running the QuFlow Web Workspace
 
 ```bash
 cd zuntenium-ui
@@ -247,10 +255,10 @@ Interactive visual workspace available at `http://localhost:3000`.
 
 ## Test Suite & Verification
 
-ZUNTENIUM is rigorously verified with **100% test pass rates**:
+QuFlow is rigorously verified with **100% test pass rates**:
 
 ```bash
-# Run complete test suite (534 tests)
+# Run complete test suite (549 tests)
 pytest tests/
 
 # Run unit tests only (279 tests)
@@ -264,4 +272,4 @@ python debug_all.py
 
 ## License
 
-ZUNTENIUM is licensed under the **Apache License 2.0**. See [`LICENSE`](LICENSE) for details.
+QuFlow is licensed under the **Apache License 2.0**. See [`LICENSE`](LICENSE) for details.

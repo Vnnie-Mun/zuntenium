@@ -39,8 +39,8 @@ const API_URL =
     : typeof window !== "undefined"
       ? ""
       : "http://127.0.0.1:8000";
-const ACCESS_TOKEN_KEY = "zuntenium.access-token";
-const REFRESH_TOKEN_KEY = "zuntenium.refresh-token";
+const ACCESS_TOKEN_KEY = "quflow.access-token";
+const REFRESH_TOKEN_KEY = "quflow.refresh-token";
 
 export interface AuthSession {
   access_token: string;
@@ -92,7 +92,7 @@ async function request<T>(
   }
   if (!response.ok) {
     const body = await response.json().catch(() => null) as { detail?: string; error?: string } | null;
-    throw new Error(body?.detail ?? body?.error ?? `Zuntenium API returned ${response.status}`);
+    throw new Error(body?.detail ?? body?.error ?? `QuFlow API returned ${response.status}`);
   }
   return response.json() as Promise<T>;
 }

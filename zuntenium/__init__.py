@@ -1,6 +1,6 @@
 """
-ZUNTENIUM — AI-Native Hybrid Quantum Simulation Framework
-v0.1
+QuFlow — AI-Native Hybrid Quantum Computing SDK
+(package: zuntenium | https://github.com/Vnnie-Mun/zuntenium)
 
 Public API surface. All symbols exported here are stable under SemVer.
 """

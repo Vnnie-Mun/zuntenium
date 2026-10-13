@@ -1,5 +1,5 @@
-site_name: Zuntenium Quantum Learning (ZQL)
-site_description: Complete documentation and course ecosystem for Zuntenium Hybrid Quantum SDK and Workspace
+site_name: QuFlow Quantum Learning (QQL)
+site_description: Complete documentation and course ecosystem for the QuFlow Hybrid Quantum SDK and Workspace
 theme:
   name: material
   palette:

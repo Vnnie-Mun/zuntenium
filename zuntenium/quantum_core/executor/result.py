@@ -161,7 +161,11 @@ class ExecutionResult:
             ax.set_ylabel("Counts", fontsize=12)
             ax.set_title(f"Measurement Results ({self.shots} shots)", fontsize=14)
             plt.tight_layout()
-            plt.show()
+            if plt.isinteractive() or hasattr(plt.get_backend(), '__name__'):
+                try:
+                    plt.show()
+                except Exception:
+                    pass  # Silently skip in non-interactive backends
         except ImportError:
             print("Install matplotlib to use plot_histogram(): pip install matplotlib")
 

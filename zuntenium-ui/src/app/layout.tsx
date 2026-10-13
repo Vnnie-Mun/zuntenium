@@ -5,8 +5,8 @@ import "./qcanvas.css";
 import { Providers } from "@/components/layout/Providers";
 
 export const metadata: Metadata = {
-  title: "Zuntenium — Visual Tools Platform",
-  description: "Quantum computing IDE — Circuit Builder, AI Optimizer, MHOS, Error Mitigation",
+  title: "QuFlow — Quantum Workspace",
+  description: "QuFlow Quantum Computing IDE — Circuit Builder, AI Optimizer, MHOS, Error Mitigation",
 };
 
 export const viewport: Viewport = {

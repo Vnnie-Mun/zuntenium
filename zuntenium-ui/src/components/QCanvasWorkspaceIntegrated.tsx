@@ -90,7 +90,7 @@ const COL = 66;
 const START = 90;
 const maxColumn = (c: Circuit) =>
   Math.max(4, ...c.gates.map((g) => g.column + 2));
-const safeFilename = "qcanvas-circuit.qasm";
+const safeFilename = "quflow-circuit.qasm";
 type ProjectRole = "owner" | "viewer";
 type ProjectRow = {
   id: string;
@@ -99,8 +99,8 @@ type ProjectRow = {
   circuit: Circuit;
   owner_id: "local";
 };
-const PROJECT_STORAGE_KEY = "zuntenium.qcanvas.projects.v1";
-const TOKEN_STORAGE_KEY = "zuntenium.access-token";
+const PROJECT_STORAGE_KEY = "quflow.workspace.projects.v1";
+const TOKEN_STORAGE_KEY = "quflow.access-token";
 
 function cloudResultToRunResult(
   raw: Awaited<ReturnType<typeof fetchJobResult>>,
@@ -1557,7 +1557,7 @@ export default function QCanvasWorkspace() {
       <Dialog open={showHelp} onOpenChange={setShowHelp}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Qcanvas reference</DialogTitle>
+            <DialogTitle>QuFlow reference</DialogTitle>
             <DialogDescription>
               Circuit editing and simulation controls.
             </DialogDescription>
@@ -1587,10 +1587,10 @@ export default function QCanvasWorkspace() {
           <DialogHeader>
             <DialogTitle>
               {userEmail
-                ? "Your Qcanvas account"
+                ? "Your QuFlow account"
                 : authMode === "signin"
-                  ? "Sign in to Qcanvas"
-                  : "Create your Qcanvas account"}
+                  ? "Sign in to QuFlow"
+                  : "Create your QuFlow account"}
             </DialogTitle>
             <DialogDescription>
               {userEmail

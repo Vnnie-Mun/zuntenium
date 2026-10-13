@@ -1,4 +1,4 @@
-# Zuntenium Quantum SDK & Workspace: System Architecture
+# QuFlow Quantum SDK & Workspace: System Architecture
 
 ## 1. System Topology Overview
 
@@ -6,7 +6,7 @@
                                ┌───────────────────────────────────────────────────────────┐
                                │                    Developer Surfaces                     │
                                │                                                           │
-                               │   QCanvas Web IDE      VS Code Extension      Python /    │
+                               │   QuFlow Web IDE      VS Code Extension      Python /    │
                                │   (Next.js 15)         (VSIX 0.1.0)           CLI         │
                                └─────────────┬──────────────────┬───────────────┬──────────┘
                                              │                  │               │
@@ -18,7 +18,7 @@
                                                                    │
                                                                    ▼
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   Zuntenium Python SDK Core                              │
+│                                   QuFlow Python SDK Core                              │
 │                                                                                          │
 │  ┌────────────────────────┐  ┌────────────────────────┐  ┌─────────────────────────────┐ │
 │  │   Circuit IR & Types   │  │  Hardware Transpiler   │  │   Adaptive Engine (MHOS)    │ │
@@ -111,7 +111,7 @@
 ### 2.7 Workspace & Cloud Infrastructure
 - **FastAPI Cloud Gateway**: [`zuntenium_cloud/`](file:///home/vincent/Downloads/zuntenium/zuntenium_cloud/)  
   REST and OpenAPI documentation endpoints, JWT authentication, backend health checks, and Redis job queues.
-- **QCanvas Web UI**: [`zuntenium-ui/`](file:///home/vincent/Downloads/zuntenium/zuntenium-ui/)  
+- **QuFlow Workspace (Web UI)**: [`zuntenium-ui/`](file:///home/vincent/Downloads/zuntenium/zuntenium-ui/)  
   Next.js 15 visual circuit composer, gate palette, and interactive statevector inspector.
 - **CRDT Real-Time Collaboration**: [`zuntenium-collab-server/`](file:///home/vincent/Downloads/zuntenium/zuntenium-collab-server/)  
   Conflict-free replicated data type WebSocket server for simultaneous multi-user circuit editing.
