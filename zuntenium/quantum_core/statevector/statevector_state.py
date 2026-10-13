@@ -70,6 +70,10 @@ class StatevectorState:
         """Direct view — callers must not resize."""
         return self._data
 
+    def __array__(self, dtype=None) -> np.ndarray:
+        """NumPy array protocol integration."""
+        return self._data if dtype is None else self._data.astype(dtype)
+
     def reset(self) -> None:
         """
         Reset to |0...0⟩ in-place without reallocation.

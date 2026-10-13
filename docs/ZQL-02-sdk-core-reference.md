@@ -88,7 +88,8 @@ print("Hardware counts:", result.counts)
 
 If running locally, you can choose specialized engines:
 
-- `statevector_simulator`: Dense matrix multiplication (fastest for ≤30 qubits; limit is configurable via `max_qubits`).
+- `statevector_simulator`: Dense tensor contraction engine (fastest for ≤30 qubits; limit is configurable via `max_qubits`).
+- `density_matrix_simulator`: Full mixed-state simulation ($\rho \to U\rho U^\dagger$) with Kraus noise channels for up to 15 qubits.
 - `gpu_backend` (CuPy): GPU accelerated statevector.
 - `tensor_network_backend`: Matrix Product State (MPS) ideal for low-entanglement QAOA.
 - `stabilizer`: Clifford-only simulator capable of $10^4$ qubits.
@@ -98,6 +99,10 @@ from zuntenium.api.quantum_api import execute, get_backend
 # Use MPS for large shallow circuits
 execute(circuit, backend=get_backend("tensor_network_backend"))
 ```
+
+## Deep-Dive Companion Guides
+- **[ZQL-02A | OOP Operations & Architecture Guide](ZQL-02A-oop-operations-guide.md)**: Explore the decomposed simulation core (`GateApplicator`, `MeasurementEngine`, `StatevectorState`), `DensityMatrixSimulator` noise channels, and custom backend implementation.
+- **[ZQL-02B | SDK Data Structures & Memory Layouts](ZQL-02B-sdk-data-structures.md)**: Deep dive into the compiler IR (`Circuit`, `Gate`, `CircuitDAG`), state memory complexity ($O(2^n)$ vs $O(4^n)$ vs $O(n^2)$), and hardware topologies.
 
 ## Next Steps
 - Learn how to use Zuntenium's built-in Error Mitigation (ZNE/PEC) in [ZQL-11 | Error Mitigation](ZQL-11-error-mitigation.md).

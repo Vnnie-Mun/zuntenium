@@ -46,6 +46,8 @@ nav:
   - Phase 1:
       - ZQL-00 | Start Here: ZQL-00-start-here.md
       - ZQL-02 | SDK Core Reference: ZQL-02-sdk-core-reference.md
+      - ZQL-02A | OOP Operations & Architecture: ZQL-02A-oop-operations-guide.md
+      - ZQL-02B | SDK Data Structures: ZQL-02B-sdk-data-structures.md
       - ZQL-14 | Developer Operations & Live Platform: ZQL-14-workspace-guide.md
   - Phase 2:
       - ZQL-01 | Quantum Foundations: ZQL-01-quantum-foundations.md

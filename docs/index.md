@@ -13,6 +13,8 @@ graph TD
     subgraph "Phase 1: Getting Started & Workspace"
         Z00["ZQL-00: Start Here (Hello World)"]
         Z02["ZQL-02: SDK Core Architecture & MHOS"]
+        Z02A["ZQL-02A: OOP Operations & Architecture"]
+        Z02B["ZQL-02B: SDK Data Structures & Layouts"]
         Z14["ZQL-14: QCanvas Workspace & VS Code"]
     end
 
@@ -55,6 +57,8 @@ graph TD
 ### Phase 1: Onboarding, Core Architecture & Workspace
 * **[ZQL-00 | Start Here: Hello World](ZQL-00-start-here.md)**: Install Zuntenium, build your first Bell state via fluent builder, execute against local statevector engines, and inspect shot statistics.
 * **[ZQL-02 | SDK Core Reference](ZQL-02-sdk-core-reference.md)**: Internal representations (IR), transpilation optimization pipeline, and Multi-Hardware Orchestration System (MHOS).
+* **[ZQL-02A | OOP Operations & Architecture Guide](ZQL-02A-oop-operations-guide.md)**: Object-oriented architecture, modular statevector engine (`GateApplicator`, `MeasurementEngine`, `StatevectorState`), `DensityMatrixSimulator` Kraus channels, and custom backend implementation.
+* **[ZQL-02B | SDK Data Structures & Memory Layouts](ZQL-02B-sdk-data-structures.md)**: Compiler IR data models (`Circuit`, `Gate`, `CircuitDAG`), quantum state memory layouts ($O(2^n)$ statevector, $O(4^n)$ density matrix, $O(n^2)$ binary tableau), and hardware coupling graphs.
 * **[ZQL-14 | Developer Operations & Live Platform Ecosystem](ZQL-14-workspace-guide.md)**: Live QCanvas visual IDE (http://104.236.218.164/), REST API docs & JWT authentication, backend discovery (/backends), health probes (/health), Prometheus telemetry (/metrics), and real-time CRDT WebSocket collaboration (ws://104.236.218.164/ws).
 
 ### Phase 2: Quantum Foundations & Reversible Logic
