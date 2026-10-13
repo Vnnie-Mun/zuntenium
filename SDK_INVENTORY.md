@@ -38,7 +38,7 @@ Status definitions:
 | Component | Status | File Path | Notes / Gaps |
 |---|---|---|---|
 | C++ Statevector Extension | **IMPLEMENTED** | [`bindings_core/cpp/src/statevector.cpp`](file:///home/vincent/Downloads/zuntenium/bindings_core/cpp/src/statevector.cpp) | Compiled `_zuntenium_core.so`; lacks AVX2/AVX-512 SIMD and OpenMP threading |
-| Statevector Simulator (Python) | **PARTIAL** | [`zuntenium/quantum_core/statevector/statevector_simulator.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/statevector_simulator.py) | Employs `np.einsum`; hardcoded `MAX_QUBITS = 20`; complex128 only (no complex64) |
+| Statevector Simulator (Python) | **PARTIAL** | [`zuntenium/quantum_core/statevector/statevector_simulator.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/statevector_simulator.py) | Employs `np.einsum`; `MAX_QUBITS = 30` (configurable via `max_qubits` kwarg); complex128 only (no complex64) |
 | Stabilizer Simulator (Clifford) | **IMPLEMENTED** | [`zuntenium/backends/stabilizer.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/stabilizer.py) | Full Aaronson-Gottesman binary tableau simulator ($O(N^2)$ scaling) |
 | Tensor Network (MPS) Backend | **IMPLEMENTED** | [`zuntenium/backends/tensor_network_backend.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/tensor_network_backend.py) | SVD-truncated matrix product states with truncation tracking |
 | GPU Statevector Simulator | **PARTIAL** | [`zuntenium/backends/gpu_backend.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/gpu_backend.py) | CuPy / CUDA support with CPU fallback; single-node only |

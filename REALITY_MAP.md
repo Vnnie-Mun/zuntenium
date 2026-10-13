@@ -8,7 +8,7 @@ This document maps the Zuntenium Quantum SDK and Workspace against the 12 govern
 
 | ID | Governing Reality | Current SDK Status | Evidence Citation | Gap Rating |
 |:---|:---|:---|:---|:---:|
-| **R1** | Memory is exponential ($2^n$, $4^n$) | Pre-flight memory estimator exists; hardcoded `MAX_QUBITS = 20`; no `complex64` mode | [`statevector_simulator.py:208,276`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/statevector_simulator.py#L208) | **weak** |
+| **R1** | Memory is exponential ($2^n$, $4^n$) | Pre-flight memory estimator exists; `MAX_QUBITS = 30` (configurable via `max_qubits` kwarg); no `complex64` mode | [`statevector_simulator.py:208,276`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/statevector_simulator.py#L208) | **moderate** |
 | **R2** | Dense simulation is memory-bandwidth-bound | Transpiler single-qubit fusion exists; runtime gate fusion absent; C++ kernel loops branch on every index | [`statevector.cpp:45`](file:///home/vincent/Downloads/zuntenium/bindings_core/cpp/src/statevector.cpp#L45), [`gate_ops.cpp:45`](file:///home/vincent/Downloads/zuntenium/bindings_core/cpp/src/gate_ops.cpp#L45) | **weak** |
 | **R3** | Structure beats brute force | Stabilizer (Aaronson-Gottesman) & MPS backends implemented; adaptive engine auto-selects | [`adaptive_engine.py:137-156`](file:///home/vincent/Downloads/zuntenium/zuntenium/execution/adaptive_engine.py#L137), [`stabilizer.py:24`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/stabilizer.py#L24) | **good** |
 | **R4** | Distribution has communication cost | Single-node CPU/GPU (CuPy) only; zero multi-node/MPI/NCCL distributed execution | [`gpu_backend.py:30-50`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/gpu_backend.py#L30) | **weak** |
@@ -29,12 +29,12 @@ This document maps the Zuntenium Quantum SDK and Workspace against the 12 govern
 - **Physical Law**: A statevector of $n$ qubits requires $2^n \times 16$ bytes in `complex128` (or 8 bytes in `complex64`). 30 qubits requires 16 GiB; 34 qubits requires 256 GiB. Density matrices require $4^n$ entries (15 qubits = 16 GiB in `complex128`).
 - **Current Behavior**:
   - `CircuitFeatures` in [`adaptive_engine.py:92`](file:///home/vincent/Downloads/zuntenium/zuntenium/execution/adaptive_engine.py#L92) estimates memory as `16.0 * (2 ** circuit.num_qubits) / (1024.0 ** 2)` MB.
-  - `StatevectorSimulator` in [`statevector_simulator.py:208,276`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/statevector_simulator.py#L208) contains a hardcoded guard: `MAX_QUBITS: int = 20`, refusing systems larger than 20 qubits ($2^{20} \times 16 \text{ B} = 16 \text{ MiB}$), even on machines with 64+ GiB RAM.
+  - `StatevectorState` in [`statevector_simulator.py:208`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/statevector_simulator.py#L208) has a configurable guard: `MAX_QUBITS: int = 30` (overridable via `max_qubits=` kwarg). Psutil-based pre-flight memory check is the primary constraint.
   - Precision mode is fixed to `complex128`. No `complex64` mode is exposed to halve memory usage.
 - **Gap Rating**: **weak**
 - **Actionable Levers**:
   1. Add configurable precision modes (`precision="single"` for `complex64`, `precision="double"` for `complex128`).
-  2. Replace hardcoded `MAX_QUBITS = 20` with a pre-flight probe of `psutil.virtual_memory().available`, throwing clean pre-flight `MemoryLimitExceededError` before NumPy allocation crashes the OS.
+  2. ~~Replace hardcoded `MAX_QUBITS = 20`~~ **DONE** — `MAX_QUBITS` raised to 30 and made configurable via `StatevectorState(n, max_qubits=25)`. Psutil pre-flight check is the primary memory guard.
 
 ---
 
@@ -57,11 +57,11 @@ This document maps the Zuntenium Quantum SDK and Workspace against the 12 govern
 - **Current Behavior**:
   - `StabilizerSimulator` in [`stabilizer.py:24`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/stabilizer.py#L24) implements the complete Aaronson-Gottesman binary tableau simulator ($2n \times (2n+1)$).
   - `TensorNetworkBackend` in [`tensor_network_backend.py:1`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/tensor_network_backend.py#L1) simulates MPS with singular-value decomposition (SVD) and truncation tracking.
-  - `RuleEngine` in [`adaptive_engine.py:143-155`](file:///home/vincent/Downloads/zuntenium/zuntenium/execution/adaptive_engine.py#L143) inspects circuit features and automatically routes Clifford circuits to `stabilizer` and low-entanglement circuits to `tensornetwork`.
+  - `RuleEngine` in [`adaptive_engine.py:143-155`](file:///home/vincent/Downloads/zuntenium/zuntenium/execution/adaptive_engine.py#L143) inspects circuit features and automatically routes Clifford circuits to `stabilizer`, low-entanglement circuits to `tensornetwork`, and noisy circuits to `densitymatrix`.
+  - `DensityMatrixSimulator` in [`density_matrix_simulator.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/density_matrix_simulator.py) provides mixed-state ρ → UρU† simulation with Kraus noise channels (up to 15 qubits).
 - **Gap Rating**: **good**
 - **Actionable Levers**:
   1. Expand Clifford angle detection to include decomposed Phase, T-gate Clifford synthesis where applicable.
-  2. Hook up active density-matrix backend in adaptive capabilities.
 
 ---
 

@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from zuntenium.execution.adaptive_engine import BackendSelector, Preferences
-from zuntenium.execution.quantum_executor import ExecutionResult, validate_circuit_compatibility
+from zuntenium.execution.quantum_executor import TranspiledExecutionResult, validate_circuit_compatibility
 from zuntenium.transpiler.v2 import Circuit, Gate, Transpiler
 
 logger = logging.getLogger("zuntenium.hybrid_executor")
@@ -46,7 +46,7 @@ def convert_circuit_to_irgates(circuit: Circuit, gate_type: Optional[type] = Non
     return [gate_type(gate.name, gate.qubits, tuple(gate.params)) for gate in circuit.gates]
 
 
-def enrich_result(result: ExecutionResult, decision=None, **timings: float) -> ExecutionResult:
+def enrich_result(result: TranspiledExecutionResult, decision=None, **timings: float) -> TranspiledExecutionResult:
     """Attach structured provenance while retaining legacy count tags."""
     if decision is not None:
         result.metadata["selection_decision"] = decision
@@ -78,7 +78,7 @@ class HybridExecutor:
     def run(self, circuit: Optional[Circuit] = None, ir_gates: Optional[List[Any]] = None,
             n_qubits: int = 4, preferences: Optional[Preferences] = None,
             shots: int = 1024, optimize: bool = True,
-            backend_override: Optional[str] = None) -> ExecutionResult:
+            backend_override: Optional[str] = None) -> TranspiledExecutionResult:
         started = time.perf_counter()
         self._calls += 1
         if circuit is None:
@@ -260,7 +260,7 @@ def validate_gradient_correctness(
 
 
 def run_full_pipeline_check(n_qubits: int = 4, verbose: bool = True) -> Dict[str, Any]:
-    """Verify circuit -> HybridExecutor -> enriched ExecutionResult pipeline."""
+    """Verify circuit -> HybridExecutor -> enriched TranspiledExecutionResult pipeline."""
     from zuntenium.transpiler.v2.engine import _build_qaoa
     circuit = _build_qaoa(n_qubits, 1)
     executor = HybridExecutor(debug=verbose)

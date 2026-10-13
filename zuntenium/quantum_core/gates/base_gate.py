@@ -12,27 +12,29 @@ import numpy as np
 from zuntenium.quantum_core.exceptions import GateDimensionError, GateNotUnitaryError
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class GateIR:
     """
     Serializable gate record used in QuantumIR instructions.
 
+    Immutable value object — safe for caching and hashing.
+
     Attributes:
         name: Gate identifier string (e.g. "H", "CX", "Rx").
         num_qubits: Number of qubits the gate acts on.
-        params: Ordered list of numeric parameters (rotations, etc.).
-        matrix_data: Flattened complex128 matrix as a Python list (for JSON).
+        params: Ordered tuple of numeric parameters (rotations, etc.).
+        matrix_data: Flattened complex128 matrix as a tuple (for JSON).
     """
     name: str
     num_qubits: int
-    params: list[float]
-    matrix_data: list[complex] | None = None
+    params: tuple[float, ...] = ()
+    matrix_data: tuple[complex, ...] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "num_qubits": self.num_qubits,
-            "params": self.params,
+            "params": list(self.params),
             "matrix_data": (
                 [[v.real, v.imag] for v in self.matrix_data]
                 if self.matrix_data is not None else None
@@ -88,8 +90,8 @@ class BaseGate(ABC):
         return GateIR(
             name=self.name,
             num_qubits=self.num_qubits,
-            params=self.params,
-            matrix_data=mat.flatten().tolist(),
+            params=tuple(self.params),
+            matrix_data=tuple(mat.flatten().tolist()),
         )
 
     # ── Validation helpers ─────────────────────────────────────────────────
@@ -125,6 +127,10 @@ class BaseGate(ABC):
             and self.num_qubits == other.num_qubits
             and np.allclose(self.matrix(), other.matrix())
         )
+
+    def __hash__(self) -> int:
+        """Hash based on gate identity (name + params). Consistent with __eq__."""
+        return hash((self.name, self.num_qubits, tuple(self.params)))
 
 
 # ── Derived gate wrappers ─────────────────────────────────────────────────

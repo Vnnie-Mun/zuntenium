@@ -29,6 +29,9 @@ from zuntenium.backends.stabilizer import (
 from zuntenium.backends.gpu_backend import (
     GPUStatevectorSimulator,
 )
+from zuntenium.backends.density_matrix_simulator import (
+    DensityMatrixSimulator,
+)
 
 __all__ = [
     "BackendInfo", "BackendRegistry", "BackendAwareVQE", "CredentialManager",
@@ -39,5 +42,6 @@ __all__ = [
     "register_tensor_network_backend",
     "StabilizerSimulator", "StabilizerTableau",
     "GPUStatevectorSimulator",
+    "DensityMatrixSimulator",
 ]
 

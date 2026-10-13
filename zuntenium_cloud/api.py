@@ -517,6 +517,13 @@ async def list_backends(_: User | None = Depends(get_optional_user)):
         max_qubits=30,
     ))
 
+    # Density Matrix
+    backends.append(BackendInfo(
+        name="densitymatrix", available=True,
+        description="Density matrix simulation for noisy circuits (ρ→UρU†, Kraus channels, up to 15 qubits)",
+        max_qubits=15,
+    ))
+
     # IBM
     try:
         ibm_sdk_available = find_spec("qiskit_ibm_runtime") is not None

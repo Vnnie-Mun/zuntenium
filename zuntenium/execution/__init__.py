@@ -2,13 +2,16 @@
 
 from zuntenium.execution.quantum_executor import (
     CompatibilityError,
-    ExecutionResult,
+    TranspiledExecutionResult,
     IntegrationTestSuite,
     QuantumExecutor,
     TranspilerAwareQuantumLayer,
     TranspilerAwareVQE,
     validate_circuit_compatibility,
 )
+
+# Backward-compatibility alias
+ExecutionResult = TranspiledExecutionResult
 from zuntenium.execution.adaptive_engine import (
     AdaptiveEngineTestSuite,
     AdaptiveQuantumExecutor,

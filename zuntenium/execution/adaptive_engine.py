@@ -205,8 +205,13 @@ class StabilizerSimulatorStub(QuantumBackend):
                 return self._real_sim.execute(circuit, shots=shots, **kwargs)
             except (ValueError, NotImplementedError):
                 pass
-        # Fallback to statevector for small circuits
-        if circuit.num_qubits > 20: raise NotImplementedError("Full stabilizer tableau engine fallback exceeded qubit limit.")
+        # Fallback to statevector for small Clifford circuits
+        if circuit.num_qubits > 30:
+            raise RuntimeError(
+                f"StabilizerSimulator: real simulator failed and circuit has "
+                f"{circuit.num_qubits} qubits (>30), too large for statevector fallback. "
+                "Ensure the circuit contains only Clifford gates."
+            )
         return SimulatorBackend(n_qubits=circuit.num_qubits).execute(circuit, shots=shots)
     def get_backend_info(self): return BackendInfo("stabilizer", "local", self._limit, True, 0.0, 0.0)
     def supports_noise_model(self): return False
@@ -216,31 +221,66 @@ class StabilizerSimulatorStub(QuantumBackend):
 
 
 class DensityMatrixSimulatorStub(QuantumBackend):
+    """Density matrix simulator wrapper for the adaptive engine."""
+    def __init__(self, max_qubits=15):
+        self._max_qubits = max_qubits
+        try:
+            from zuntenium.backends.density_matrix_simulator import DensityMatrixSimulator
+            self._sim_cls = DensityMatrixSimulator
+        except Exception:
+            self._sim_cls = None
     def execute(self, circuit, shots=1024, **kwargs):
-        import warnings
-        warnings.warn("DensityMatrixSimulator is not implemented; using statevector fallback.", stacklevel=2)
-        return SimulatorBackend(n_qubits=circuit.num_qubits).execute(circuit, shots=shots)
-    def get_backend_info(self): return BackendInfo("densitymatrix", "local", 15, True)
+        if self._sim_cls is not None and circuit.num_qubits <= self._max_qubits:
+            try:
+                sim = self._sim_cls(circuit.num_qubits, seed=kwargs.get('seed'))
+                return sim.execute(circuit, shots=shots, **kwargs)
+            except Exception:
+                pass
+        # Fallback to statevector for circuits within limit
+        if circuit.num_qubits <= 30:
+            return SimulatorBackend(n_qubits=circuit.num_qubits).execute(circuit, shots=shots)
+        raise RuntimeError(
+            f"DensityMatrixSimulator failed and circuit has {circuit.num_qubits} qubits "
+            "(>30), too large for statevector fallback."
+        )
+    def get_backend_info(self): return BackendInfo("densitymatrix", "local", self._max_qubits, True)
     def supports_noise_model(self): return True
     def supports_batching(self): return True
-    def is_available(self): return False
-    def get_available_backends(self, **kwargs): return []
+    def is_available(self): return self._sim_cls is not None
+    def get_available_backends(self, **kwargs): return [self.get_backend_info()] if self._sim_cls else []
 
 
 class TensorNetworkSimulatorStub(QuantumBackend):
+    """MPS tensor network simulator wrapper for the adaptive engine."""
+    def __init__(self):
+        try:
+            self._real_backend = TensorNetworkBackend()
+        except Exception:
+            self._real_backend = None
     def execute(self, circuit, shots=1024, **kwargs):
-        if circuit.num_qubits <= 20: return SimulatorBackend(n_qubits=circuit.num_qubits).execute(circuit, shots=shots)
-        raise NotImplementedError("Tensor network engine is not implemented for circuits above 20 qubits.")
+        # Try the real MPS backend first
+        if self._real_backend is not None:
+            try:
+                return self._real_backend.execute(circuit, shots=shots, **kwargs)
+            except Exception:
+                pass
+        # Fallback to statevector for small circuits
+        if circuit.num_qubits <= 30:
+            return SimulatorBackend(n_qubits=circuit.num_qubits).execute(circuit, shots=shots)
+        raise RuntimeError(
+            f"TensorNetworkBackend failed and circuit has {circuit.num_qubits} qubits "
+            "(>30), too large for statevector fallback."
+        )
     def get_backend_info(self): return BackendInfo("tensornetwork", "local", 200, True)
     def supports_noise_model(self): return False
     def supports_batching(self): return True
-    def is_available(self): return False
-    def get_available_backends(self, **kwargs): return []
+    def is_available(self): return True
+    def get_available_backends(self, **kwargs): return [self.get_backend_info()]
 
 
 class BackendSelector:
     def __init__(self, backends: Optional[Dict[str, QuantumBackend]] = None, default_preferences: Optional[Preferences] = None):
-        self._backends = backends or {"statevector": SimulatorBackend(20), "stabilizer": StabilizerSimulatorStub(), "densitymatrix": DensityMatrixSimulatorStub(), "tensornetwork": TensorNetworkBackend(), "hardware": IBMBackend(token=None)}
+        self._backends = backends or {"statevector": SimulatorBackend(30), "stabilizer": StabilizerSimulatorStub(), "densitymatrix": DensityMatrixSimulatorStub(), "tensornetwork": TensorNetworkSimulatorStub(), "hardware": IBMBackend(token=None)}
         self._prefs = default_preferences or Preferences(); self._available = {name for name, backend in self._backends.items() if backend.is_available()}
     def register_backend(self, name, backend): self._backends[name] = backend; (self._available.add(name) if backend.is_available() else self._available.discard(name))
     def select(self, circuit, preferences=None):
@@ -263,7 +303,7 @@ class BackendSelector:
 
 
 class AdaptiveQuantumExecutor:
-    def __init__(self, selector=None, max_qubits=20, default_shots=1024): self._selector, self._max_qubits, self._shots = selector or BackendSelector(), max_qubits, default_shots
+    def __init__(self, selector=None, max_qubits=30, default_shots=1024): self._selector, self._max_qubits, self._shots = selector or BackendSelector(), max_qubits, default_shots
     def execute(self, circuit, backend=None, preferences=None, shots=None, optimize=True, debug=False):
         validate_circuit_compatibility(circuit, max_qubits=self._max_qubits)
         prefs = preferences or Preferences()

@@ -27,4 +27,6 @@ site/
 # Secrets & environment
 .env
 !.env.example
-
+# Database files & journals
+*.db-shm
+*.db-wal

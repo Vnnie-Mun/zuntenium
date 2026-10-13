@@ -153,6 +153,13 @@ def _get_backend_registry() -> dict:
     except Exception:
         pass
 
+    # Density matrix (noisy simulation)
+    try:
+        from zuntenium.backends.density_matrix_simulator import DensityMatrixSimulator
+        registry["densitymatrix"] = DensityMatrixSimulator(num_qubits=1)  # placeholder; re-inited per job
+    except Exception:
+        pass
+
     # IBM
     try:
         token = os.environ.get("ZUNTENIUM_IBM_TOKEN")

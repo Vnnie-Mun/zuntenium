@@ -88,7 +88,7 @@ print("Hardware counts:", result.counts)
 
 If running locally, you can choose specialized engines:
 
-- `statevector_simulator`: Dense matrix multiplication (fastest for <20 qubits).
+- `statevector_simulator`: Dense matrix multiplication (fastest for ≤30 qubits; limit is configurable via `max_qubits`).
 - `gpu_backend` (CuPy): GPU accelerated statevector.
 - `tensor_network_backend`: Matrix Product State (MPS) ideal for low-entanglement QAOA.
 - `stabilizer`: Clifford-only simulator capable of $10^4$ qubits.

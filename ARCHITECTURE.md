@@ -77,8 +77,11 @@
 ### 2.3 Simulation Cores & Backends
 - **C++ Native Extension**: [`bindings_core/cpp/`](file:///home/vincent/Downloads/zuntenium/bindings_core/cpp/)  
   Precompiled native C++ statevector core (`_zuntenium_core.so`) applying gates in-place.
-- **Statevector Simulator**: [`zuntenium/quantum_core/statevector/statevector_simulator.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/statevector_simulator.py)  
-  Pure Python/NumPy statevector engine with `np.einsum` contraction and periodic norm drift monitoring.
+- **Statevector Simulator**: [`zuntenium/quantum_core/statevector/`](file:///home/vincent/Downloads/zuntenium/zuntenium/quantum_core/statevector/)  
+  Pure Python/NumPy statevector engine with `np.einsum` contraction and periodic norm drift monitoring.  
+  Decomposed (O6) into focused modules: `simulator_backend.py` (ABC), `statevector_state.py` (array mgmt), `gate_library.py` (21+ gates), `gate_applicator.py` (tensor contraction), `sim_circuit.py` (fluent builder), `measurement_engine.py` (Born-rule sampling), and `statevector_simulator.py` (public facade).
+- **Density Matrix Simulator**: [`zuntenium/backends/density_matrix_simulator.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/density_matrix_simulator.py)  
+  Mixed-state simulation via ρ → UρU† evolution with Kraus channel support for noisy circuits (up to 15 qubits).
 - **Stabilizer Simulator**: [`zuntenium/backends/stabilizer.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/stabilizer.py)  
   Aaronson-Gottesman binary tableau simulator ($O(N^2)$ gate scaling) for Clifford circuits up to 10,000 qubits.
 - **Matrix Product State (MPS) Backend**: [`zuntenium/backends/tensor_network_backend.py`](file:///home/vincent/Downloads/zuntenium/zuntenium/backends/tensor_network_backend.py)  

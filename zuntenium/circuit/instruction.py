@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from zuntenium.quantum_core.gates.base_gate import BaseGate
 
 
-@dataclass
+@dataclass(slots=True)
 class Instruction:
     """
     A single circuit instruction: gate applied to qubits, optionally with clbits.

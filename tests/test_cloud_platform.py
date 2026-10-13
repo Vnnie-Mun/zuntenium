@@ -206,8 +206,8 @@ class TestWorkerCircuit:
         circuit = _build_circuit(circuit_json)
         assert circuit.num_qubits == 2
         assert len(circuit.gates) == 2
-        assert circuit.gates[0].name == "h"
-        assert circuit.gates[1].qubits == [0, 1]
+        assert circuit.gates[0].name == "H"  # worker normalizes to uppercase
+        assert circuit.gates[1].qubits == (0, 1)  # worker uses tuples for qubits
 
     def test_build_circuit_with_params(self):
         circuit_json = {
@@ -215,7 +215,7 @@ class TestWorkerCircuit:
             "gates": [{"name": "rx", "qubits": [0], "params": [1.57]}],
         }
         circuit = _build_circuit(circuit_json)
-        assert circuit.gates[0].params == [1.57]
+        assert circuit.gates[0].params == (1.57,)
 
     def test_build_circuit_large(self):
         gates = [{"name": "h", "qubits": [i], "params": []} for i in range(50)]

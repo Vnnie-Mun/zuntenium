@@ -477,7 +477,7 @@ def run_demo():
 
 
 from zuntenium.execution.quantum_executor import (
-    ExecutionResult, _apply_circuit_to_simulator, validate_circuit_compatibility,
+    TranspiledExecutionResult as ExecutionResult, _apply_circuit_to_simulator, validate_circuit_compatibility,
 )
 
 

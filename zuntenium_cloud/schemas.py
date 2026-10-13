@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class _Base(BaseModel):
@@ -43,10 +43,17 @@ class CircuitSchema(_Base):
     gates:      list[GateSchema] = Field(description="Ordered list of gates")
     name:       str | None       = Field(default=None, description="Optional circuit label")
 
-    @field_validator("gates")
-    @classmethod
-    def validate_qubit_refs(cls, gates: list[GateSchema]) -> list[GateSchema]:
-        return gates
+    @model_validator(mode='after')
+    def validate_qubit_refs(self) -> CircuitSchema:
+        """Ensure every gate's qubit indices are within [0, num_qubits - 1]."""
+        for i, gate in enumerate(self.gates):
+            for q in gate.qubits:
+                if q >= self.num_qubits:
+                    raise ValueError(
+                        f"Gate '{gate.name}' at index {i} references qubit {q}, "
+                        f"but num_qubits={self.num_qubits} (valid range: 0–{self.num_qubits - 1})"
+                    )
+        return self
 
 
 # ── Job submission ─────────────────────────────────────────────────────────────
@@ -86,7 +93,7 @@ class JobSubmitRequest(_Base):
     @field_validator("backend")
     @classmethod
     def valid_backend(cls, v: str) -> str:
-        allowed = {"auto", "statevector", "tensornetwork", "stabilizer", "gpu_statevector", "ibm", "ionq", "braket", "rigetti", "simulator"}
+        allowed = {"auto", "statevector", "tensornetwork", "stabilizer", "gpu_statevector", "densitymatrix", "ibm", "ionq", "braket", "rigetti", "simulator"}
         if v not in allowed:
             raise ValueError(f"backend must be one of {allowed}")
         return v

@@ -701,7 +701,7 @@ class HardwareAwareTranspiler:
 
 
 def build_hardware_executor(n_qubits: int, hardware: Union[str, HardwareConfig, None] = None, seed: int = 0):
-    from zuntenium.execution.quantum_executor import QuantumExecutor, _apply_circuit_to_simulator, validate_circuit_compatibility, ExecutionResult
+    from zuntenium.execution.quantum_executor import QuantumExecutor, _apply_circuit_to_simulator, validate_circuit_compatibility, TranspiledExecutionResult as ExecutionResult
     if hardware is None: return QuantumExecutor.default(n_qubits, seed=seed)
     config = HardwareProfileRegistry.get(hardware) if isinstance(hardware, str) else hardware
     simulator = __import__("zuntenium.quantum_core.statevector", fromlist=["StatevectorSimulator"]).StatevectorSimulator(n_qubits, seed=seed)

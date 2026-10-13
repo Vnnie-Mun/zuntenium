@@ -55,7 +55,13 @@ def _gate_matrix(gate: Gate) -> np.ndarray:
 
 
 @dataclass
-class ExecutionResult:
+class TranspiledExecutionResult:
+    """Result of executing a circuit through the transpiler+simulator pipeline.
+
+    .. note::
+        This is distinct from ``zuntenium.quantum_core.executor.result.ExecutionResult``
+        which is the public-facing result type. This class carries transpiler metadata.
+    """
     statevector: np.ndarray
     probabilities: np.ndarray
     counts: Dict[str, int]
@@ -194,7 +200,7 @@ class QuantumExecutor:
         shots: Optional[int] = None,
         debug: bool = False,
         hardware_config: Optional[Any] = None,
-    ) -> ExecutionResult:
+    ) -> TranspiledExecutionResult:
         started = time.perf_counter()
         level = self._default_level if optimization_level is None else optimization_level
         if level not in OPTIMIZATION_LEVEL_PASSES:
@@ -226,7 +232,7 @@ class QuantumExecutor:
             statevector = self._sim.get_statevector()
             probabilities = np.abs(statevector) ** 2
             counts = self._sim.sample(shots_count) if shots_count else {}
-            return ExecutionResult(
+            return TranspiledExecutionResult(
                 statevector, probabilities, counts, self._sim.num_qubits, shots_count,
                 None, execution_ms, (time.perf_counter() - started) * 1000,
                 hardware_result.final_depth, hardware_result.final_gates,
@@ -241,7 +247,7 @@ class QuantumExecutor:
         statevector = self._sim.get_statevector()
         probabilities = np.abs(statevector) ** 2
         counts = self._sim.sample(shots_count) if shots_count else {}
-        result = ExecutionResult(
+        result = TranspiledExecutionResult(
             statevector, probabilities, counts, self._sim.num_qubits, shots_count,
             report, execution_ms, (time.perf_counter() - started) * 1000,
             optimized.depth(), optimized.num_gates,
@@ -279,7 +285,7 @@ class QuantumExecutor:
         print(circuit.draw())
 
     def _debug_print_result(
-        self, circuit: Circuit, report: Optional[OptimizationReport], result: ExecutionResult
+        self, circuit: Circuit, report: Optional[OptimizationReport], result: TranspiledExecutionResult
     ) -> None:
         print("\n" + "-" * 60)
         if report:
@@ -298,7 +304,7 @@ class QuantumExecutor:
         optimize: bool = True,
         optimization_level: Optional[int] = None,
         shots: Optional[int] = None,
-    ) -> List[ExecutionResult]:
+    ) -> List[TranspiledExecutionResult]:
         return [
             self.execute(circuit, optimize, optimization_level, shots=shots)
             for circuit in circuits
@@ -616,7 +622,7 @@ class IntegrationTestSuite:
 
 
 __all__ = [
-    "OPTIMIZATION_LEVEL_PASSES", "ExecutionResult", "CompatibilityError",
+    "OPTIMIZATION_LEVEL_PASSES", "TranspiledExecutionResult", "CompatibilityError",
     "validate_circuit_compatibility", "QuantumExecutor", "TranspilerAwareVQE",
     "TranspilerAwareQuantumLayer", "benchmark_integration", "_circuit_to_simulator",
     "_build_random_circuit", "IntegrationTestSuite",

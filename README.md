@@ -4,7 +4,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/zuntenium.svg?color=blue)](https://pypi.org/project/zuntenium/)
 [![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://pypi.org/project/zuntenium/)
-[![Tests Passing](https://img.shields.io/badge/tests-477%2F477%20passed-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium/actions)
+[![Tests Passing](https://img.shields.io/badge/tests-534%2F534%20passed-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium/actions)
 [![Code Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docker Ready](https://img.shields.io/badge/docker-compose%20%26%20k8s-informational.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium_cloud)
@@ -84,7 +84,7 @@ How ZUNTENIUM compares with established quantum frameworks:
 | **Multi-Hardware Portability** | IBM-centric | Provider plugins | Provider plugins | NVIDIA targets | **Native MHOS** (IBM, IonQ, Braket, Rigetti) |
 | **Self-Hosted Cloud Stack** | Proprietary | None | None | None | **Built-in** (FastAPI, RQ, Postgres, Redis, Prometheus) |
 | **Visual Canvas Web UI** | Web Composer | None | None | None | **Built-in** (Next.js 15 Standalone QCanvas) |
-| **Test Verification** | Extensive | Extensive | Extensive | Extensive | **477 / 477 passing (100%)** |
+| **Test Verification** | Extensive | Extensive | Extensive | Extensive | **534 / 534 passing (100%)** |
 
 ---
 
@@ -250,7 +250,7 @@ Interactive visual workspace available at `http://localhost:3000`.
 ZUNTENIUM is rigorously verified with **100% test pass rates**:
 
 ```bash
-# Run complete test suite (477 tests)
+# Run complete test suite (534 tests)
 pytest tests/
 
 # Run unit tests only (279 tests)
