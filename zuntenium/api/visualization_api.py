@@ -13,9 +13,20 @@ if TYPE_CHECKING:
     from zuntenium.quantum_core.executor.result import ExecutionResult
 
 
-def plot_histogram(result: ExecutionResult, **kwargs: Any) -> None:
-    """Plot measurement count histogram (delegates to result.plot_histogram)."""
-    result.plot_histogram(**kwargs)
+def plot_histogram(result: ExecutionResult | dict[str, int], **kwargs: Any) -> None:
+    """Plot measurement count histogram (accepts ExecutionResult or counts dict)."""
+    if isinstance(result, dict):
+        from zuntenium.quantum_core.executor.result import ExecutionResult
+
+        shots = sum(result.values())
+        first_key = next(iter(result), "")
+        n_qubits = len(first_key) if first_key else 0
+        res = ExecutionResult(counts=result, num_qubits=n_qubits, shots=shots)
+        res.plot_histogram(**kwargs)
+    elif hasattr(result, "plot_histogram"):
+        result.plot_histogram(**kwargs)
+    else:
+        raise TypeError(f"Expected ExecutionResult or dict, got {type(result).__name__}")
 
 
 def plot_bloch_sphere(

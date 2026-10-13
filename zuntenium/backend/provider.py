@@ -52,8 +52,21 @@ class BackendProvider:
             "unitary": "zuntenium_unitary_simulator",
             "snapshot": "zuntenium_snapshot_simulator",
             "mock": "mock_hardware",
+            "densitymatrix": "zuntenium_density_matrix_simulator",
+            "density_matrix": "zuntenium_density_matrix_simulator",
+            "density_matrix_simulator": "zuntenium_density_matrix_simulator",
+            "stabilizer": "zuntenium_stabilizer_simulator",
+            "stabilizer_simulator": "zuntenium_stabilizer_simulator",
+            "clifford": "zuntenium_stabilizer_simulator",
+            "tensornetwork": "zuntenium_tensor_network_simulator",
+            "tensor_network": "zuntenium_tensor_network_simulator",
+            "tensor_network_backend": "zuntenium_tensor_network_simulator",
+            "mps": "zuntenium_tensor_network_simulator",
+            "gpu": "zuntenium_gpu_statevector_simulator",
+            "gpu_statevector": "zuntenium_gpu_statevector_simulator",
+            "gpu_backend": "zuntenium_gpu_statevector_simulator",
         }
-        resolved = aliases.get(name, name)
+        resolved = aliases.get(name.lower().strip(), name)
 
         if resolved not in cls._registry:
             raise BackendNotFoundError(name)
@@ -68,12 +81,25 @@ class BackendProvider:
     def _auto_register_defaults(cls) -> None:
         """Register built-in backends. Called on first get_backend()."""
         from zuntenium.backend.hardware.mock.mock_hardware import MockHardwareBackend
+        from zuntenium.backend.simulator.extended_backends import (
+            DensityMatrixBackend,
+            GPUStatevectorBackend,
+            StabilizerBackend,
+            TensorNetworkBackendAdapter,
+        )
         from zuntenium.backend.simulator.snapshot_backend import SnapshotBackend
         from zuntenium.backend.simulator.statevector_backend import StatevectorBackend
         from zuntenium.backend.simulator.unitary_backend import UnitaryBackend
 
         backends: list[type[AbstractBackend]] = [
-            StatevectorBackend, UnitaryBackend, SnapshotBackend, MockHardwareBackend,
+            StatevectorBackend,
+            UnitaryBackend,
+            SnapshotBackend,
+            MockHardwareBackend,
+            DensityMatrixBackend,
+            StabilizerBackend,
+            TensorNetworkBackendAdapter,
+            GPUStatevectorBackend,
         ]
         for cls_ in backends:
             if cls_.name not in cls._registry:

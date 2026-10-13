@@ -71,6 +71,8 @@ def execute(
     """
     if backend is None:
         backend = get_backend("statevector_simulator")
+    elif isinstance(backend, str):
+        backend = get_backend(backend)
 
     return backend.run(circuit, shots=shots, **options)
 

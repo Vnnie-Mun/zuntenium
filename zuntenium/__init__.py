@@ -10,7 +10,14 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from zuntenium.ai_engine import AIDecision, AIOptimizer
-    from zuntenium.backends import IBMBackend, TensorNetworkBackend
+    from zuntenium.backends import (
+        DensityMatrixSimulator,
+        GPUStatevectorSimulator,
+        IBMBackend,
+        StabilizerSimulator,
+        TensorNetworkBackend,
+    )
+    from zuntenium.circuit.instruction import Instruction
     from zuntenium.execution import (
         AdaptiveQuantumExecutor,
         BackendSelector,
@@ -18,7 +25,11 @@ if TYPE_CHECKING:
         Preferences,
         QuantumExecutor,
     )
+    from zuntenium.quantum_core.executor.result import ExecutionResult, MeasurementResult
+    from zuntenium.quantum_core.gates.base_gate import BaseGate
     from zuntenium.transpiler import HardwareAwareTranspiler
+    from zuntenium.transpiler.coupling_map import CouplingMap
+    from zuntenium.transpiler.v2.core import Gate
 
 from zuntenium.api.quantum_api import execute, get_backend
 from zuntenium.backend.provider import BackendProvider
@@ -33,6 +44,9 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "HardwareAwareTranspiler": ("zuntenium.transpiler", "HardwareAwareTranspiler"),
     "IBMBackend": ("zuntenium.backends", "IBMBackend"),
     "TensorNetworkBackend": ("zuntenium.backends", "TensorNetworkBackend"),
+    "DensityMatrixSimulator": ("zuntenium.backends", "DensityMatrixSimulator"),
+    "StabilizerSimulator": ("zuntenium.backends", "StabilizerSimulator"),
+    "GPUStatevectorSimulator": ("zuntenium.backends", "GPUStatevectorSimulator"),
     "AIOptimizer": ("zuntenium.ai_engine", "AIOptimizer"),
     "AIDecision": ("zuntenium.ai_engine", "AIDecision"),
     "AdaptiveQuantumExecutor": ("zuntenium.execution", "AdaptiveQuantumExecutor"),
@@ -40,6 +54,12 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "HybridExecutor": ("zuntenium.execution", "HybridExecutor"),
     "Preferences": ("zuntenium.execution", "Preferences"),
     "QuantumExecutor": ("zuntenium.execution", "QuantumExecutor"),
+    "Gate": ("zuntenium.transpiler.v2.core", "Gate"),
+    "Instruction": ("zuntenium.circuit.instruction", "Instruction"),
+    "BaseGate": ("zuntenium.quantum_core.gates.base_gate", "BaseGate"),
+    "CouplingMap": ("zuntenium.transpiler.coupling_map", "CouplingMap"),
+    "ExecutionResult": ("zuntenium.quantum_core.executor.result", "ExecutionResult"),
+    "MeasurementResult": ("zuntenium.quantum_core.executor.result", "MeasurementResult"),
 }
 
 
@@ -62,6 +82,9 @@ __all__ = [
     "get_backend",
     "BackendProvider",
     "StatevectorSimulator",
+    "DensityMatrixSimulator",
+    "StabilizerSimulator",
+    "GPUStatevectorSimulator",
     "plot_histogram",
     "AdaptiveQuantumExecutor",
     "BackendSelector",
@@ -73,4 +96,10 @@ __all__ = [
     "TensorNetworkBackend",
     "AIOptimizer",
     "AIDecision",
+    "Gate",
+    "Instruction",
+    "BaseGate",
+    "CouplingMap",
+    "ExecutionResult",
+    "MeasurementResult",
 ]
