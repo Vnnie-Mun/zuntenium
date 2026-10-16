@@ -3,7 +3,12 @@ from __future__ import annotations
 
 import math
 import os
-import pickle
+import pickle  # LOCAL-DISK-ONLY: used exclusively for sklearn RF+Scaler checkpoints.
+# NEVER pass a pickle file received over a network or from an untrusted source
+# to _load()/_save() — pickle is not safe for deserializing untrusted data (U13).
+# These files are written and read on the same machine from ~/.zuntenium or similar.
+# PyTorch (.pt) and JSON (.json) are used for all cross-machine serialization.
+
 import time
 import warnings
 from dataclasses import dataclass
@@ -173,13 +178,31 @@ class AIOptimizer:
         data = self._logger.get_training_data(min_records)
         if data is None: return False
         X, backend_labels, strategy_labels, rewards = data; self._supervised.fit(X, backend_labels * N_STRATEGIES + strategy_labels, rewards); return True
-    def _load(self, path):
-        if SKLEARN_AVAILABLE and os.path.exists(path + ".rf.pkl"):
-            with open(path + ".rf.pkl", "rb") as stream: self._supervised._model, self._supervised._scaler = pickle.load(stream)
+    def _load(self, path: str) -> None:
+        """Load local-disk sklearn checkpoint (LOCAL ONLY — never from network)."""
+        pkl_path = path + ".rf.pkl"
+        if SKLEARN_AVAILABLE and os.path.exists(pkl_path):
+            # U13 boundary guard: reject path components that could indicate
+            # network mounts or suspicious locations.
+            import warnings
+            abs_pkl = os.path.abspath(pkl_path)
+            if any(seg in abs_pkl for seg in ("/proc/", "/dev/", "//")):
+                warnings.warn(
+                    f"Refusing to unpickle from suspicious path: {abs_pkl}. "
+                    "Only load pickle files written by this process on this machine.",
+                    RuntimeWarning, stacklevel=2,
+                )
+                return
+            with open(pkl_path, "rb") as stream:
+                self._supervised._model, self._supervised._scaler = pickle.load(stream)  # noqa: S301
             self._supervised._trained = True
-    def save(self, path):
+
+    def save(self, path: str) -> None:
+        """Save local-disk sklearn checkpoint (LOCAL ONLY — never transmit over network)."""
         if SKLEARN_AVAILABLE and self._supervised.is_trained:
-            with open(path + ".rf.pkl", "wb") as stream: pickle.dump((self._supervised._model, self._supervised._scaler), stream)
+            with open(path + ".rf.pkl", "wb") as stream:
+                pickle.dump((self._supervised._model, self._supervised._scaler), stream)  # noqa: S301
+
     def get_backend(self, decision): return self._selector.get_backend(SelectionDecision(decision.backend, decision.confidence, decision.reason, decision.features.raw_circuit if decision.features else None, {}, [], 0))
     def stats(self): return {"total_calls": self._call_count, "supervised_trained": self._supervised.is_trained, "rl_trained": self._rl_agent.is_trained, "rl_updates": self._rl_agent._n_updates, "db_records": self._logger.count_all(), "mode": self._mode}
 

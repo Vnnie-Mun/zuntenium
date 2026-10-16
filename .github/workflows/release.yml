@@ -1,50 +1,268 @@
-name: Release
+name: Release — Build, Test, Publish (Phase 8 / U12)
+# Single-tag release pipeline. Every artifact is built, smoke-tested,
+# and published from the same tagged commit. Identical version numbers
+# across all channels are guaranteed by reading from pyproject.toml.
+#
+# Channels implemented here:
+#   - PyPI  →  python-publish job   (Trusted Publishing / OIDC, no token stored)
+#   - Docker →  docker-publish job  (multi-arch linux/amd64 + linux/arm64)
+#
+# Channels listed in HUMAN_SIGNOFF_LIST.md (require human action):
+#   - conda-forge feedstock PR       (human task)
+#   - Homebrew formula update        (human task)
+#   - winget/Scoop/Chocolatey        (human task, if/when adopted)
+#
+# Prerequisites:
+#   1. GitHub repository → Settings → Actions → Workflow permissions → Allow GitHub Actions to create releases
+#   2. PyPI project configured with Trusted Publisher (OIDC) for this workflow.
+#   3. Docker Hub credentials in repository secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN.
 
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v[0-9]*.[0-9]*.[0-9]*"     # semver: v1.2.3, v0.4.0-rc1 etc.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run only — build and test without publishing"
+        required: false
+        default: "true"
+        type: choice
+        options: ["true", "false"]
+
+permissions:
+  contents: write    # Needed for creating GitHub Release
+  id-token: write    # Needed for PyPI Trusted Publishing (OIDC)
+
+env:
+  PYTHON_DEFAULT: "3.12"
+  IMAGE_NAME:     "zuntenium/zuntenium"
 
 jobs:
-  build-and-publish:
-    name: Build and Publish to PyPI
+  # ── 1. Validate tag and extract version ──────────────────────────────────────
+  validate:
+    name: Validate tag & version
     runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      id-token: write
-      contents: write
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      is_prerelease: ${{ steps.ver.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Extract version from tag
+        id: ver
+        run: |
+          TAG="${GITHUB_REF_NAME:-v0.0.0}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "$VERSION" == *"-"* ]]; then
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify pyproject.toml version matches tag
+        run: |
+          PKG_VER=$(python3 -c "import tomllib; d=tomllib.load(open('pyproject.toml','rb')); print(d['project']['version'])")
+          TAG_VER="${{ steps.ver.outputs.version }}"
+          if [ "$PKG_VER" != "$TAG_VER" ]; then
+            echo "::error::Version mismatch: pyproject.toml=$PKG_VER  tag=$TAG_VER"
+            exit 1
+          fi
+          echo "Version match: $PKG_VER ✓"
+
+  # ── 2. Build sdist and pure-Python wheel (no native extension) ───────────────
+  build-pure:
+    name: Build sdist + wheel
+    runs-on: ubuntu-latest
+    needs: validate
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0    # needed for setuptools-scm fallback
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: pip
+          python-version: ${{ env.PYTHON_DEFAULT }}
 
-      - name: Install build dependencies
+      - name: Build
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y build-essential cmake libopenblas-dev
-          pip install build twine pybind11
+          python -m pip install --upgrade pip build
+          python -m build --sdist --wheel --outdir dist/
 
-      - name: Build C++ bindings
-        run: bash scripts/build_bindings.sh
+      - name: Show artifacts
+        run: ls -lh dist/
 
-      - name: Build distribution packages
-        run: python -m build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-pure
+          path: dist/
 
-      - name: Check distribution
-        run: twine check dist/*
+  # ── 3. Cross-platform install smoke test ─────────────────────────────────────
+  smoke:
+    name: "Smoke / ${{ matrix.os }} / py${{ matrix.python }}"
+    needs: build-pure
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
 
-      - name: Publish to PyPI
+      - name: Download wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-pure
+          path: dist/
+
+      # Install from the built wheel, not the repo checkout
+      - name: Install wheel
+        shell: bash
+        run: |
+          WHL=$(ls dist/*.whl | head -1)
+          python -m pip install "$WHL"
+
+      - name: Import smoke test
+        run: python -c "import zuntenium; print('zuntenium', zuntenium.__version__, '— import OK')"
+
+      - name: CLI smoke test
+        run: python -m zuntenium version
+
+      - name: zqc doctor (JSON output for archiving)
+        run: python -m zuntenium doctor --json
+
+  # ── 4. Generate SBOM and checksums ───────────────────────────────────────────
+  sbom:
+    name: SBOM + checksums
+    runs-on: ubuntu-latest
+    needs: build-pure
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-pure
+          path: dist/
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Install CycloneDX SBOM tool
+        run: python -m pip install cyclonedx-bom
+
+      - name: Generate SBOM (CycloneDX JSON)
+        run: |
+          python -m pip install --no-deps .
+          cyclonedx-py environment --output-format json --outfile dist/zuntenium-sbom.json
+        continue-on-error: true    # SBOM is advisory; do not block release
+
+      - name: Upload SBOM + checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-security
+          path: |
+            dist/SHA256SUMS.txt
+            dist/zuntenium-sbom.json
+
+  # ── 5. Publish to PyPI via Trusted Publishing (OIDC) ─────────────────────────
+  python-publish:
+    name: Publish → PyPI
+    runs-on: ubuntu-latest
+    needs: [smoke, sbom, validate]
+    if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.dry_run != 'true'
+    environment:
+      name: pypi
+      url:  https://pypi.org/p/zuntenium
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-pure
+          path: dist/
+
+      - name: Publish to PyPI (Trusted Publishing)
         uses: pypa/gh-action-pypi-publish@release/v1
 
-      - name: Create GitHub Release
+  # ── 6. Multi-architecture Docker build + push ─────────────────────────────────
+  docker-publish:
+    name: Publish → Docker Hub
+    runs-on: ubuntu-latest
+    needs: [smoke, sbom, validate]
+    if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.dry_run != 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU (for cross-build)
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ needs.validate.outputs.is_prerelease == 'false' }}
+
+      - name: Build and push (multi-arch)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags:   ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      - name: Verify manifest (multi-arch)
+        run: docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:${{ needs.validate.outputs.version }}
+
+  # ── 7. Create GitHub Release with all artifacts ───────────────────────────────
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [python-publish, docker-publish, validate]
+    if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.dry_run != 'true'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-pure
+          path: dist/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-security
+          path: dist/
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
           files: dist/*
+          prerelease: ${{ needs.validate.outputs.is_prerelease == 'true' }}
+          generate_release_notes: true

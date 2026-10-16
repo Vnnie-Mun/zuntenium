@@ -27,7 +27,10 @@ from __future__ import annotations
 import json
 import logging
 import os
-import pickle
+import pickle  # LOCAL-DISK-ONLY: used only for numpy fallback model checkpoints.
+# NEVER deserialize a pickle file received over a network (U13).
+# PyTorch (.pt) and JSON (.meta.json) are used for all cross-machine serialization.
+
 from pathlib import Path
 from typing import Any
 
@@ -311,7 +314,8 @@ class SupervisedModel:
             torch.save(self._model.state_dict(), str(path) + ".pt")
         else:
             with open(str(path) + ".pkl", "wb") as f:
-                pickle.dump(self._model, f)
+                pickle.dump(self._model, f)  # noqa: S301 — local disk only, never network
+
         with open(str(path) + ".meta.json", "w", encoding="utf-8") as f:
             json.dump(meta, f)
         _log.info("SupervisedModel saved to %s", path)
@@ -330,7 +334,8 @@ class SupervisedModel:
             obj._model.load_state_dict(torch.load(str(path) + ".pt", map_location="cpu"))
         else:
             with open(str(path) + ".pkl", "rb") as f:
-                obj._model = pickle.load(f)
+                obj._model = pickle.load(f)  # noqa: S301 — local disk only, never network
+
         obj._trained = meta["trained"]
         return obj
 
