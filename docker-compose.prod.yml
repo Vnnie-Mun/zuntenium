@@ -10,8 +10,13 @@
 #   collab       — Real-time CRDT WebSocket collaboration server (port 3001)
 #   postgres     — PostgreSQL 15 persistent database
 #   redis        — Redis 7 task queue & cache
-
-version: "3.9"
+#
+# Monitoring services (start with: docker compose --profile monitoring up -d):
+#   prometheus   — Metrics (port 9090)
+#   grafana      — Dashboards (port 3050 — NOT 3000; that is reserved for the UI)
+#   rq-dashboard — Worker dashboard (port 9181)
+#
+# Minimum required: Docker 24+ with Compose v2 plugin (docker compose, not docker-compose)
 
 x-worker-base: &worker-base
   build:
@@ -215,6 +220,8 @@ services:
     image: grafana/grafana:latest
     container_name: zuntenium-grafana
     profiles: ["monitoring"]
+    ports:
+      - "${GRAFANA_PORT:-3050}:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin_change_me}
     volumes:
@@ -228,6 +235,8 @@ services:
     image: eoranged/rq-dashboard:latest
     container_name: zuntenium-rq-dashboard
     profiles: ["monitoring"]
+    ports:
+      - "${RQ_DASHBOARD_PORT:-9181}:9181"
     environment:
       RQ_DASHBOARD_REDIS_URL: redis://redis:6379/0
     networks:

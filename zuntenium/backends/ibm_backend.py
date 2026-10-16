@@ -133,7 +133,7 @@ class CredentialManager:
         if explicit: return explicit
         if os.environ.get(_TOKEN_ENV): return os.environ[_TOKEN_ENV]
         try:
-            if _CRED_FILE.exists(): return json.loads(_CRED_FILE.read_text()).get("token")
+            if _CRED_FILE.exists(): return json.loads(_CRED_FILE.read_text(encoding="utf-8")).get("token")
         except Exception: pass
         try:
             import keyring
@@ -141,7 +141,11 @@ class CredentialManager:
         except Exception: return None
     def save_credentials(self, token: str, channel: str = "ibm_quantum"):
         _CRED_FILE.parent.mkdir(parents=True, exist_ok=True)
-        _CRED_FILE.write_text(json.dumps({"token": token, "channel": channel})); _CRED_FILE.chmod(0o600)
+        _CRED_FILE.write_text(json.dumps({"token": token, "channel": channel}), encoding="utf-8")
+        try:
+            _CRED_FILE.chmod(0o600)  # POSIX-only: restricts read to owner; no-op on Windows
+        except (AttributeError, NotImplementedError, OSError):
+            pass  # Windows does not support POSIX permission bits
         try:
             import keyring; keyring.set_password("zuntenium", "ibm_runtime_token", token)
         except Exception: pass

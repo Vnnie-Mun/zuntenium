@@ -5,6 +5,7 @@ Produces compilable LaTeX source using the quantikz package.
 """
 from __future__ import annotations
 
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -154,7 +155,7 @@ class LatexDrawer:
         out_path = Path(output_path)
         with tempfile.TemporaryDirectory() as tmpdir:
             tex_file = Path(tmpdir) / "circuit.tex"
-            tex_file.write_text(latex_src)
+            tex_file.write_text(latex_src, encoding="utf-8")
             result = subprocess.run(
                 ["pdflatex", "-interaction=nonstopmode", str(tex_file)],
                 cwd=tmpdir,
@@ -169,4 +170,6 @@ class LatexDrawer:
             pdf = Path(tmpdir) / "circuit.pdf"
             if pdf.exists():
                 out_path.parent.mkdir(parents=True, exist_ok=True)
-                pdf.rename(out_path)
+                # Use copy+unlink instead of rename to avoid cross-device errors
+                # (e.g. temp dir on different partition/drive than output path)
+                shutil.copy2(pdf, out_path)

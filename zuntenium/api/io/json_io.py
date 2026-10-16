@@ -20,7 +20,7 @@ def save_circuit(circuit: QuantumCircuit, path: str | Path) -> None:
     """
     from zuntenium.circuit.ir.serialization.json_serializer import ir_to_json
     ir = circuit.to_ir()
-    Path(path).write_text(ir_to_json(ir))
+    Path(path).write_text(ir_to_json(ir), encoding="utf-8")
 
 
 def load_circuit(path: str | Path) -> QuantumCircuit:
@@ -36,7 +36,7 @@ def load_circuit(path: str | Path) -> QuantumCircuit:
     from zuntenium.circuit.circuit import QuantumCircuit
     from zuntenium.circuit.ir.serialization.json_serializer import json_to_ir
 
-    json_str = Path(path).read_text()
+    json_str = Path(path).read_text(encoding="utf-8")
     ir = json_to_ir(json_str)
 
     qc = QuantumCircuit(ir.num_qubits, ir.num_clbits)

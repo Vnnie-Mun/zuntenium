@@ -312,7 +312,7 @@ class SupervisedModel:
         else:
             with open(str(path) + ".pkl", "wb") as f:
                 pickle.dump(self._model, f)
-        with open(str(path) + ".meta.json", "w") as f:
+        with open(str(path) + ".meta.json", "w", encoding="utf-8") as f:
             json.dump(meta, f)
         _log.info("SupervisedModel saved to %s", path)
 
@@ -322,7 +322,7 @@ class SupervisedModel:
         meta_path = str(path) + ".meta.json"
         if not Path(meta_path).exists():
             raise FileNotFoundError(f"No model meta at {meta_path}")
-        with open(meta_path) as f:
+        with open(meta_path, encoding="utf-8") as f:
             meta = json.load(f)
         obj = cls(use_torch=meta["use_torch"], state_dim=meta["state_dim"])
         if meta["use_torch"]:

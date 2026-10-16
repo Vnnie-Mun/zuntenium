@@ -13,8 +13,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
+
+# Safe Unicode: fall back to ASCII on terminals that can't render box-drawing chars
+_uenc = sys.stdout.encoding or "ascii"
+_OK  = "[OK]"  if not _uenc.lower().startswith("utf") else "\u2713"
+_ERR = "[X]"   if not _uenc.lower().startswith("utf") else "\u2717"
+_BOX = "=" * 48 if not _uenc.lower().startswith("utf") else "\u2550" * 48
 
 
 def cmd_version(args: argparse.Namespace) -> None:  # noqa: ARG001
@@ -33,16 +40,16 @@ def cmd_info(args: argparse.Namespace) -> None:  # noqa: ARG001
     from zuntenium.bindings.binding_loader import is_cpp_available
     from zuntenium.version import __version__
 
-    cpp_status = "✓ compiled" if is_cpp_available() else "✗ not built (NumPy fallback active)"
-    print("═" * 48)
+    cpp_status = f"{_OK} compiled" if is_cpp_available() else f"{_ERR} not built (NumPy fallback active)"
+    print(_BOX)
     print(" ZUNTENIUM System Info")
-    print("═" * 48)
+    print(_BOX)
     print(f"  ZUNTENIUM version : {__version__}")
     print(f"  Python            : {platform.python_version()}")
     print(f"  NumPy             : {np.__version__}")
     print(f"  SciPy             : {scipy.__version__}")
     print(f"  C++ extension     : {cpp_status}")
-    print("═" * 48)
+    print(_BOX)
 
 
 def cmd_run(args: argparse.Namespace) -> None:
@@ -55,7 +62,7 @@ def cmd_run(args: argparse.Namespace) -> None:
         print(f"Error: File not found: {qasm_path}", file=sys.stderr)
         sys.exit(1)
 
-    qasm_str = qasm_path.read_text()
+    qasm_str = qasm_path.read_text(encoding="utf-8")
     ir = parse_qasm2(qasm_str)
 
     backend = get_backend(args.backend)
@@ -78,7 +85,7 @@ def cmd_run(args: argparse.Namespace) -> None:
             "most_probable": result.most_probable,
             "metadata": result.metadata,
         }
-        Path(args.output).write_text(json.dumps(out, indent=2))
+        Path(args.output).write_text(json.dumps(out, indent=2), encoding="utf-8")
         print(f"\nResults saved to: {args.output}")
 
 
@@ -184,12 +191,12 @@ def cmd_doctor(args: argparse.Namespace) -> None:
     print(f"  Package Location   : {pkg_dir}")
     print(f"  Type Marker        : {'✓ py.typed present' if py_typed_exists else '✗ py.typed missing'}")
     print(f"  Native Type Stubs  : {'✓ _zuntenium_core.pyi present' if stubs_exist else '✗ stubs missing'}")
-    print(f"  C++ Acceleration   : {'✓ Active (_zuntenium_core)' if cpp_ok else '✗ Pure Python fallback'}")
-    print(f"  GPU Acceleration   : {'✓ ' + gpu_info if gpu_found else '• ' + gpu_info}")
+    print(f"  C++ Acceleration   : {_OK + ' Active (_zuntenium_core)' if cpp_ok else _ERR + ' Pure Python fallback'}")
+    print(f"  GPU Acceleration   : {_OK + ' ' + gpu_info if gpu_found else '- ' + gpu_info}")
     print(f"  Active IDE Context : {detected_ide}")
     print("\nCore Dependencies:")
     for dep, ver in deps.items():
-        status = "✓" if ver != "MISSING" else "✗"
+        status = _OK if ver != "MISSING" else _ERR
         print(f"  [{status}] {dep:10s} : {ver}")
 
     print("\nIDE Quick Configuration:")

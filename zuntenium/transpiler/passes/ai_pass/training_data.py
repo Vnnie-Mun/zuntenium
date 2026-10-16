@@ -76,7 +76,7 @@ class TrainingDataCollector:
         """Write buffered records to output file (if configured)."""
         if self._output_path and self._records:
             self._output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(self._output_path, "a") as f:
+            with open(self._output_path, "a", encoding="utf-8") as f:
                 for rec in self._records:
                     f.write(json.dumps(rec) + "\n")
         self._records.clear()

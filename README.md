@@ -10,11 +10,11 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/zuntenium.svg?color=7C3AED)](https://pypi.org/project/zuntenium/)
 [![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-7C3AED.svg)](https://pypi.org/project/zuntenium/)
-[![Tests Passing](https://img.shields.io/badge/tests-549%2F549%20passed-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium/actions)
+[![Tests Passing](https://img.shields.io/badge/tests-549%2F549%20passed%20(Ubuntu%20%2B%20macOS)-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium/actions)
 [![Code Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen.svg)](https://github.com/Vnnie-Mun/zuntenium)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-7C3AED.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docker Ready](https://img.shields.io/badge/docker-compose%20%26%20k8s-informational.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium_cloud)
-[![Next.js Standalone](https://img.shields.io/badge/UI-Next.js%2015%20Standalone-black.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium-ui)
+[![Next.js Standalone](https://img.shields.io/badge/UI-Next.js%2015%20Standalone-Node%2018%2B-black.svg)](https://github.com/Vnnie-Mun/zuntenium/tree/main/zuntenium-ui)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Vnnie-Mun/zuntenium/blob/main/notebooks/zuntenium_colab_quickstart.ipynb)
 
 </p>
@@ -198,50 +198,88 @@ print(result.counts)
 
 ## Installation
 
+> **Requirements**: Python 3.10–3.12 · Node.js ≥18.17 (for the UI) · Docker + Compose v2 (for the cloud stack)
+
 ### From PyPI
 
+**macOS / Linux:**
 ```bash
-pip install zuntenium
+python3 -m pip install zuntenium
+```
+
+**Windows (PowerShell):**
+```powershell
+py -m pip install zuntenium
 ```
 
 ### With Optional Accelerators
 
+**GPU acceleration** (Linux x86\_64 + CUDA 12 only — skipped automatically on macOS/Windows):
+
 ```bash
-# GPU acceleration (CuPy / CUDA)
-pip install "zuntenium[gpu]"
-
-# Cloud microservices stack (FastAPI, Redis, RQ, SQLAlchemy)
-pip install "zuntenium[cloud]"
-
-# Full installation with all extras
-pip install "zuntenium[all]"
+python3 -m pip install "zuntenium[gpu]"
 ```
+
+**Cloud microservices stack** (FastAPI, Redis, RQ, SQLAlchemy):
+
+```bash
+python3 -m pip install "zuntenium[cloud]"
+```
+
+**All standard extras** (dev + AI + viz + cloud, no GPU):
+
+```bash
+python3 -m pip install "zuntenium[all]"
+```
+
+> **Note:** The `[all]` extra does not include GPU. For everything including GPU use `[full]` — the GPU extra is automatically skipped on macOS and Windows.
 
 ### From Source
 
+**macOS / Linux:**
 ```bash
 git clone https://github.com/Vnnie-Mun/zuntenium.git
 cd zuntenium
-pip install -e ".[dev,cloud,gpu]"
+python3 -m pip install -e ".[dev,cloud]"
+```
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/Vnnie-Mun/zuntenium.git
+cd zuntenium
+py -m pip install -e ".[dev,cloud]"
 ```
 
 ---
 
 ## Deploying QuFlow Cloud
 
-Launch the full cloud infrastructure (API, multi-priority RQ workers, PostgreSQL, Redis, Prometheus, and Grafana):
+Launch the full cloud infrastructure (API, multi-priority RQ workers, PostgreSQL, Redis, Prometheus, and Grafana).
+
+**Requires**: Docker with [Compose v2](https://docs.docker.com/compose/migrate/) (i.e. `docker compose`, not `docker-compose`).
+
+> **RQ workers and Redis run inside Linux containers.** Native Windows or macOS processes are not supported for these services — use Docker Desktop or WSL2.
 
 ```bash
 cd zuntenium_cloud
 docker compose up -d
 ```
 
-- **API Gateway**: `http://localhost:8000` (Docs at `/docs`)
-- **Prometheus Telemetry**: `http://localhost:9090`
-- **Grafana Dashboard**: `http://localhost:3000`
-- **RQ Worker Dashboard**: `http://localhost:9181`
+| Service | URL | Notes |
+|---------|-----|-------|
+| **API Gateway** | `http://localhost:8000` | Docs at `/docs` |
+| **Prometheus** | `http://localhost:9090` | Monitoring profile |
+| **Grafana Dashboard** | `http://localhost:3050` | Monitoring profile |
+| **RQ Worker Dashboard** | `http://localhost:9181` | Monitoring profile |
+
+To also start monitoring services:
+```bash
+docker compose --profile monitoring up -d
+```
 
 ### Running the QuFlow Web Workspace
+
+**Requires**: Node.js ≥18.17
 
 ```bash
 cd zuntenium-ui
@@ -255,17 +293,23 @@ Interactive visual workspace available at `http://localhost:3000`.
 
 ## Test Suite & Verification
 
-QuFlow is rigorously verified with **100% test pass rates**:
+QuFlow is verified with **549/549 tests passing** on Ubuntu 22.04 and macOS 14 (Apple Silicon), Python 3.10–3.12.
 
+**macOS / Linux:**
 ```bash
-# Run complete test suite (549 tests)
-pytest tests/
+# Run complete test suite
+python3 -m pytest tests/
 
-# Run unit tests only (279 tests)
-pytest tests/unit/
+# Run unit tests only
+python3 -m pytest tests/unit/
 
-# Run end-to-end integration verification (25 subsystems)
-python debug_all.py
+# Run end-to-end integration verification
+python3 debug_all.py
+```
+
+**Windows (PowerShell):**
+```powershell
+py -m pytest tests/
 ```
 
 ---

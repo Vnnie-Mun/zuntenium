@@ -23,7 +23,7 @@ def load_qasm(path: str | Path) -> QuantumCircuit:
     from zuntenium.circuit.circuit import QuantumCircuit
     from zuntenium.circuit.ir.serialization.qasm_parser import parse_qasm2
 
-    qasm_str = Path(path).read_text()
+    qasm_str = Path(path).read_text(encoding="utf-8")
     ir = parse_qasm2(qasm_str)
 
     qc = QuantumCircuit(ir.num_qubits, ir.num_clbits)
@@ -54,4 +54,4 @@ def save_qasm(circuit: QuantumCircuit, path: str | Path, version: int = 2) -> No
 
     ir = circuit.to_ir()
     qasm_str = ir_to_qasm3(ir) if version == 3 else ir_to_qasm2(ir)
-    Path(path).write_text(qasm_str)
+    Path(path).write_text(qasm_str, encoding="utf-8")
