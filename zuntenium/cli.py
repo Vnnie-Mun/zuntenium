@@ -150,14 +150,128 @@ def cmd_doctor(args: argparse.Namespace) -> None:
     elif "JPY_PARENT_PID" in os.environ or "COLAB_GPU" in os.environ:
         detected_ide = "Jupyter / Colab"
 
+    # Shell detection (U2)
+    shell = os.environ.get("SHELL", "") or os.environ.get("COMSPEC", "") or "unknown"
+
+    # libc (U9)
+    libc = platform.libc_ver()
+    libc_str = f"{libc[0]} {libc[1]}" if libc[0] else "N/A (musl or Windows)"
+
+    # Locale and encoding (U8)
+    import locale
+    locale_info = locale.getlocale()
+    stdout_enc = getattr(sys.stdout, "encoding", None) or "unknown"
+    default_enc = locale.getpreferredencoding(False)
+
+    # Python build flags (free-threaded, debug, etc.) (U3)
+    py_build = getattr(sys, "_is_gil_enabled", None)  # None = GIL-enabled (standard)
+    free_threaded = py_build is not None and not py_build()
+
+    # Externally managed Python (PEP 668) (U3)
+    externally_managed = False
+    try:
+        import sysconfig
+        stdlib = sysconfig.get_path("stdlib")
+        if stdlib and Path(stdlib).joinpath("EXTERNALLY-MANAGED").exists():
+            externally_managed = True
+    except Exception:
+        pass
+
+    # Writable dirs (U7)
+    import tempfile
+    writable_checks: dict[str, bool] = {}
+    for label, path in [
+        ("temp", Path(tempfile.gettempdir())),
+        ("cwd", Path.cwd()),
+        ("home", Path.home()),
+    ]:
+        try:
+            test = path / ".zuntenium_write_test"
+            test.touch()
+            test.unlink()
+            writable_checks[label] = True
+        except Exception:
+            writable_checks[label] = False
+
+    # PATH gap: check if pip-installed scripts dir is on PATH (U3)
+    import sysconfig as _sc
+    scripts_dir = _sc.get_path("scripts")
+    path_dirs = os.environ.get("PATH", "").split(os.pathsep)
+    scripts_on_path = scripts_dir in path_dirs if scripts_dir else True
+    path_gap_warning = "" if scripts_on_path else (
+        f"WARNING: {scripts_dir} not on PATH — pip-installed scripts may not be found. "
+        f"Use 'python -m <tool>' as a workaround."
+    )
+
+    # Docker / Compose (U10)
+    import shutil
+    import subprocess as _sp
+    docker_version = "NOT FOUND"
+    compose_version = "NOT FOUND — install Compose v2 plugin"
+    docker_bin = shutil.which("docker")
+    if docker_bin:
+        try:
+            r = _sp.run([docker_bin, "version", "--format", "{{.Server.Version}}"],
+                        capture_output=True, text=True, encoding="utf-8", timeout=4)
+            docker_version = r.stdout.strip() or "found (version unknown)"
+        except Exception:
+            docker_version = "found (could not query version)"
+        try:
+            r2 = _sp.run([docker_bin, "compose", "version", "--short"],
+                         capture_output=True, text=True, encoding="utf-8", timeout=4)
+            compose_version = (r2.stdout.strip()
+                               if r2.returncode == 0
+                               else "NOT FOUND — install Compose v2 plugin")
+        except Exception:
+            compose_version = "query failed"
+
+    # Node / npm (U11)
+    node_version = "NOT FOUND"
+    npm_version = "NOT FOUND"
+    node_bin = shutil.which("node")
+    if node_bin:
+        try:
+            r = _sp.run([node_bin, "--version"], capture_output=True,
+                        text=True, encoding="utf-8", timeout=4)
+            node_version = r.stdout.strip()
+        except Exception:
+            node_version = "found (version unknown)"
+    npm_bin = shutil.which("npm")
+    if npm_bin:
+        try:
+            r = _sp.run([npm_bin, "--version"], capture_output=True,
+                        text=True, encoding="utf-8", timeout=4)
+            npm_version = r.stdout.strip()
+        except Exception:
+            npm_version = "found (version unknown)"
+
     report = {
         "version": __version__,
         "python": {
             "version": platform.python_version(),
             "executable": sys.executable,
+            "architecture": platform.machine(),
+            "build": list(platform.python_build()),
+            "free_threaded": free_threaded,
             "is_virtualenv": in_venv,
             "conda_env": conda_env or None,
+            "externally_managed": externally_managed,
+            "scripts_dir": scripts_dir,
+            "scripts_on_path": scripts_on_path,
         },
+        "platform": {
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+            "libc": libc_str,
+            "shell": shell,
+        },
+        "encoding": {
+            "stdout": stdout_enc,
+            "preferred_default": default_enc,
+            "locale": list(locale_info),
+        },
+        "writable": writable_checks,
         "package": {
             "location": str(pkg_dir),
             "py_typed": py_typed_exists,
@@ -169,9 +283,16 @@ def cmd_doctor(args: argparse.Namespace) -> None:
             "gpu_details": gpu_info,
         },
         "dependencies": deps,
+        "toolchain": {
+            "docker": docker_version,
+            "docker_compose_v2": compose_version,
+            "node": node_version,
+            "npm": npm_version,
+        },
         "environment": {
             "detected_ide": detected_ide,
             "os": f"{platform.system()} {platform.release()} ({platform.machine()})",
+            "path_gap_warning": path_gap_warning or None,
         },
     }
 
@@ -179,32 +300,56 @@ def cmd_doctor(args: argparse.Namespace) -> None:
         print(json.dumps(report, indent=2))
         return
 
-    print("═" * 60)
-    print("  ZUNTENIUM Environment & IDE Health Check (zqc doctor)")
-    print("═" * 60)
+    _bar = _BOX
+    print(_bar)
+    print("  ZUNTENIUM — zqc doctor")
+    print(_bar)
     print(f"  SDK Version        : v{__version__}")
     print(f"  Python Interpreter : {sys.executable}")
     print(f"  Python Version     : {platform.python_version()} ({platform.machine()})")
-    print(f"  Virtual Environment: {'✓ Active' if in_venv else '✗ System Python (recommend venv)'}")
+    print(f"  Free-threaded GIL  : {'yes (3.13t)' if free_threaded else 'no (standard)'}")
+    print(f"  Virtual Env        : {_OK + ' Active' if in_venv else _ERR + ' System Python (recommend venv)'}")
     if conda_env:
-        print(f"  Conda Environment  : {conda_env}")
-    print(f"  Package Location   : {pkg_dir}")
-    print(f"  Type Marker        : {'✓ py.typed present' if py_typed_exists else '✗ py.typed missing'}")
-    print(f"  Native Type Stubs  : {'✓ _zuntenium_core.pyi present' if stubs_exist else '✗ stubs missing'}")
-    print(f"  C++ Acceleration   : {_OK + ' Active (_zuntenium_core)' if cpp_ok else _ERR + ' Pure Python fallback'}")
-    print(f"  GPU Acceleration   : {_OK + ' ' + gpu_info if gpu_found else '- ' + gpu_info}")
-    print(f"  Active IDE Context : {detected_ide}")
-    print("\nCore Dependencies:")
+        print(f"  Conda Env          : {conda_env}")
+    if externally_managed:
+        print(f"  {_ERR} Externally Managed Python — use venv or --break-system-packages")
+    print(f"  OS                 : {platform.system()} {platform.release()} ({platform.machine()})")
+    print(f"  libc               : {libc_str}")
+    print(f"  Shell              : {shell}")
+    print(f"  stdout encoding    : {stdout_enc}")
+    print(f"  default encoding   : {default_enc}")
+    print(f"  locale             : {locale_info}")
+    if path_gap_warning:
+        print(f"  {_ERR} {path_gap_warning}")
+    else:
+        print(f"  {_OK} pip scripts dir on PATH")
+    print("\nWritable directories:")
+    for label, ok in writable_checks.items():
+        print(f"  [{_OK if ok else _ERR}] {label}")
+    print("\nPackage:")
+    print(f"  Location           : {pkg_dir}")
+    print(f"  py.typed           : {_OK if py_typed_exists else _ERR}")
+    print(f"  C++ stubs          : {_OK if stubs_exist else _ERR}")
+    print(f"  C++ Acceleration   : {_OK + ' Active' if cpp_ok else _ERR + ' NumPy fallback'}")
+    print(f"  GPU                : {_OK + ' ' + gpu_info if gpu_found else '- ' + gpu_info}")
+    print("\nCore dependencies:")
     for dep, ver in deps.items():
         status = _OK if ver != "MISSING" else _ERR
-        print(f"  [{status}] {dep:10s} : {ver}")
-
+        print(f"  [{status}] {dep:12s} : {ver}")
+    print("\nToolchain:")
+    print(f"  docker             : {docker_version}")
+    print(f"  docker compose v2  : {compose_version}")
+    print(f"  node               : {node_version}")
+    print(f"  npm                : {npm_version}")
+    print(f"\nActive IDE Context   : {detected_ide}")
     print("\nIDE Quick Configuration:")
-    print(f"  • VS Code / Cursor : Command Palette -> 'Python: Select Interpreter'")
-    print(f"                       Enter: {sys.executable}")
-    print(f"  • PyCharm          : Settings -> Project -> Python Interpreter -> Add Existing")
-    print(f"  • Jupyter / Colab  : python -m ipykernel install --user --name zuntenium-env")
-    print("═" * 60)
+    print(f"  VS Code/Cursor : Command Palette -> 'Python: Select Interpreter'")
+    print(f"                   Enter: {sys.executable}")
+    print(f"  PyCharm        : Settings -> Project -> Python Interpreter -> Add Existing")
+    print(f"  Jupyter/Colab  : python -m ipykernel install --user --name zuntenium-env")
+    print(_bar)
+    print("  Attach '--json' output to bug reports.")
+    print(_bar)
 
 
 def main() -> None:

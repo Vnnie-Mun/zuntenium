@@ -1,0 +1,59 @@
+# .gitattributes — Zuntenium QuFlow
+# Normalises line endings for cross-platform development (U8, F76).
+# LF in the repository; Git converts to CRLF on Windows checkout via core.autocrlf.
+
+# ── Default: text files get LF in the repo ────────────────────────────────────
+* text=auto
+
+# ── Explicitly LF — scripts that MUST be LF (e.g. copied into Linux containers)
+*.sh      text eol=lf
+*.py      text eol=lf
+*.md      text eol=lf
+*.txt     text eol=lf
+*.cfg     text eol=lf
+*.toml    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.json    text eol=lf
+*.env     text eol=lf
+*.env.*   text eol=lf
+*.j2      text eol=lf
+*.jinja2  text eol=lf
+Makefile  text eol=lf
+Dockerfile        text eol=lf
+docker-compose*   text eol=lf
+.gitattributes    text eol=lf
+.gitignore        text eol=lf
+.editorconfig     text eol=lf
+
+# ── TypeScript / JavaScript sources ───────────────────────────────────────────
+*.ts      text eol=lf
+*.tsx     text eol=lf
+*.js      text eol=lf
+*.jsx     text eol=lf
+*.css     text eol=lf
+*.html    text eol=lf
+*.svg     text eol=lf
+
+# ── Binary — never touch line endings ─────────────────────────────────────────
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+*.pdf     binary
+*.so      binary
+*.pyd     binary
+*.dylib   binary
+*.pkl     binary
+*.pt      binary
+*.pth     binary
+*.whl     binary
+*.zip     binary
+*.tar.gz  binary
+*.gz      binary
+
+# ── Windows-specific: bat/ps1 should use CRLF on Windows checkouts ────────────
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+*.ps1     text eol=crlf
