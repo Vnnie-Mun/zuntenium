@@ -1,78 +1,78 @@
 .PHONY: install dev-install build-bindings test test-unit test-integration \
-        benchmark lint format typecheck clean docs help
+        benchmark lint format typecheck clean docs help doctor
 
-# ── Settings ────────────────────────────────────────────────────────────────
-PYTHON      := python3
-PIP         := pip
-PYTEST      := pytest
-RUFF        := ruff
-MYPY        := mypy
-CMAKE_BUILD := build/_cmake
+# ── Cross-platform note ──────────────────────────────────────────────────────
+# This Makefile requires GNU make and bash — Linux and macOS only.
+# On Windows, use scripts/build.py directly:
+#   py scripts/build.py <command>
+# All targets below delegate to scripts/build.py for portability (U2, U3, U7).
 
-# ── Help ────────────────────────────────────────────────────────────────────
+# Prefer the Python running inside an active venv; fall back to python3 / python.
+PYTHON := $(or $(shell command -v python3 2>/dev/null), python)
+
+# ── Help ─────────────────────────────────────────────────────────────────────
 help:
-	@echo "ZUNTENIUM v0.1 — Makefile targets"
+	@echo ""
+	@echo "ZUNTENIUM QuFlow — Make targets (Linux / macOS)"
+	@echo "On Windows: py scripts/build.py <command>"
 	@echo ""
 	@echo "  install          Install package (production)"
 	@echo "  dev-install      Install package (editable + dev deps)"
-	@echo "  build-bindings   Compile C++ pybind11 extension"
+	@echo "  build-bindings   Compile C++ pybind11 extension (.so / .pyd / .dylib)"
 	@echo "  test             Run full test suite with coverage"
 	@echo "  test-unit        Run unit tests only"
 	@echo "  test-integration Run integration tests only"
-	@echo "  benchmark        Run benchmark suite"
 	@echo "  lint             Run ruff linter"
 	@echo "  format           Auto-format code with ruff"
 	@echo "  typecheck        Run mypy type checker"
-	@echo "  clean            Remove build artifacts"
+	@echo "  clean            Remove build artefacts"
+	@echo "  doctor           Print platform diagnostics"
 	@echo "  docs             Build documentation"
+	@echo ""
 
-# ── Install ─────────────────────────────────────────────────────────────────
+# ── Install ──────────────────────────────────────────────────────────────────
 install:
-	$(PIP) install -r requirements.txt
+	$(PYTHON) scripts/build.py install
 
 dev-install:
-	$(PIP) install -r requirements.txt
-	$(PIP) install -e ".[dev,cloud]"
-	command -v pre-commit >/dev/null 2>&1 && pre-commit install || true
+	$(PYTHON) scripts/build.py dev-install
 
 # ── C++ Bindings ─────────────────────────────────────────────────────────────
+# Delegates to scripts/build.py which handles .so (Linux), .dylib (macOS),
+# and .pyd (Windows) — fixing CL-17. build_bindings.sh kept for reference.
 build-bindings:
-	@bash scripts/build_bindings.sh
+	$(PYTHON) scripts/build.py bindings
 
-# ── Tests ────────────────────────────────────────────────────────────────────
+# ── Tests ─────────────────────────────────────────────────────────────────────
 test:
-	$(PYTEST) tests/ --cov=zuntenium --cov-report=term-missing --cov-report=xml -v
+	$(PYTHON) scripts/build.py test
 
 test-unit:
-	$(PYTEST) tests/unit/ -v
+	$(PYTHON) scripts/build.py test-unit
 
 test-integration:
-	$(PYTEST) tests/integration/ -v
+	$(PYTHON) scripts/build.py test-integration
 
-benchmark:
-	$(PYTEST) tests/benchmarks/ --benchmark-only --benchmark-json=benchmark_results.json
-
-# ── Code Quality ─────────────────────────────────────────────────────────────
+# ── Code Quality ──────────────────────────────────────────────────────────────
 lint:
-	$(RUFF) check zuntenium/ tests/
-	@bash scripts/lint_check.sh
+	$(PYTHON) scripts/build.py lint
 
 format:
-	$(RUFF) format zuntenium/ tests/
-	$(RUFF) check --fix zuntenium/ tests/
+	$(PYTHON) scripts/build.py format
 
 typecheck:
-	$(MYPY) zuntenium/
+	$(PYTHON) scripts/build.py typecheck
 
-# ── Clean ────────────────────────────────────────────────────────────────────
+# ── Clean ─────────────────────────────────────────────────────────────────────
+# Uses scripts/build.py clean (pure Python, works on all OS).
 clean:
-	rm -rf build/ dist/ *.egg-info .pytest_cache .mypy_cache .ruff_cache
-	rm -rf $(CMAKE_BUILD)
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	find . -name "*.pyc" -delete
-	find . -name "*.so" -delete
+	$(PYTHON) scripts/build.py clean
 
-# ── Docs ─────────────────────────────────────────────────────────────────────
+# ── Doctor ────────────────────────────────────────────────────────────────────
+doctor:
+	$(PYTHON) scripts/build.py doctor
+
+# ── Docs ──────────────────────────────────────────────────────────────────────
 docs:
 	@echo "Building docs..."
 	cd docs && make html 2>/dev/null || echo "Sphinx not configured yet — see docs/architecture/"
